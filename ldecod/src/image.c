@@ -2520,7 +2520,7 @@ void decode_one_slice(Slice *currSlice)
     start_macroblock(currSlice, &currMB);
     // Get the syntax elements from the NAL
     currSlice->read_one_macroblock(currMB);
-    decode_one_macroblock(currMB, currSlice->dec_picture);
+    //decode_one_macroblock(currMB, currSlice->dec_picture);
 
     if(currSlice->mb_aff_frame_flag && currMB->mb_field)
     {

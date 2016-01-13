@@ -214,6 +214,9 @@ static int WriteOneFrame(DecodedPicList *pDecPic, int hFileOutput0, int hFileOut
  */
 int main(int argc, char **argv)
 {
+	struct timeval start, end;
+	gettimeofday( &start, NULL );
+	
   int iRet;
   DecodedPicList *pDecPicList;
   int hFileDecOutput0=-1, hFileDecOutput1=-1;
@@ -246,8 +249,8 @@ int main(int argc, char **argv)
     if(iRet==DEC_EOS || iRet==DEC_SUCCEED)
     {
       //process the decoded picture, output or display;
-      iFramesOutput += WriteOneFrame(pDecPicList, hFileDecOutput0, hFileDecOutput1, 0);
-      iFramesDecoded++;
+      //iFramesOutput += WriteOneFrame(pDecPicList, hFileDecOutput0, hFileDecOutput1, 0);
+      //iFramesDecoded++;
     }
     else
     {
@@ -257,7 +260,7 @@ int main(int argc, char **argv)
   }while((iRet == DEC_SUCCEED) && ((p_Dec->p_Inp->iDecFrmNum==0) || (iFramesDecoded<p_Dec->p_Inp->iDecFrmNum)));
 
   iRet = FinitDecoder(&pDecPicList);
-  iFramesOutput += WriteOneFrame(pDecPicList, hFileDecOutput0, hFileDecOutput1 , 1);
+  //iFramesOutput += WriteOneFrame(pDecPicList, hFileDecOutput0, hFileDecOutput1 , 1);
   iRet = CloseDecoder();
 
   //quit;
@@ -271,6 +274,11 @@ int main(int argc, char **argv)
   }
 
   printf("%d frames are decoded.\n", iFramesDecoded);
+
+	gettimeofday( &end, NULL );
+	long int time_us = 1000000 * ( end.tv_sec - start.tv_sec ) + end.tv_usec - start.tv_usec;
+	printf("run time: %ld us\n",time_us);
+	
   return 0;
 }
 

@@ -108,7 +108,7 @@ void error(char *text, int code)
 #endif
   }
 
-  exit(code);
+  //exit(code);
 }
 
 static void reset_dpb( VideoParameters *p_Vid, DecodedPictureBuffer *p_Dpb )
