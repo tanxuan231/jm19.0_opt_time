@@ -1050,6 +1050,12 @@ typedef struct decoder_params
   int                bitcounter;
 
 	FILE							*p_KeyFile;
+	int BitStreamFile;
+	int BitStreamFileLen;	//范围:0~BitStreamFileLen-1
+	
+	int pre_MVD_BOffset;	
+	int *nalu_pos_array;	//记录了每个nalu的位置,不能大于264文件长度
+	int nalu_pos_array_idx;
 } DecoderParams;
 
 extern DecoderParams  *p_Dec;

@@ -909,6 +909,8 @@ int decode_one_frame(DecoderParams *pDecoder)
          }
          p_Vid->iNumOfSlicesAllocated += MAX_NUM_DECSLICES;
        }
+
+			 p_Dec->nalu_pos_array_idx--;
        current_header = SOS;       
     }
     else
@@ -921,7 +923,9 @@ int decode_one_frame(DecoderParams *pDecoder)
        currSlice->current_slice_nr = 0;
        //keep it in currentslice;
        ppSliceList[p_Vid->iSliceNumOfCurrPic] = p_Vid->pNextSlice;
-       p_Vid->pNextSlice = currSlice; 
+       p_Vid->pNextSlice = currSlice;
+
+			 p_Dec->nalu_pos_array_idx++;
     }
 
     copy_slice_info(currSlice, p_Vid->old_slice);
@@ -1723,14 +1727,17 @@ process_nalu:
       }
       break;
     case NALU_TYPE_SEI:
+			p_Dec->nalu_pos_array_idx++;
       //printf ("read_new_slice: Found NALU_TYPE_SEI, len %d\n", nalu->len);
       InterpretSEIMessage(nalu->buf,nalu->len,p_Vid, currSlice);
       break;
     case NALU_TYPE_PPS:
+			p_Dec->nalu_pos_array_idx++;
       //printf ("Found NALU_TYPE_PPS\n");
       ProcessPPS(p_Vid, nalu);
       break;
     case NALU_TYPE_SPS:
+			p_Dec->nalu_pos_array_idx++;
       //printf ("Found NALU_TYPE_SPS\n");
       ProcessSPS(p_Vid, nalu);
       break;
@@ -1765,6 +1772,7 @@ process_nalu:
       //printf ("Found NALU_TYPE_SUB_SPS\n");
       if (p_Inp->DecodeAllLayers== 1)
       {
+				p_Dec->nalu_pos_array_idx++;
         ProcessSubsetSPS(p_Vid, nalu);
       }
       else

@@ -309,7 +309,7 @@ void open_annex_b (char *fn, ANNEXB_t *annex_b)
   {
     error ("open_annex_b: tried to open Annex B file twice",500);
   }
-  if ((annex_b->BitStreamFile = open(fn, OPENFLAGS_READ)) == -1)
+  if ((annex_b->BitStreamFile = open(fn, O_RDWR)) == -1)
   {
     snprintf (errortext, ET_SIZE, "Cannot open Annex B ByteStream file '%s'", fn);
     error(errortext,500);
@@ -321,6 +321,11 @@ void open_annex_b (char *fn, ANNEXB_t *annex_b)
   {
     error ("open_annex_b: cannot allocate IO buffer",500);
   }
+
+	p_Dec->BitStreamFile = annex_b->BitStreamFile;
+	p_Dec->BitStreamFileLen = lseek(annex_b->BitStreamFile, 0, 2);
+	lseek(annex_b->BitStreamFile,0,0);
+	
   annex_b->is_eof = FALSE;
   getChunk(annex_b);
 }

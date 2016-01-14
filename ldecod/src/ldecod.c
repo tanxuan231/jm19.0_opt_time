@@ -72,7 +72,7 @@
 
 #define LOGFILE     "log.dec"
 #define DATADECFILE "dataDec.txt"
-#define TRACEFILE   "trace_dec.txt"
+#define TRACEFILE   "vfile/trace_dec.txt"
 
 // Decoder definition. This should be the only global variable in the entire
 // software. Global variables should be avoided.
@@ -102,9 +102,9 @@ void error(char *text, int code)
   fprintf(stderr, "%s\n", text);
   if (p_Dec)
   {
-    flush_dpb(p_Dec->p_Vid->p_Dpb_layer[0]);
+    //flush_dpb(p_Dec->p_Vid->p_Dpb_layer[0]);
 #if (MVC_EXTENSION_ENABLE)
-    flush_dpb(p_Dec->p_Vid->p_Dpb_layer[1]);
+    //flush_dpb(p_Dec->p_Vid->p_Dpb_layer[1]);
 #endif
   }
 
@@ -1276,13 +1276,13 @@ int FinitDecoder(DecodedPicList **ppDecPicList)
     return DEC_GEN_NOERR;
   ClearDecPicList(pDecoder->p_Vid);
 #if (MVC_EXTENSION_ENABLE)
-  flush_dpb(pDecoder->p_Vid->p_Dpb_layer[0]);
-  flush_dpb(pDecoder->p_Vid->p_Dpb_layer[1]);
+  //flush_dpb(pDecoder->p_Vid->p_Dpb_layer[0]);
+  //flush_dpb(pDecoder->p_Vid->p_Dpb_layer[1]);
 #else
-  flush_dpb(pDecoder->p_Vid->p_Dpb_layer[0]);
+  //flush_dpb(pDecoder->p_Vid->p_Dpb_layer[0]);
 #endif
 #if (PAIR_FIELDS_IN_OUTPUT)
-  flush_pending_output(pDecoder->p_Vid, pDecoder->p_Vid->p_out);
+  //flush_pending_output(pDecoder->p_Vid, pDecoder->p_Vid->p_out);
 #endif
   if (pDecoder->p_Inp->FileFormat == PAR_OF_ANNEXB)
   {

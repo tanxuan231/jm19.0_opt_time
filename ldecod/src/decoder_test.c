@@ -292,6 +292,8 @@ int main(int argc, char **argv)
   }
 
 	open_KeyFile();
+	p_Dec->nalu_pos_array = calloc(400,sizeof(int));
+	
   //decoding;
   do
   {

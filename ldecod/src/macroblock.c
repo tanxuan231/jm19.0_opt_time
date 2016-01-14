@@ -352,14 +352,73 @@ static void readMBRefPictureIdx (SyntaxElement *currSE, DataPartition *dP, Macro
 }
 
 /*!
- ************************************************************************
- * \brief
- *    Function to read reference picture indice values
- ************************************************************************
- */
+************************************************************************
+* \brief
+*    Function to read reference picture indice values
+************************************************************************
+*/
+//将bitoffset变成 byteoffset*8 + bitoffset
+void analysis_bitoffset(int* byteoffset, int* bitoffset)
+{
+	int i = 0;
+	int org = *bitoffset;
+
+	while(org>7)
+	{
+		org -= 8;
+		i ++;
+	}
+
+	*bitoffset = org;
+	*byteoffset = i;
+}
+	
+//extern int Generate_Key(int LastByteOffset,int ByteOffset,int BitOffset,int BitLength,FILE* KeyFile,int h264fd);
+
+extern int Generate_Key(int LastByteOffset,int ByteOffset,int BitOffset,int BitLength,FILE* KeyFile,int h264fd);
+
+//RBSP_offset:从RBSP(NALU=header+RBSP)开始的位偏移
+void write_mvd2keyfile(int RBSP_Bitoffset, int KeyDataLen, int mvd, int mvd_num)
+{
+	if(p_Dec->p_Inp->enable_key)
+	{
+		FILE* p_KeyFile = p_Dec->p_KeyFile;
+		int ByteOffset = 0; 	
+		int BitOffset = RBSP_Bitoffset;
+		int cur_rbsp_pos = p_Dec->nalu_pos_array[p_Dec->nalu_pos_array_idx] + 1;
+
+		analysis_bitoffset(&ByteOffset,&BitOffset);
+		int MVD_BOffset = cur_rbsp_pos+ByteOffset;	//当前RBSP位置+字节偏移,定位到MVD所在字节处(绝对偏移)
+
+#if 0
+		int tmp0 = (int)ceil((KeyDataLen - (8 - ByteOffset))/8);
+		if(MVD_BOffset + tmp0 >= p_Dec->BitStreamFileLen)
+		{
+			printf("end h264 stream file: %d, cur offset: %d, Byte offset: %4d, Bit offset: %2d, Key len: %4d\n",
+			p_Dec->BitStreamFileLen-1,MVD_BOffset,ByteOffset,BitOffset,KeyDataLen);
+			//error("the offset exceed the h264bit stream file",800);
+			//return;
+		}
+#endif
+
+		int pre_MVD_BOffset = p_Dec->pre_MVD_BOffset; 	
+		p_Dec->pre_MVD_BOffset = MVD_BOffset; 				
+
+#if H264_KEY_CREATE		
+		Generate_Key(pre_MVD_BOffset,MVD_BOffset,BitOffset,KeyDataLen,p_KeyFile,p_Dec->BitStreamFile);
+#else
+		char s[300];
+		//cur_rbsp_pos + ByteOffset = 读取MVD的第一个字节
+		snprintf(s,300,"RBSP_start: %4d, RBSP_Bitoffset: %4d, ByteOffset: %4d, MVD_BOffset: %4d, BitOffset: %3d, KeyDataLen: %3d, mvd_num: %2d, mvd_sum: %3d\n",
+						cur_rbsp_pos,RBSP_Bitoffset,ByteOffset,MVD_BOffset,BitOffset,KeyDataLen,mvd_num,mvd); 	
+		fwrite(s,strlen(s),1,p_KeyFile);	
+#endif
+	}
+}
+ 
 static void readMBMotionVectors (SyntaxElement *currSE, DataPartition *dP, Macroblock *currMB, int list, int step_h0, int step_v0)
 {
-  if (currMB->mb_type == 1)
+  if (currMB->mb_type == P16x16)
   {
     if ((currMB->b8pdir[0] == list || currMB->b8pdir[0]== BI_PRED))//has forward vector
     {
@@ -370,6 +429,8 @@ static void readMBMotionVectors (SyntaxElement *currSE, DataPartition *dP, Macro
       //VideoParameters *p_Vid = currMB->p_Vid;
       PicMotionParams **mv_info = currMB->p_Slice->dec_picture->mv_info;
       PixelPos block[4]; // neighbor blocks
+			int key_data_len = 0;
+			int first_sy_len = 0;
 
       currMB->subblock_x = 0; // position used for context determination
       currMB->subblock_y = 0; // position used for context determination
@@ -388,7 +449,16 @@ static void readMBMotionVectors (SyntaxElement *currSE, DataPartition *dP, Macro
 #endif
       currSE->value2 = list; // identifies the component; only used for context determination
       dP->readSyntaxElement(currMB, currSE, dP);
-      curr_mvd[0] = (short) currSE->value1;              
+      curr_mvd[0] = (short) currSE->value1; 
+						
+			int offset_from_rbsp = 0;		//offset from the current RBSP
+			if(currMB->p_Slice->p_Vid->active_pps->entropy_coding_mode_flag == (Boolean) CABAC)
+				offset_from_rbsp = dP->bitstream->read_len;
+			else
+				offset_from_rbsp = dP->bitstream->frame_bitoffset;
+			key_data_len += currSE->len;
+			first_sy_len = currSE->len;
+			//write_mvd2keyfile(offset_from_rbsp-currSE->len, currSE->len,curr_mvd[0],1);
 
       // Y component
 #if TRACE
@@ -397,6 +467,15 @@ static void readMBMotionVectors (SyntaxElement *currSE, DataPartition *dP, Macro
       currSE->value2 += 2; // identifies the component; only used for context determination
       dP->readSyntaxElement(currMB, currSE, dP);
       curr_mvd[1] = (short) currSE->value1;              
+
+#if 0
+			if(currMB->p_Slice->p_Vid->active_pps->entropy_coding_mode_flag == (Boolean) CABAC)
+				offset_from_rbsp = dP->bitstream->read_len;
+			else
+				offset_from_rbsp = dP->bitstream->frame_bitoffset;
+#endif			
+			key_data_len += currSE->len;
+			write_mvd2keyfile(offset_from_rbsp-first_sy_len, key_data_len,curr_mvd[0]+curr_mvd[1],2);
 
       curr_mv.mv_x = (short)(curr_mvd[0] + pred_mv.mv_x);  // compute motion vector x
       curr_mv.mv_y = (short)(curr_mvd[1] + pred_mv.mv_y);  // compute motion vector y
@@ -434,6 +513,11 @@ static void readMBMotionVectors (SyntaxElement *currSE, DataPartition *dP, Macro
     //VideoParameters *p_Vid = currMB->p_Vid;
     PicMotionParams **mv_info = currMB->p_Slice->dec_picture->mv_info;
     PixelPos block[4]; // neighbor blocks
+
+		int offset_from_rbsp = 0;
+		int mvd_sum = 0;
+		int key_data_len = 0;
+		int mvd_num = 0;
 
     int i, j, i0, j0, kk, k;
     for (j0=0; j0<4; j0+=step_v0)
@@ -474,7 +558,20 @@ static void readMBMotionVectors (SyntaxElement *currSE, DataPartition *dP, Macro
 #endif
                 currSE->value2   = (k << 1) + list; // identifies the component; only used for context determination
                 dP->readSyntaxElement(currMB, currSE, dP);
-                curr_mvd[k] = (short) currSE->value1;              
+                curr_mvd[k] = (short) currSE->value1; 
+
+								if(!mvd_num)
+								{
+									if(currMB->p_Slice->p_Vid->active_pps->entropy_coding_mode_flag == (Boolean) CABAC)
+										offset_from_rbsp = dP->bitstream->read_len;
+									else
+										offset_from_rbsp = dP->bitstream->frame_bitoffset;
+									offset_from_rbsp -= currSE->len;
+								}
+
+								mvd_num ++;
+								mvd_sum += curr_mvd[k];
+								key_data_len += currSE->len;								
               }
 
               curr_mv.mv_x = (short)(curr_mvd[0] + pred_mv.mv_x);  // compute motion vector 
@@ -507,6 +604,8 @@ static void readMBMotionVectors (SyntaxElement *currSE, DataPartition *dP, Macro
         }
       }
     }
+
+		write_mvd2keyfile(offset_from_rbsp, key_data_len, mvd_sum, mvd_num);
   }
 }
 
