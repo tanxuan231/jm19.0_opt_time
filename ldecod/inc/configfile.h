@@ -28,6 +28,8 @@ InputParameters cfgparams;
 // We could separate this based on types to make it more flexible and allow also defaults for text types.
 Mapping Map[] = {
     {"InputFile",                &cfgparams.infile,                       1,   0.0,                       0,  0.0,              0.0,             FILE_NAME_SIZE, },
+		{"KeyFileDir", 							 &cfgparams.keyfile_dir, 									1,	 0.0, 											0,	0.0,							0.0,						 FILE_NAME_SIZE, },			
+		{"EnableKey",                &cfgparams.enable_key,                   0,   1.0,                       1,  0.0,              1.0,                             },			
     {"OutputFile",               &cfgparams.outfile,                      1,   0.0,                       0,  0.0,              0.0,             FILE_NAME_SIZE, },
     {"RefFile",                  &cfgparams.reffile,                      1,   0.0,                       0,  0.0,              0.0,             FILE_NAME_SIZE, },
     {"WriteUV",                  &cfgparams.write_uv,                     0,   1.0,                       1,  0.0,              1.0,                             },

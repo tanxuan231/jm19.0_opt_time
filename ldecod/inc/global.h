@@ -968,6 +968,8 @@ typedef struct snr_par
 typedef struct inp_par
 {
   char infile[FILE_NAME_SIZE];                       //!< H.264 inputfile
+  char keyfile_dir[FILE_NAME_SIZE];
+	int  enable_key;
   char outfile[FILE_NAME_SIZE];                      //!< Decoded YUV 4:2:0 output
   char reffile[FILE_NAME_SIZE];                      //!< Optional YUV 4:2:0 reference file for SNR measurement
 
@@ -1046,6 +1048,8 @@ typedef struct decoder_params
   int                UsedBits;      // for internal statistics, is adjusted by read_se_v, read_ue_v, read_u_1
   FILE              *p_trace;        //!< Trace file
   int                bitcounter;
+
+	FILE							*p_KeyFile;
 } DecoderParams;
 
 extern DecoderParams  *p_Dec;

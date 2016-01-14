@@ -206,6 +206,55 @@ static int WriteOneFrame(DecodedPicList *pDecPic, int hFileOutput0, int hFileOut
   return iOutputFrame;
 }
 
+void get_KeyFileName(char* path, char* filename)
+{
+	int len = strlen(path);
+	int i;
+
+	for(i = len-1; i >= 0 && path[i] != '/'; --i)
+		;
+
+	int j = 0;
+	for(i++; i < len; ++i)
+	{
+		filename[j++] = path[i];
+	}
+
+}
+
+void open_KeyFile()
+{
+	if(!p_Dec->p_Inp->enable_key)
+		return;
+	
+	char key_file[FILE_NAME_SIZE];
+	char filename[100];
+	
+	get_KeyFileName(p_Dec->p_Inp->infile, filename);
+
+	strncpy(key_file, p_Dec->p_Inp->keyfile_dir, strlen(p_Dec->p_Inp->keyfile_dir));
+	strncat(key_file, filename, strlen(filename));
+	strcat(key_file, ".key");
+	//printf("key_file: %s\n",key_file);	
+
+	p_Dec->p_KeyFile = fopen(key_file, "w+");
+	if(!p_Dec->p_KeyFile)
+	{
+		printf("open key file [%s] error!",key_file);
+		exit(0);
+	}
+	else
+	{
+		printf("\033[1;31m open key file [%s] success!\033[0m \n",key_file);
+	}
+}
+
+void close_KeyFile()
+{
+	if(p_Dec->p_Inp->enable_key && p_Dec->p_KeyFile)
+		fclose(p_Dec->p_KeyFile);
+}
+
 /*!
  ***********************************************************************
  * \brief
@@ -242,6 +291,7 @@ int main(int argc, char **argv)
     return -1; //failed;
   }
 
+	open_KeyFile();
   //decoding;
   do
   {
@@ -259,6 +309,7 @@ int main(int argc, char **argv)
     }
   }while((iRet == DEC_SUCCEED) && ((p_Dec->p_Inp->iDecFrmNum==0) || (iFramesDecoded<p_Dec->p_Inp->iDecFrmNum)));
 
+	close_KeyFile();
   iRet = FinitDecoder(&pDecPicList);
   //iFramesOutput += WriteOneFrame(pDecPicList, hFileDecOutput0, hFileDecOutput1 , 1);
   iRet = CloseDecoder();
@@ -271,7 +322,7 @@ int main(int argc, char **argv)
   if(hFileDecOutput1>=0)
   {
     close(hFileDecOutput1);
-  }
+  }	
 
   printf("%d frames are decoded.\n", iFramesDecoded);
 
