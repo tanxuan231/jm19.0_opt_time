@@ -240,7 +240,7 @@ void open_KeyFile()
 	p_Dec->p_KeyFile = fopen(key_file, "w+");
 	if(!p_Dec->p_KeyFile)
 	{
-		printf("open key file [%s] error!",key_file);
+		printf("\033[1;31m open key file [%s] error!\033[0m \n",key_file);
 		exit(0);
 	}
 	else
@@ -255,15 +255,36 @@ void close_KeyFile()
 		fclose(p_Dec->p_KeyFile);
 }
 
+KeyUnit* g_pKeyUnitBuffer;
+int KeyUnitIdx = 0;
+int KeyUnitBufferSize = 0;
+
+void print_KeyUnit()
+{
+	FILE* log = fopen("key_unit_log", "w+");
+	KeyUnit* p_tmp = g_pKeyUnitBuffer;
+	int i = 0;
+	char s[100];
+	
+	for(; i < KeyUnitIdx; ++i)
+	{		
+		snprintf(s,100,"ByteOffset: %5d, BitOffset: %2d, DataLen: %4d\n",
+						p_tmp[i].byte_offset,p_tmp[i].bit_offset,p_tmp[i].key_data_len);
+		fwrite(s,strlen(s),1,log);	
+	}
+	printf("i: %d, idx: %d\n",i,KeyUnitIdx);
+}
 /*!
  ***********************************************************************
  * \brief
  *    main function for JM decoder
  ***********************************************************************
  */
+extern int Encrypt(KeyUnit *pKeyUnit,int UnitNum); 
 int main(int argc, char **argv)
 {
-	struct timeval start, end;
+	struct timeval start, end1, end2;
+	long int time_us1,time_us2;
 	gettimeofday( &start, NULL );
 	
   int iRet;
@@ -293,7 +314,14 @@ int main(int argc, char **argv)
 
 	open_KeyFile();
 	p_Dec->nalu_pos_array = calloc(400,sizeof(int));
-	
+	g_pKeyUnitBuffer = (KeyUnit*)malloc(KEY_UNIT_BUFFER_SIZE*sizeof(KeyUnit));
+	if(!g_pKeyUnitBuffer)
+	{
+		printf("\033[1;31m key unit buffer malloc failed!\033[0m \n");
+		exit(1);
+	}
+	KeyUnitBufferSize = KEY_UNIT_BUFFER_SIZE;
+		
   //decoding;
   do
   {
@@ -311,6 +339,12 @@ int main(int argc, char **argv)
     }
   }while((iRet == DEC_SUCCEED) && ((p_Dec->p_Inp->iDecFrmNum==0) || (iFramesDecoded<p_Dec->p_Inp->iDecFrmNum)));
 
+	gettimeofday( &end1, NULL );
+	time_us1 = 1000000 * ( end1.tv_sec - start.tv_sec ) + end1.tv_usec - start.tv_usec;
+	printf("run time0: %ld us\n",time_us1);
+	
+	Encrypt(g_pKeyUnitBuffer, KeyUnitIdx);
+
 	close_KeyFile();
   iRet = FinitDecoder(&pDecPicList);
   //iFramesOutput += WriteOneFrame(pDecPicList, hFileDecOutput0, hFileDecOutput1 , 1);
@@ -327,11 +361,12 @@ int main(int argc, char **argv)
   }	
 
   printf("%d frames are decoded.\n", iFramesDecoded);
-
-	gettimeofday( &end, NULL );
-	long int time_us = 1000000 * ( end.tv_sec - start.tv_sec ) + end.tv_usec - start.tv_usec;
-	printf("run time: %ld us\n",time_us);
+	//print_KeyUnit();
 	
+	gettimeofday( &end2, NULL );
+	time_us2 = 1000000 * ( end2.tv_sec - end1.tv_sec ) + end2.tv_usec - end1.tv_usec;
+	printf("run time1: %ld us\n",time_us2);
+	printf("run time(all): %ld us\n", time_us1+time_us2);
   return 0;
 }
 

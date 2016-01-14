@@ -45,6 +45,9 @@
 typedef struct bit_stream_dec Bitstream;
 
 #define ET_SIZE 300      //!< size of error text buffer
+#define KEY_UNIT_BUFFER_SIZE 1000*30
+#define KEY_UNIT_BUFFER_SIZE_APPEND	500
+
 extern char errortext[ET_SIZE]; //!< buffer for error message for exit with error()
 
 struct pic_motion_params_old;
@@ -1056,9 +1059,19 @@ typedef struct decoder_params
 	int pre_MVD_BOffset;	
 	int *nalu_pos_array;	//记录了每个nalu的位置,不能大于264文件长度
 	int nalu_pos_array_idx;
+
+	//int key_unit_buffer_;
 } DecoderParams;
 
 extern DecoderParams  *p_Dec;
+
+//key unit format 
+typedef struct key_unit_format
+{
+	int byte_offset;	//相对的字节偏移
+	int bit_offset;
+	int key_data_len;
+}KeyUnit;
 
 // prototypes
 extern void error(char *text, int code);

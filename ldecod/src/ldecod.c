@@ -100,7 +100,7 @@ void init_frext(VideoParameters *p_Vid);
 void error(char *text, int code)
 {
   fprintf(stderr, "%s\n", text);
-  if (p_Dec)
+  //if (p_Dec)
   {
     //flush_dpb(p_Dec->p_Vid->p_Dpb_layer[0]);
 #if (MVC_EXTENSION_ENABLE)
@@ -110,6 +110,13 @@ void error(char *text, int code)
 
   //exit(code);
 }
+
+void error_KeyGen(char *text, int code)
+{
+  fprintf(stderr, "%s\n", text);
+  exit(code);
+}
+
 
 static void reset_dpb( VideoParameters *p_Vid, DecodedPictureBuffer *p_Dpb )
 {
