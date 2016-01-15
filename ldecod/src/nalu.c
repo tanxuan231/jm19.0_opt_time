@@ -61,10 +61,13 @@ int read_next_nalu(VideoParameters *p_Vid, NALU_t *nalu)
   default:
   case PAR_OF_ANNEXB:
     ret = get_annex_b_NALU(p_Vid, nalu, p_Vid->annex_b);
-		
-		nalu_pos += nalu->startcodeprefix_len;
-		p_Dec->nalu_pos_array[nalu_nums_in_bs++] = nalu_pos;
-		nalu_pos += nalu->len;		
+
+		if(p_Dec->p_Inp->enable_key)
+		{
+			nalu_pos += nalu->startcodeprefix_len;
+			p_Dec->nalu_pos_array[nalu_nums_in_bs++] = nalu_pos;
+			nalu_pos += nalu->len;		
+		}
     break;
   case PAR_OF_RTP:
     ret = GetRTPNALU(p_Vid, nalu, p_Vid->BitStreamFile);

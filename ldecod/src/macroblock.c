@@ -377,8 +377,8 @@ void analysis_bitoffset(int* byteoffset, int* bitoffset)
 
 //extern int Generate_Key(int LastByteOffset,int ByteOffset,int BitOffset,int BitLength,FILE* KeyFile,int h264fd);
 extern KeyUnit* g_pKeyUnitBuffer;
-extern int KeyUnitIdx;
-extern int KeyUnitBufferSize;
+extern int g_KeyUnitIdx;
+extern int g_KeyUnitBufferSize;
 
 //RBSP_offset:从RBSP(NALU=header+RBSP)开始的位偏移
 void write_mvd2keyfile(int RBSP_Bitoffset, int KeyDataLen, int mvd, int mvd_num)
@@ -409,21 +409,22 @@ void write_mvd2keyfile(int RBSP_Bitoffset, int KeyDataLen, int mvd, int mvd_num)
 		diff = MVD_BOffset - pre_MVD_BOffset;
 		if(diff < 0 || BitOffset < 0)
 		{
-			error_KeyGen("[Byte offset diff] or [BitOffset] less-than 0, they should not less-than 0!",1);
+			//printf("diff: %d, BitOffset: %d\n",diff,BitOffset);
+			//error_KeyGen("[Byte offset diff] or [BitOffset] less-than 0, they should not less-than 0!",1);
 		}
 		p_Dec->pre_MVD_BOffset = MVD_BOffset; 	
 
 		//put the key datas into the key unit buffer
-		if(KeyUnitIdx >= KeyUnitBufferSize - 1)
+		if(g_KeyUnitIdx >= g_KeyUnitBufferSize - 1)
 		{
-			//printf("\033[1;31m tmp_test===============idx: %d======= \033[0m \n",KeyUnitIdx);
-			KeyUnitBufferSize += KEY_UNIT_BUFFER_SIZE_APPEND;
-			g_pKeyUnitBuffer = (KeyUnit*)realloc(g_pKeyUnitBuffer, KeyUnitBufferSize);			
+			//printf("\033[1;31m tmp_test===============idx: %d======= \033[0m \n",g_KeyUnitIdx);
+			g_KeyUnitBufferSize += KEY_UNIT_BUFFER_SIZE_APPEND;
+			g_pKeyUnitBuffer = (KeyUnit*)realloc(g_pKeyUnitBuffer, g_KeyUnitBufferSize);			
 		}
-		g_pKeyUnitBuffer[KeyUnitIdx].byte_offset 		= diff;
-		g_pKeyUnitBuffer[KeyUnitIdx].bit_offset 		= BitOffset;
-		g_pKeyUnitBuffer[KeyUnitIdx].key_data_len 	= KeyDataLen;
-		KeyUnitIdx ++;		
+		g_pKeyUnitBuffer[g_KeyUnitIdx].byte_offset 		= diff;
+		g_pKeyUnitBuffer[g_KeyUnitIdx].bit_offset 		= BitOffset;
+		g_pKeyUnitBuffer[g_KeyUnitIdx].key_data_len 	= KeyDataLen;
+		g_KeyUnitIdx ++;		
 #if 0
 #if H264_KEY_CREATE		
 		Generate_Key(pre_MVD_BOffset,MVD_BOffset,BitOffset,KeyDataLen,p_KeyFile,p_Dec->BitStreamFile);

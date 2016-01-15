@@ -1309,7 +1309,7 @@ int CloseDecoder()
   if(!pDecoder)
     return DEC_CLOSE_NOERR;
   
-  Report  (pDecoder->p_Vid);
+  //Report  (pDecoder->p_Vid);
   FmoFinit(pDecoder->p_Vid);
   free_layer_buffers(pDecoder->p_Vid, 0);
   free_layer_buffers(pDecoder->p_Vid, 1);

@@ -256,8 +256,8 @@ void close_KeyFile()
 }
 
 KeyUnit* g_pKeyUnitBuffer;
-int KeyUnitIdx = 0;
-int KeyUnitBufferSize = 0;
+int g_KeyUnitIdx = 0;
+int g_KeyUnitBufferSize = 0;
 
 void print_KeyUnit()
 {
@@ -266,13 +266,28 @@ void print_KeyUnit()
 	int i = 0;
 	char s[100];
 	
-	for(; i < KeyUnitIdx; ++i)
+	for(; i < g_KeyUnitIdx; ++i)
 	{		
 		snprintf(s,100,"ByteOffset: %5d, BitOffset: %2d, DataLen: %4d\n",
 						p_tmp[i].byte_offset,p_tmp[i].bit_offset,p_tmp[i].key_data_len);
 		fwrite(s,strlen(s),1,log);	
 	}
-	printf("i: %d, idx: %d\n",i,KeyUnitIdx);
+	printf("i: %d, idx: %d\n",i,g_KeyUnitIdx);
+}
+
+void init_GenKeyPar()
+{
+	if(!p_Dec->p_Inp->enable_key)
+		return;
+	
+	p_Dec->nalu_pos_array = calloc(400,sizeof(int));
+	g_pKeyUnitBuffer = (KeyUnit*)malloc(KEY_UNIT_BUFFER_SIZE*sizeof(KeyUnit));
+	if(!g_pKeyUnitBuffer)
+	{
+		printf("\033[1;31m key unit buffer malloc failed!\033[0m \n");
+		exit(1);
+	}
+	g_KeyUnitBufferSize = KEY_UNIT_BUFFER_SIZE;
 }
 /*!
  ***********************************************************************
@@ -312,16 +327,9 @@ int main(int argc, char **argv)
     return -1; //failed;
   }
 
-	open_KeyFile();
-	p_Dec->nalu_pos_array = calloc(400,sizeof(int));
-	g_pKeyUnitBuffer = (KeyUnit*)malloc(KEY_UNIT_BUFFER_SIZE*sizeof(KeyUnit));
-	if(!g_pKeyUnitBuffer)
-	{
-		printf("\033[1;31m key unit buffer malloc failed!\033[0m \n");
-		exit(1);
-	}
-	KeyUnitBufferSize = KEY_UNIT_BUFFER_SIZE;
-		
+	open_KeyFile();	
+	init_GenKeyPar();
+	
   //decoding;
   do
   {
@@ -342,8 +350,10 @@ int main(int argc, char **argv)
 	gettimeofday( &end1, NULL );
 	time_us1 = 1000000 * ( end1.tv_sec - start.tv_sec ) + end1.tv_usec - start.tv_usec;
 	printf("run time0: %ld us\n",time_us1);
-	
-	Encrypt(g_pKeyUnitBuffer, KeyUnitIdx);
+
+	//encrypt the H.264 file
+	if(p_Dec->p_Inp->enable_key && g_pKeyUnitBuffer && g_KeyUnitIdx > 0)
+		Encrypt(g_pKeyUnitBuffer, g_KeyUnitIdx);
 
 	close_KeyFile();
   iRet = FinitDecoder(&pDecPicList);
