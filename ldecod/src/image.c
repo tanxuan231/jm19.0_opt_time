@@ -679,10 +679,10 @@ void init_slice(VideoParameters *p_Vid, Slice *currSlice)
   currSlice->init_lists (currSlice);
 
 #if (MVC_EXTENSION_ENABLE)
-  if (currSlice->svc_extension_flag == 0 || currSlice->svc_extension_flag == 1)
-    reorder_lists_mvc (currSlice, currSlice->ThisPOC);
-  else
-    reorder_lists (currSlice);
+  //if (currSlice->svc_extension_flag == 0 || currSlice->svc_extension_flag == 1)
+    //reorder_lists_mvc (currSlice, currSlice->ThisPOC);
+  //else
+    //reorder_lists (currSlice);
 
   if (currSlice->fs_listinterview0)
   {
@@ -695,7 +695,7 @@ void init_slice(VideoParameters *p_Vid, Slice *currSlice)
     currSlice->fs_listinterview1 = NULL;
   }
 #else
-  reorder_lists (currSlice);
+  //reorder_lists (currSlice);
 #endif
 
   if (currSlice->structure==FRAME)
@@ -1238,102 +1238,6 @@ void find_snr(VideoParameters *p_Vid,
       snr->snr[0], snr->snr[1], snr->snr[2], yuv_types[p->chroma_format_idc], 0);
   }
 }
-
-
-void reorder_lists(Slice *currSlice)
-{
-  VideoParameters *p_Vid = currSlice->p_Vid;
-
-  if ((currSlice->slice_type != I_SLICE)&&(currSlice->slice_type != SI_SLICE))
-  {
-    if (currSlice->ref_pic_list_reordering_flag[LIST_0])
-    {
-      reorder_ref_pic_list(currSlice, LIST_0);
-    }
-    if (p_Vid->no_reference_picture == currSlice->listX[0][currSlice->num_ref_idx_active[LIST_0] - 1])
-    {
-      if (p_Vid->non_conforming_stream)
-        printf("RefPicList0[ %d ] is equal to 'no reference picture'\n", currSlice->num_ref_idx_active[LIST_0] - 1);
-      else
-        error("RefPicList0[ num_ref_idx_l0_active_minus1 ] is equal to 'no reference picture', invalid bitstream",500);
-    }
-    // that's a definition
-    currSlice->listXsize[0] = (char) currSlice->num_ref_idx_active[LIST_0];
-  }
-
-  if (currSlice->slice_type == B_SLICE)
-  {
-    if (currSlice->ref_pic_list_reordering_flag[LIST_1])
-    {
-      reorder_ref_pic_list(currSlice, LIST_1);
-    }
-    if (p_Vid->no_reference_picture == currSlice->listX[1][currSlice->num_ref_idx_active[LIST_1]-1])
-    {
-      if (p_Vid->non_conforming_stream)
-        printf("RefPicList1[ %d ] is equal to 'no reference picture'\n", currSlice->num_ref_idx_active[LIST_1] - 1);
-      else
-        error("RefPicList1[ num_ref_idx_l1_active_minus1 ] is equal to 'no reference picture', invalid bitstream",500);
-    }
-    // that's a definition
-    currSlice->listXsize[1] = (char) currSlice->num_ref_idx_active[LIST_1];
-  }
-
-  free_ref_pic_list_reordering_buffer(currSlice);
-
-  if ( currSlice->slice_type == P_SLICE )
-  {
-#if PRINTREFLIST
-    unsigned int i;
-#if (MVC_EXTENSION_ENABLE)
-    // print out for debug purpose
-    if((p_Vid->profile_idc == MVC_HIGH || p_Vid->profile_idc == STEREO_HIGH) && currSlice->current_slice_nr==0)
-    {
-      if(currSlice->listXsize[0]>0)
-      {
-        printf("\n");
-        printf(" ** (FinalViewID:%d) %s Ref Pic List 0 ****\n", currSlice->view_id, currSlice->structure==FRAME ? "FRM":(currSlice->structure==TOP_FIELD ? "TOP":"BOT"));
-        for(i=0; i<(unsigned int)(currSlice->listXsize[0]); i++)  //ref list 0
-        {
-          printf("   %2d -> POC: %4d PicNum: %4d ViewID: %d\n", i, currSlice->listX[0][i]->poc, currSlice->listX[0][i]->pic_num, currSlice->listX[0][i]->view_id);
-        }
-      }
-    }
-#endif
-#endif
-  }
-  else if ( currSlice->slice_type == B_SLICE )
-  {
-#if PRINTREFLIST
-    unsigned int i;
-#if (MVC_EXTENSION_ENABLE)
-    // print out for debug purpose
-    if((p_Vid->profile_idc == MVC_HIGH || p_Vid->profile_idc == STEREO_HIGH) && currSlice->current_slice_nr==0)
-    {
-      if((currSlice->listXsize[0]>0) || (currSlice->listXsize[1]>0))
-        printf("\n");
-      if(currSlice->listXsize[0]>0)
-      {
-        printf(" ** (FinalViewID:%d) %s Ref Pic List 0 ****\n", currSlice->view_id, currSlice->structure==FRAME ? "FRM":(currSlice->structure==TOP_FIELD ? "TOP":"BOT"));
-        for(i=0; i<(unsigned int)(currSlice->listXsize[0]); i++)  //ref list 0
-        {
-          printf("   %2d -> POC: %4d PicNum: %4d ViewID: %d\n", i, currSlice->listX[0][i]->poc, currSlice->listX[0][i]->pic_num, currSlice->listX[0][i]->view_id);
-        }
-      }
-      if(currSlice->listXsize[1]>0)
-      {
-        printf(" ** (FinalViewID:%d) %s Ref Pic List 1 ****\n", currSlice->view_id, currSlice->structure==FRAME ? "FRM":(currSlice->structure==TOP_FIELD ? "TOP":"BOT"));
-        for(i=0; i<(unsigned int)(currSlice->listXsize[1]); i++)  //ref list 1
-        {
-          printf("   %2d -> POC: %4d PicNum: %4d ViewID: %d\n", i, currSlice->listX[1][i]->poc, currSlice->listX[1][i]->pic_num, currSlice->listX[1][i]->view_id);
-        }
-      }
-    }
-#endif
-
-#endif
-  }
-}
-
 
 /*!
  ************************************************************************

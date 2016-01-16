@@ -1038,10 +1038,10 @@ void activate_sps (VideoParameters *p_Vid, seq_parameter_set_rbsp_t *sps)
       //init_frext(p_Vid);
       init_global_buffers(p_Vid, 0);
 
-      if (!p_Vid->no_output_of_prior_pics_flag)
+      //if (!p_Vid->no_output_of_prior_pics_flag)
       {
-        flush_dpb(p_Vid->p_Dpb_layer[0]);
-        flush_dpb(p_Vid->p_Dpb_layer[1]);
+        //flush_dpb(p_Vid->p_Dpb_layer[0]);
+        //flush_dpb(p_Vid->p_Dpb_layer[1]);
       }
       init_dpb(p_Vid, p_Vid->p_Dpb_layer[0], 1);
     }
@@ -1076,9 +1076,9 @@ void activate_sps (VideoParameters *p_Vid, seq_parameter_set_rbsp_t *sps)
     //init_frext(p_Vid);
     init_global_buffers(p_Vid, 0);
 
-    if (!p_Vid->no_output_of_prior_pics_flag)
+    //if (!p_Vid->no_output_of_prior_pics_flag)
     {
-      flush_dpb(p_Vid->p_Dpb_layer[0]);
+      //flush_dpb(p_Vid->p_Dpb_layer[0]);
     }
     init_dpb(p_Vid, p_Vid->p_Dpb_layer[0], 0);
     // for now lets init both buffers. Later, we should only re_init appropriate one

@@ -1395,158 +1395,6 @@ StorablePicture*  get_short_term_pic(Slice *currSlice, DecodedPictureBuffer *p_D
   return currSlice->p_Vid->no_reference_picture;
 }
 
-
-
-#if (!MVC_EXTENSION_ENABLE)
-/*!
- ************************************************************************
- * \brief
- *    Reordering process for short-term reference pictures
- *
- ************************************************************************
- */
-static void reorder_short_term(Slice *currSlice, int cur_list, int num_ref_idx_lX_active_minus1, int picNumLX, int *refIdxLX)
-{
-  StorablePicture **RefPicListX = currSlice->listX[cur_list]; 
-  int cIdx, nIdx;
-
-  StorablePicture *picLX;
-
-  picLX = get_short_term_pic(currSlice, currSlice->p_Dpb, picNumLX);
-
-  for( cIdx = num_ref_idx_lX_active_minus1+1; cIdx > *refIdxLX; cIdx-- )
-    RefPicListX[ cIdx ] = RefPicListX[ cIdx - 1];
-
-  RefPicListX[ (*refIdxLX)++ ] = picLX;
-
-  nIdx = *refIdxLX;
-
-  for( cIdx = *refIdxLX; cIdx <= num_ref_idx_lX_active_minus1+1; cIdx++ )
-  {
-    if (RefPicListX[ cIdx ])
-      if( (RefPicListX[ cIdx ]->is_long_term ) ||  (RefPicListX[ cIdx ]->pic_num != picNumLX ))
-        RefPicListX[ nIdx++ ] = RefPicListX[ cIdx ];
-  }
-}
-
-
-/*!
- ************************************************************************
- * \brief
- *    Reordering process for long-term reference pictures
- *
- ************************************************************************
- */
-static void reorder_long_term(Slice *currSlice, StorablePicture **RefPicListX, int num_ref_idx_lX_active_minus1, int LongTermPicNum, int *refIdxLX)
-{
-  int cIdx, nIdx;
-
-  StorablePicture *picLX;
-
-  picLX = get_long_term_pic(currSlice, currSlice->p_Dpb, LongTermPicNum);
-
-  for( cIdx = num_ref_idx_lX_active_minus1+1; cIdx > *refIdxLX; cIdx-- )
-    RefPicListX[ cIdx ] = RefPicListX[ cIdx - 1];
-
-  RefPicListX[ (*refIdxLX)++ ] = picLX;
-
-  nIdx = *refIdxLX;
-
-  for( cIdx = *refIdxLX; cIdx <= num_ref_idx_lX_active_minus1+1; cIdx++ )
-  {
-    if (RefPicListX[ cIdx ])
-    {
-      if( (!RefPicListX[ cIdx ]->is_long_term ) ||  (RefPicListX[ cIdx ]->long_term_pic_num != LongTermPicNum ))
-        RefPicListX[ nIdx++ ] = RefPicListX[ cIdx ];
-    }
-  }
-}
-#endif
-
-/*!
- ************************************************************************
- * \brief
- *    Reordering process for reference picture lists
- *
- ************************************************************************
- */
-void reorder_ref_pic_list(Slice *currSlice, int cur_list)
-{
-  int *modification_of_pic_nums_idc = currSlice->modification_of_pic_nums_idc[cur_list];
-  int *abs_diff_pic_num_minus1 = currSlice->abs_diff_pic_num_minus1[cur_list];
-  int *long_term_pic_idx = currSlice->long_term_pic_idx[cur_list];
-  int num_ref_idx_lX_active_minus1 = currSlice->num_ref_idx_active[cur_list] - 1;
-
-  VideoParameters *p_Vid = currSlice->p_Vid;
-  int i;
-
-  int maxPicNum, currPicNum, picNumLXNoWrap, picNumLXPred, picNumLX;
-  int refIdxLX = 0;
-
-  if (currSlice->structure==FRAME)
-  {
-    maxPicNum  = p_Vid->max_frame_num;
-    currPicNum = currSlice->frame_num;
-  }
-  else
-  {
-    maxPicNum  = 2 * p_Vid->max_frame_num;
-    currPicNum = 2 * currSlice->frame_num + 1;
-  }
-
-  picNumLXPred = currPicNum;
-
-  for (i=0; modification_of_pic_nums_idc[i]!=3; i++)
-  {
-    if (modification_of_pic_nums_idc[i]>3)
-      error ("Invalid modification_of_pic_nums_idc command", 500);
-
-    if (modification_of_pic_nums_idc[i] < 2)
-    {
-      if (modification_of_pic_nums_idc[i] == 0)
-      {
-        if( picNumLXPred - ( abs_diff_pic_num_minus1[i] + 1 ) < 0 )
-          picNumLXNoWrap = picNumLXPred - ( abs_diff_pic_num_minus1[i] + 1 ) + maxPicNum;
-        else
-          picNumLXNoWrap = picNumLXPred - ( abs_diff_pic_num_minus1[i] + 1 );
-      }
-      else // (modification_of_pic_nums_idc[i] == 1)
-      {
-        if( picNumLXPred + ( abs_diff_pic_num_minus1[i] + 1 )  >=  maxPicNum )
-          picNumLXNoWrap = picNumLXPred + ( abs_diff_pic_num_minus1[i] + 1 ) - maxPicNum;
-        else
-          picNumLXNoWrap = picNumLXPred + ( abs_diff_pic_num_minus1[i] + 1 );
-      }
-      picNumLXPred = picNumLXNoWrap;
-
-      if( picNumLXNoWrap > currPicNum )
-        picNumLX = picNumLXNoWrap - maxPicNum;
-      else
-        picNumLX = picNumLXNoWrap;
-
-#if (MVC_EXTENSION_ENABLE)
-      reorder_short_term(currSlice, cur_list, num_ref_idx_lX_active_minus1, picNumLX, &refIdxLX, -1);
-#else
-      reorder_short_term(currSlice, cur_list, num_ref_idx_lX_active_minus1, picNumLX, &refIdxLX);
-#endif
-    }
-    else //(modification_of_pic_nums_idc[i] == 2)
-    {
-#if (MVC_EXTENSION_ENABLE)
-      reorder_long_term(currSlice, currSlice->listX[cur_list], num_ref_idx_lX_active_minus1, long_term_pic_idx[i], &refIdxLX, -1);
-#else
-      reorder_long_term(currSlice, currSlice->listX[cur_list], num_ref_idx_lX_active_minus1, long_term_pic_idx[i], &refIdxLX);
-#endif
-    }
-
-  }
-  // that's a definition
-  currSlice->listXsize[cur_list] = (char) (num_ref_idx_lX_active_minus1 + 1);
-}
-
-
-
-
 /*!
  ************************************************************************
  * \brief
@@ -1557,7 +1405,7 @@ void reorder_ref_pic_list(Slice *currSlice, int cur_list)
 void idr_memory_management(DecodedPictureBuffer *p_Dpb, StorablePicture* p)
 {
   uint32 i;
-
+#if 0
   if (p->no_output_of_prior_pics_flag)
   {
     // free all stored pictures
@@ -1602,7 +1450,7 @@ void idr_memory_management(DecodedPictureBuffer *p_Dpb, StorablePicture* p)
 #if (MVC_EXTENSION_ENABLE)
   p_Dpb->last_output_view_id = -1;
 #endif
-
+#endif
 }
 
 /*!
