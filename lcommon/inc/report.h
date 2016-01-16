@@ -14,7 +14,6 @@
 #define _REPORT_H_
 #include "contributors.h"
 #include "global.h"
-#include "enc_statistics.h"
 
 extern void report                ( VideoParameters *p_Vid, InputParameters *p_Inp, StatParameters *p_Stats );
 extern void information_init      ( VideoParameters *p_Vid, InputParameters *p_Inp, StatParameters *p_Stats );

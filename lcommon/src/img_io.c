@@ -14,7 +14,6 @@
 #include "contributors.h"
 #include "global.h"
 #include "img_io.h"
-#include "report.h"
 
 static const VIDEO_SIZE VideoRes[] = {
   { "qcif"  ,  176,  144},

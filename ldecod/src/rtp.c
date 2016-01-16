@@ -94,7 +94,6 @@
 
 #include "contributors.h"
 #include "global.h"
-#include "errorconcealment.h"
 #include "rtp.h"
 #include "fmo.h"
 #include "sei.h"

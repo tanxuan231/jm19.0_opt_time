@@ -58,7 +58,6 @@
 #include "cabac.h"
 #include "parset.h"
 #include "sei.h"
-#include "erc_api.h"
 #include "quant.h"
 #include "block.h"
 #include "nalu.h"
@@ -374,7 +373,7 @@ static void init(VideoParameters *p_Vid)  //!< video parameters
   p_Vid->NALUCount = 0;
 
 
-  p_Vid->out_buffer = NULL;
+  //p_Vid->out_buffer = NULL;
   p_Vid->pending_output = NULL;
   p_Vid->pending_output_state = FRAME;
   p_Vid->recovery_flag = 0;
@@ -1348,7 +1347,7 @@ int CloseDecoder()
   fclose(pDecoder->p_trace);
 #endif
 
-  ercClose(pDecoder->p_Vid, pDecoder->p_Vid->erc_errorVar);
+  //ercClose(pDecoder->p_Vid, pDecoder->p_Vid->erc_errorVar);
 
   CleanUpPPS(pDecoder->p_Vid);
 #if (MVC_EXTENSION_ENABLE)

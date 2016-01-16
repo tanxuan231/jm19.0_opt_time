@@ -22,7 +22,6 @@
 #include "cabac.h"
 #include "vlc.h"
 #include "mbuffer.h"
-#include "erc_api.h"
 
 #if TRACE
 #define SYMTRACESTRING(s) strncpy(sym->tracestring,s,TRACESTRING_SIZE)
@@ -1086,15 +1085,6 @@ void activate_sps (VideoParameters *p_Vid, seq_parameter_set_rbsp_t *sps)
     //init_dpb(p_Vid, p_Vid->p_Dpb_layer[0], 1);
     // obviously this is not needed her but just adding it for completeness
     //init_dpb(p_Vid, p_Vid->p_Dpb_layer[1], 2);
-#endif
-
-#if (DISABLE_ERC == 0)
-    ercInit(p_Vid, p_Vid->width, p_Vid->height, 1);
-    if(p_Vid->dec_picture)
-    {
-      ercReset(p_Vid->erc_errorVar, p_Vid->PicSizeInMbs, p_Vid->PicSizeInMbs, p_Vid->dec_picture->size_x);
-      p_Vid->erc_mvperMB = 0;
-    }
 #endif
   }
   

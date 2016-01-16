@@ -22,7 +22,6 @@
 #include <limits.h>
 
 #include "global.h"
-#include "erc_api.h"
 #include "header.h"
 #include "image.h"
 #include "mbuffer.h"
@@ -1744,172 +1743,6 @@ static void adaptive_memory_management(DecodedPictureBuffer *p_Dpb, StorablePict
   }
 }
 
-
-/*!
- ************************************************************************
- * \brief
- *    Store a picture in DPB. This includes cheking for space in DPB and
- *    flushing frames.
- *    If we received a frame, we need to check for a new store, if we
- *    got a field, check if it's the second field of an already allocated
- *    store.
- *
- * \param p_Vid
- *    VideoParameters
- * \param p
- *    Picture to be stored
- *
- ************************************************************************
- */
-void store_picture_in_dpb(DecodedPictureBuffer *p_Dpb, StorablePicture* p)
-{
-  VideoParameters *p_Vid = p_Dpb->p_Vid;
-  unsigned i;
-  int poc, pos;
-  // picture error concealment
-  
-  // diagnostics
-  //printf ("Storing (%s) non-ref pic with frame_num #%d\n", (p->type == FRAME)?"FRAME":(p->type == TOP_FIELD)?"TOP_FIELD":"BOTTOM_FIELD", p->pic_num);
-  // if frame, check for new store,
-  assert (p!=NULL);
-
-  p_Vid->last_has_mmco_5=0;
-  p_Vid->last_pic_bottom_field = (p->structure == BOTTOM_FIELD);
-
-  if (p->idr_flag)
-  {
-    idr_memory_management(p_Dpb, p);
-  // picture error concealment
-    memset(p_Vid->pocs_in_dpb, 0, sizeof(int)*100);
-  }
-  else
-  {
-    // adaptive memory management
-    if (p->used_for_reference && (p->adaptive_ref_pic_buffering_flag))
-      adaptive_memory_management(p_Dpb, p);
-  }
-
-  if ((p->structure==TOP_FIELD)||(p->structure==BOTTOM_FIELD))
-  {
-    // check for frame store with same pic_number
-    if (p_Dpb->last_picture)
-    {
-      if ((int)p_Dpb->last_picture->frame_num == p->pic_num)
-      {
-        if (((p->structure==TOP_FIELD)&&(p_Dpb->last_picture->is_used==2))||((p->structure==BOTTOM_FIELD)&&(p_Dpb->last_picture->is_used==1)))
-        {
-          if ((p->used_for_reference && (p_Dpb->last_picture->is_orig_reference!=0))||
-              (!p->used_for_reference && (p_Dpb->last_picture->is_orig_reference==0)))
-          {
-            insert_picture_in_dpb(p_Vid, p_Dpb->last_picture, p);
-            update_ref_list(p_Dpb);
-            update_ltref_list(p_Dpb);
-            dump_dpb(p_Dpb);
-            p_Dpb->last_picture = NULL;
-            return;
-          }
-        }
-      }
-    }
-  }
-
-  // this is a frame or a field which has no stored complementary field
-
-  // sliding window, if necessary
-  if ((!p->idr_flag)&&(p->used_for_reference && (!p->adaptive_ref_pic_buffering_flag)))
-  {
-    sliding_window_memory_management(p_Dpb, p);
-  }
-
-  // picture error concealment
-  if(p_Vid->conceal_mode != 0)
-  {
-    for(i=0;i<p_Dpb->size;i++)
-      if(p_Dpb->fs[i]->is_reference)
-        p_Dpb->fs[i]->concealment_reference = 1;
-  }
-
-  // first try to remove unused frames
-  if (p_Dpb->used_size==p_Dpb->size)
-  {
-    // picture error concealment
-    if (p_Vid->conceal_mode != 0)
-      conceal_non_ref_pics(p_Dpb, 2);
-
-    remove_unused_frame_from_dpb(p_Dpb);
-
-    if(p_Vid->conceal_mode != 0)
-      sliding_window_poc_management(p_Dpb, p);
-  }
-  
-  // then output frames until one can be removed
-  while (p_Dpb->used_size == p_Dpb->size)
-  {
-    // non-reference frames may be output directly
-    if (!p->used_for_reference)
-    {
-      get_smallest_poc(p_Dpb, &poc, &pos);
-      if ((-1==pos) || (p->poc < poc))
-      {
-#if (_DEBUG && MVC_EXTENSION_ENABLE)
-        if((p_Vid->profile_idc >= MVC_HIGH))  
-          printf("Display order might not be correct, %d, %d\n", p->view_id, p->poc);
-#endif
-#if (MVC_EXTENSION_ENABLE)
-        direct_output(p_Vid, p, p_Vid->p_out_mvc[p_Dpb->layer_id]);
-#else
-        direct_output(p_Vid, p, p_Vid->p_out);
-#endif
-        return;
-      }
-    }
-    // flush a frame
-    output_one_frame_from_dpb(p_Dpb);
-  }
-
-  // check for duplicate frame number in short term reference buffer
-  if ((p->used_for_reference)&&(!p->is_long_term))
-  {
-    for (i=0; i<p_Dpb->ref_frames_in_buffer; i++)
-    {
-      if (p_Dpb->fs_ref[i]->frame_num == p->frame_num)
-      {
-        error("duplicate frame_num in short-term reference picture buffer", 500);
-      }
-    }
-  }
-  // store at end of buffer
-  insert_picture_in_dpb(p_Vid, p_Dpb->fs[p_Dpb->used_size],p);
-
-  // picture error concealment
-  if (p->idr_flag)
-  {
-    p_Vid->earlier_missing_poc = 0;
-  }
-
-  if (p->structure != FRAME)
-  {
-    p_Dpb->last_picture = p_Dpb->fs[p_Dpb->used_size];
-  }
-  else
-  {
-    p_Dpb->last_picture = NULL;
-  }
-
-  p_Dpb->used_size++;
-
-  if(p_Vid->conceal_mode != 0)
-    p_Vid->pocs_in_dpb[p_Dpb->used_size-1] = p->poc;
-
-  update_ref_list(p_Dpb);
-  update_ltref_list(p_Dpb);
-
-  check_num_ref(p_Dpb);
-
-  dump_dpb(p_Dpb);
-}
-
-
 /*!
  ************************************************************************
  * \brief
@@ -2117,21 +1950,21 @@ static int output_one_frame_from_dpb(DecodedPictureBuffer *p_Dpb)
   {
     if(p_Dpb->last_output_poc == 0)
     {
-      write_lost_ref_after_idr(p_Dpb, pos);
+      //write_lost_ref_after_idr(p_Dpb, pos);
     }
 #if (MVC_EXTENSION_ENABLE)
-    write_lost_non_ref_pic(p_Dpb, poc, p_Vid->p_out_mvc[p_Dpb->layer_id]);
+    //write_lost_non_ref_pic(p_Dpb, poc, p_Vid->p_out_mvc[p_Dpb->layer_id]);
 #else
-    write_lost_non_ref_pic(p_Dpb, poc, p_Vid->p_out);
+    //write_lost_non_ref_pic(p_Dpb, poc, p_Vid->p_out);
 #endif
   }
 
 // JVT-P072 ends
 
 #if (MVC_EXTENSION_ENABLE)
-  write_stored_frame(p_Vid, p_Dpb->fs[pos], p_Vid->p_out_mvc[p_Dpb->layer_id]);
+  //write_stored_frame(p_Vid, p_Dpb->fs[pos], p_Vid->p_out_mvc[p_Dpb->layer_id]);
 #else
-  write_stored_frame(p_Vid, p_Dpb->fs[pos], p_Vid->p_out);
+  //write_stored_frame(p_Vid, p_Dpb->fs[pos], p_Vid->p_out);
 #endif
 
   // picture error concealment
@@ -2148,7 +1981,7 @@ static int output_one_frame_from_dpb(DecodedPictureBuffer *p_Dpb)
   // free frame store and move empty store to end of buffer
   if (!is_used_for_reference(p_Dpb->fs[pos]))
   {
-    remove_frame_from_dpb(p_Dpb, pos);
+    //remove_frame_from_dpb(p_Dpb, pos);
   }
   return 1;
 }
@@ -2163,6 +1996,7 @@ static int output_one_frame_from_dpb(DecodedPictureBuffer *p_Dpb)
  */
 void flush_dpb(DecodedPictureBuffer *p_Dpb)
 {
+#if 0	
   VideoParameters *p_Vid = p_Dpb->p_Vid;
   uint32 i;
 
@@ -2189,11 +2023,13 @@ void flush_dpb(DecodedPictureBuffer *p_Dpb)
   while (p_Dpb->used_size && output_one_frame_from_dpb(p_Dpb)) ;
 
   p_Dpb->last_output_poc = INT_MIN;
+#endif	
 }
 
 #if (MVC_EXTENSION_ENABLE)
 void flush_dpbs(DecodedPictureBuffer **p_Dpb_layers, int nLayers)
 {
+#if 0	
   VideoParameters *p_Vid = p_Dpb_layers[0]->p_Vid;
   DecodedPictureBuffer *p_Dpb;
   int i, j, used_size;
@@ -2252,6 +2088,7 @@ void flush_dpbs(DecodedPictureBuffer **p_Dpb_layers, int nLayers)
     p_Dpb = p_Dpb_layers[j];
     p_Dpb->last_output_poc = INT_MIN;
   }  
+#endif	
 }
 #endif
 
@@ -2700,70 +2537,6 @@ void free_ref_pic_list_reordering_buffer(Slice *currSlice)
   currSlice->abs_diff_view_idx_minus1[LIST_1] = NULL;
 #endif
 }
-
-/*!
- ************************************************************************
- * \brief
- *      Tian Dong
- *          June 13, 2002, Modified on July 30, 2003
- *
- *      If a gap in frame_num is found, try to fill the gap
- * \param p_Vid
- *    VideoParameters structure
- *
- ************************************************************************
- */
-void fill_frame_num_gap(VideoParameters *p_Vid, Slice *currSlice)
-{
-  seq_parameter_set_rbsp_t *active_sps = p_Vid->active_sps;
-  
-  int CurrFrameNum;
-  int UnusedShortTermFrameNum;
-  StorablePicture *picture = NULL;
-  int tmp1 = currSlice->delta_pic_order_cnt[0];
-  int tmp2 = currSlice->delta_pic_order_cnt[1];
-  currSlice->delta_pic_order_cnt[0] = currSlice->delta_pic_order_cnt[1] = 0;
-
-  printf("A gap in frame number is found, try to fill it.\n");
-
-  UnusedShortTermFrameNum = (p_Vid->pre_frame_num + 1) % p_Vid->max_frame_num;
-  CurrFrameNum = currSlice->frame_num; //p_Vid->frame_num;
-
-  while (CurrFrameNum != UnusedShortTermFrameNum)
-  {
-    picture = alloc_storable_picture (p_Vid, FRAME, p_Vid->width, p_Vid->height, p_Vid->width_cr, p_Vid->height_cr, 1);
-    picture->coded_frame = 1;
-    picture->pic_num = UnusedShortTermFrameNum;
-    picture->frame_num = UnusedShortTermFrameNum;
-    picture->non_existing = 1;
-    picture->is_output = 1;
-    picture->used_for_reference = 1;
-    picture->adaptive_ref_pic_buffering_flag = 0;
-#if (MVC_EXTENSION_ENABLE)
-    picture->view_id = currSlice->view_id;
-#endif
-
-    currSlice->frame_num = UnusedShortTermFrameNum;
-    if (active_sps->pic_order_cnt_type!=0)
-    {
-      decode_poc(p_Vid, p_Vid->ppSliceList[0]);
-    }
-    picture->top_poc    = currSlice->toppoc;
-    picture->bottom_poc = currSlice->bottompoc;
-    picture->frame_poc  = currSlice->framepoc;
-    picture->poc        = currSlice->framepoc;
-
-    store_picture_in_dpb(currSlice->p_Dpb, picture);
-
-    picture=NULL;
-    p_Vid->pre_frame_num = UnusedShortTermFrameNum;
-    UnusedShortTermFrameNum = (UnusedShortTermFrameNum + 1) % p_Vid->max_frame_num;
-  }
-  currSlice->delta_pic_order_cnt[0] = tmp1;
-  currSlice->delta_pic_order_cnt[1] = tmp2;
-  currSlice->frame_num = CurrFrameNum;
-}
-
 
 /*!
  ************************************************************************

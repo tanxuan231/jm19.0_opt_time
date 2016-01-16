@@ -756,7 +756,7 @@ int remove_unused_frame_from_dpb(DecodedPictureBuffer *p_Dpb)
   {
     if (p_Dpb->fs[i]->is_output && (!is_used_for_reference(p_Dpb->fs[i])))
     {
-      remove_frame_from_dpb(p_Dpb, i);
+      //remove_frame_from_dpb(p_Dpb, i);
       return 1;
     }
   }

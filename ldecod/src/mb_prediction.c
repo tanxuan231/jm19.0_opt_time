@@ -17,7 +17,6 @@
 #include "global.h"
 #include "mbuffer.h"
 #include "elements.h"
-#include "errorconcealment.h"
 #include "macroblock.h"
 #include "fmo.h"
 #include "cabac.h"

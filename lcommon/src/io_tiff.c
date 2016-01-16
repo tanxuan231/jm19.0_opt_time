@@ -13,7 +13,7 @@
  *************************************************************************************
  */
 #include "contributors.h"
-#include "report.h"
+#include "typedefs.h"
 #include "io_tiff.h"
 
 

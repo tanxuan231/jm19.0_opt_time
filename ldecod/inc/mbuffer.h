@@ -208,7 +208,6 @@ extern FrameStore*       alloc_frame_store(void);
 extern void              free_frame_store (FrameStore* f);
 extern StorablePicture*  alloc_storable_picture(VideoParameters *p_Vid, PictureStructure type, int size_x, int size_y, int size_x_cr, int size_y_cr, int is_output);
 extern void              free_storable_picture (StorablePicture* p);
-extern void              store_picture_in_dpb(DecodedPictureBuffer *p_Dpb, StorablePicture* p);
 extern StorablePicture*  get_short_term_pic (Slice *currSlice, DecodedPictureBuffer *p_Dpb, int picNum);
 
 #if (MVC_EXTENSION_ENABLE)
