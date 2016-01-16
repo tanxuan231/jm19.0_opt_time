@@ -975,7 +975,7 @@ typedef struct inp_par
   char keyfile_dir[FILE_NAME_SIZE];
 	int  enable_key;
   //char outfile[FILE_NAME_SIZE];                      //!< Decoded YUV 4:2:0 output
-  char reffile[FILE_NAME_SIZE];                      //!< Optional YUV 4:2:0 reference file for SNR measurement
+  //char reffile[FILE_NAME_SIZE];                      //!< Optional YUV 4:2:0 reference file for SNR measurement
 
   int FileFormat;                         //!< File format of the Input file, PAR_OF_ANNEXB or PAR_OF_RTP
   int ref_offset;

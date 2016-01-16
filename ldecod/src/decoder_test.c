@@ -20,7 +20,7 @@
 #include "h264decoder.h"
 #include "configfile.h"
 
-#define DECOUTPUT_TEST      0
+#define DECOUTPUT_TEST      0	//could move
 
 #define PRINT_OUTPUT_POC    0
 #define BITSTREAM_FILENAME  "test.264"
@@ -38,7 +38,7 @@ static void Configure(InputParameters *p_Inp, int ac, char *av[])
   memset(p_Inp, 0, sizeof(InputParameters));
   strcpy(p_Inp->infile, BITSTREAM_FILENAME); //! set default bitstream name
   //strcpy(p_Inp->outfile, DECRECON_FILENAME); //! set default output file name
-  strcpy(p_Inp->reffile, ENCRECON_FILENAME); //! set default reference file name
+  //strcpy(p_Inp->reffile, ENCRECON_FILENAME); //! set default reference file name
   
 #ifdef _LEAKYBUCKET_
   strcpy(p_Inp->LeakyBucketParamFile,"leakybucketparam.cfg");    // file where Leaky Bucket parameters (computed by encoder) are stored
@@ -54,7 +54,7 @@ static void Configure(InputParameters *p_Inp, int ac, char *av[])
     fprintf(stdout," Input H.264 bitstream                  : %s \n",p_Inp->infile);
     //fprintf(stdout," Output decoded YUV                     : %s \n",p_Inp->outfile);
     //fprintf(stdout," Output status file                     : %s \n",LOGFILE);
-    fprintf(stdout," Input reference file                   : %s \n",p_Inp->reffile);
+    //fprintf(stdout," Input reference file                   : %s \n",p_Inp->reffile);
 
     fprintf(stdout,"--------------------------------------------------------------------------\n");
   #ifdef _LEAKYBUCKET_

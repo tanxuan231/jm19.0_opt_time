@@ -30,7 +30,6 @@ Mapping Map[] = {
     {"InputFile",                &cfgparams.infile,                       1,   0.0,                       0,  0.0,              0.0,             FILE_NAME_SIZE, },
 		{"KeyFileDir", 							 &cfgparams.keyfile_dir, 									1,	 0.0, 											0,	0.0,							0.0,						 FILE_NAME_SIZE, },			
 		{"EnableKey",                &cfgparams.enable_key,                   0,   1.0,                       1,  0.0,              1.0,                             },			
-    {"RefFile",                  &cfgparams.reffile,                      1,   0.0,                       0,  0.0,              0.0,             FILE_NAME_SIZE, },
     {"WriteUV",                  &cfgparams.write_uv,                     0,   1.0,                       1,  0.0,              1.0,                             },
     {"FileFormat",               &cfgparams.FileFormat,                   0,   0.0,                       1,  0.0,              1.0,                             },
     {"RefOffset",                &cfgparams.ref_offset,                   0,   0.0,                       1,  0.0,              256.0,                             },

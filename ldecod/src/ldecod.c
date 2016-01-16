@@ -1200,7 +1200,7 @@ int OpenDecoder(InputParameters *p_Inp)
 #endif
 #endif
 
-
+#if 0
   if(strlen(pDecoder->p_Inp->reffile)>0 && strcmp(pDecoder->p_Inp->reffile, "\"\""))
   {
    if ((pDecoder->p_Vid->p_ref = open(pDecoder->p_Inp->reffile, OPENFLAGS_READ))==-1)
@@ -1211,6 +1211,7 @@ int OpenDecoder(InputParameters *p_Inp)
   }
   else
     pDecoder->p_Vid->p_ref = -1;
+#endif	
 
   switch( pDecoder->p_Inp->FileFormat )
   {
