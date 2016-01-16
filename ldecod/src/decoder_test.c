@@ -24,7 +24,7 @@
 
 #define PRINT_OUTPUT_POC    0
 #define BITSTREAM_FILENAME  "test.264"
-#define DECRECON_FILENAME   "test_dec.yuv"
+//#define DECRECON_FILENAME   "test_dec.yuv"
 #define ENCRECON_FILENAME   "test_rec.yuv"
 #define FCFR_DEBUG_FILENAME "fcfr_dec_rpu_stats.txt"
 #define DECOUTPUT_VIEW0_FILENAME  "H264_Decoder_Output_View0.yuv"
@@ -37,7 +37,7 @@ static void Configure(InputParameters *p_Inp, int ac, char *av[])
   //char errortext[ET_SIZE];
   memset(p_Inp, 0, sizeof(InputParameters));
   strcpy(p_Inp->infile, BITSTREAM_FILENAME); //! set default bitstream name
-  strcpy(p_Inp->outfile, DECRECON_FILENAME); //! set default output file name
+  //strcpy(p_Inp->outfile, DECRECON_FILENAME); //! set default output file name
   strcpy(p_Inp->reffile, ENCRECON_FILENAME); //! set default reference file name
   
 #ifdef _LEAKYBUCKET_
@@ -52,7 +52,7 @@ static void Configure(InputParameters *p_Inp, int ac, char *av[])
   {
     fprintf(stdout,"--------------------------------------------------------------------------\n");
     fprintf(stdout," Input H.264 bitstream                  : %s \n",p_Inp->infile);
-    fprintf(stdout," Output decoded YUV                     : %s \n",p_Inp->outfile);
+    //fprintf(stdout," Output decoded YUV                     : %s \n",p_Inp->outfile);
     //fprintf(stdout," Output status file                     : %s \n",LOGFILE);
     fprintf(stdout," Input reference file                   : %s \n",p_Inp->reffile);
 

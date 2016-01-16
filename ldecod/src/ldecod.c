@@ -1157,6 +1157,7 @@ int OpenDecoder(InputParameters *p_Inp)
   }
 #endif
 
+#if 0
 #if (!MVC_EXTENSION_ENABLE)
   if((strcasecmp(p_Inp->outfile, "\"\"")!=0) && (strlen(p_Inp->outfile)>0))
   {
@@ -1196,6 +1197,7 @@ int OpenDecoder(InputParameters *p_Inp)
       p_Vid->p_out = p_Vid->p_out_mvc[0];
     }
   }
+#endif
 #endif
 
 
@@ -1377,6 +1379,7 @@ int CloseDecoder()
   return DEC_CLOSE_NOERR;
 }
 
+#if 0
 #if (MVC_EXTENSION_ENABLE)
 void OpenOutputFiles(VideoParameters *p_Vid, int view0_id, int view1_id)
 {
@@ -1418,6 +1421,7 @@ void OpenOutputFiles(VideoParameters *p_Vid, int view0_id, int view1_id)
     }
   }
 }
+#endif
 #endif
 
 void set_global_coding_par(VideoParameters *p_Vid, CodingParameters *cps)

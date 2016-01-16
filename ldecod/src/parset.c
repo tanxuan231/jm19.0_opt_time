@@ -634,14 +634,14 @@ void ProcessSubsetSPS (VideoParameters *p_Vid, NALU_t *nalu)
   //check capability;
   if(subset_sps->num_views_minus1>1)
   {
-    printf("Warning: num_views:%d is greater than 2, only decode baselayer!\n", subset_sps->num_views_minus1+1);
+    //printf("Warning: num_views:%d is greater than 2, only decode baselayer!\n", subset_sps->num_views_minus1+1);
     subset_sps->Valid = 0;
     subset_sps->sps.Valid = 0;
     p_Vid->p_Inp->DecodeAllLayers = 0;
   }
   else if(subset_sps->num_views_minus1==1 && (subset_sps->view_id[0]!=0 || subset_sps->view_id[1]!=1))
   {
-    OpenOutputFiles(p_Vid, subset_sps->view_id[0], subset_sps->view_id[1]);
+    //OpenOutputFiles(p_Vid, subset_sps->view_id[0], subset_sps->view_id[1]);
   }
 
   if (subset_sps->Valid)
