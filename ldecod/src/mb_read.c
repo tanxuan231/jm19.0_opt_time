@@ -204,7 +204,7 @@ static void read_ipred_8x8_modes(Macroblock *currMB)
     else
     {
       currSE.context = (b8 << 2);
-      dP->readSyntaxElement(currMB, &currSE, dP);
+      dP->readSyntaxElement(currMB, &currSE, dP);		//readSyntaxElement_CABAC
     }
 
     get4x4Neighbour(currMB, (bx<<2) - 1, (by<<2),     p_Vid->mb_size[IS_LUMA], &left_block);
@@ -457,7 +457,7 @@ static void read_ipred_modes(Macroblock *currMB)
     else
       currSE.reading = readCIPredMode_CABAC;
 
-    dP->readSyntaxElement(currMB, &currSE, dP);
+    dP->readSyntaxElement(currMB, &currSE, dP);		//readSyntaxElement_CABAC
     currMB->c_ipred_mode = (char) currSE.value1;
 
     if (currMB->c_ipred_mode < DC_PRED_8 || currMB->c_ipred_mode > PLANE_8)
@@ -1252,7 +1252,7 @@ static void read_one_macroblock_i_slice_cabac(Macroblock *currMB)
   //  read MB type
   TRACE_STRING("mb_type");
   currSE.reading = readMB_typeInfo_CABAC_i_slice;
-  dP->readSyntaxElement(currMB, &currSE, dP);
+  dP->readSyntaxElement(currMB, &currSE, dP);		//readSyntaxElement_CABAC
 
   currMB->mb_type = (short) currSE.value1;
   if(!dP->bitstream->ei_flag)
@@ -1264,7 +1264,7 @@ static void read_one_macroblock_i_slice_cabac(Macroblock *currMB)
 
   currSlice->siblock[currMB->mb.y][currMB->mb.x] = 0;
 
-  currSlice->interpret_mb_mode(currMB);
+  currSlice->interpret_mb_mode(currMB);		//interpret_mb_mode_I
 
   //init NoMbPartLessThan8x8Flag
   currMB->NoMbPartLessThan8x8Flag = TRUE;
@@ -1293,7 +1293,7 @@ static void read_one_macroblock_i_slice_cabac(Macroblock *currMB)
       }
       else
       {
-        dP->readSyntaxElement(currMB, &currSE, dP);
+        dP->readSyntaxElement(currMB, &currSE, dP);		//readSyntaxElement_CABAC
       }
 
       currMB->luma_transform_size_8x8_flag = (Boolean) currSE.value1;
@@ -1317,9 +1317,9 @@ static void read_one_macroblock_i_slice_cabac(Macroblock *currMB)
     read_ipred_modes(currMB);
 
     // read CBP and Coeffs  ***************************************************************
-    currSlice->read_CBP_and_coeffs_from_NAL (currMB);        
+    currSlice->read_CBP_and_coeffs_from_NAL (currMB);		//read_CBP_and_coeffs_from_NAL_CABAC_420        
   }
-  else // all other modes
+  else // all other modes I16x16
   {
     read_intra_macroblock(currMB);
   }
@@ -1573,7 +1573,7 @@ static void read_one_macroblock_p_slice_cabac(Macroblock *currMB)
     CheckAvailabilityOfNeighborsCABAC(currMB);
     TRACE_STRING("mb_skip_flag");
     currSE.reading = read_skip_flag_CABAC_p_slice;
-    dP->readSyntaxElement(currMB, &currSE, dP);
+    dP->readSyntaxElement(currMB, &currSE, dP);		//readSyntaxElement_CABAC
 
     currMB->mb_type   = (short) currSE.value1;
     currMB->skip_flag = (char) (!(currSE.value1));

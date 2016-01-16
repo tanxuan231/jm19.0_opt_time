@@ -2527,6 +2527,7 @@ void decode_one_slice(Slice *currSlice)
     // Initializes the current macroblock
     start_macroblock(currSlice, &currMB);
     // Get the syntax elements from the NAL
+    //read_one_macroblock_i_slice_cabac read_one_macroblock_i_slice_cavlc
     currSlice->read_one_macroblock(currMB);
     //decode_one_macroblock(currMB, currSlice->dec_picture);
 

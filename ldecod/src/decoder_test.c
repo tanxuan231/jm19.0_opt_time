@@ -235,6 +235,7 @@ void open_KeyFile()
 	strncpy(key_file, p_Dec->p_Inp->keyfile_dir, strlen(p_Dec->p_Inp->keyfile_dir));
 	strncat(key_file, filename, strlen(filename));
 	strcat(key_file, ".key");
+	strcat(key_file, ".txt");
 	//printf("key_file: %s\n",key_file);	
 
 	p_Dec->p_KeyFile = fopen(key_file, "w+");
@@ -262,17 +263,24 @@ int g_KeyUnitBufferSize = 0;
 void print_KeyUnit()
 {
 	FILE* log = fopen("key_unit_log", "w+");
+	if(!log)
+	{
+		printf("open key_unit_log error!\n");
+		exit(1);
+	}
 	KeyUnit* p_tmp = g_pKeyUnitBuffer;
 	int i = 0;
 	char s[100];
+	int pre_off = 0;
 	
 	for(; i < g_KeyUnitIdx; ++i)
 	{		
+		//pre_off += p_tmp[i].byte_offset;
 		snprintf(s,100,"ByteOffset: %5d, BitOffset: %2d, DataLen: %4d\n",
 						p_tmp[i].byte_offset,p_tmp[i].bit_offset,p_tmp[i].key_data_len);
-		fwrite(s,strlen(s),1,log);	
+		fwrite(s,strlen(s),1,log);		
 	}
-	printf("i: %d, idx: %d\n",i,g_KeyUnitIdx);
+	printf("KeyUnitIdx: %d\n",i,g_KeyUnitIdx);
 }
 
 void init_GenKeyPar()
@@ -280,7 +288,13 @@ void init_GenKeyPar()
 	if(!p_Dec->p_Inp->enable_key)
 		return;
 	
-	p_Dec->nalu_pos_array = calloc(400,sizeof(int));
+	p_Dec->nalu_pos_array = calloc(NALU_NUM_IN_BITSTREAM,sizeof(int));
+	if(!p_Dec->nalu_pos_array)
+	{
+		printf("\033[1;31m p_Dec->nalu_pos_array malloc failed!\033[0m \n");
+		exit(1);
+	}
+		
 	g_pKeyUnitBuffer = (KeyUnit*)malloc(KEY_UNIT_BUFFER_SIZE*sizeof(KeyUnit));
 	if(!g_pKeyUnitBuffer)
 	{
@@ -353,7 +367,7 @@ int main(int argc, char **argv)
 
 	//encrypt the H.264 file
 	if(p_Dec->p_Inp->enable_key && g_pKeyUnitBuffer && g_KeyUnitIdx > 0)
-		Encrypt(g_pKeyUnitBuffer, g_KeyUnitIdx);
+		;//Encrypt(g_pKeyUnitBuffer, g_KeyUnitIdx);
 
 	close_KeyFile();
   iRet = FinitDecoder(&pDecPicList);
@@ -371,7 +385,7 @@ int main(int argc, char **argv)
   }	
 
   printf("%d frames are decoded.\n", iFramesDecoded);
-	//print_KeyUnit();
+	print_KeyUnit();
 	
 	gettimeofday( &end2, NULL );
 	time_us2 = 1000000 * ( end2.tv_sec - end1.tv_sec ) + end2.tv_usec - end1.tv_usec;

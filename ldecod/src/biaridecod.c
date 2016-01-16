@@ -143,8 +143,8 @@ int arideco_bits_read(DecodingEnvironmentPtr dep)
 { 
 #if (2==TRACE)
   int tmp = ((*dep->Dcodestrm_len) << 3) - dep->DbitsLeft;
-  fprintf(p_Dec->p_trace, "tmp: %d\n", tmp);
-  return tmp;
+  //fprintf(p_Dec->p_trace, "tmp: %d\n", tmp);
+  return tmp;		//当前RBSP已解码的位数 = (*Dcodestrm_len)*8(转换成位) - DbitsLeft
 #else
  return (((*dep->Dcodestrm_len) << 3) - dep->DbitsLeft);
 #endif

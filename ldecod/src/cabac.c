@@ -21,8 +21,10 @@
 #include "vlc.h"
 
 #if TRACE
-int symbolCount = 0;
+int symbolCount = 0;	//记录了语法元素的个数
 #endif
+
+int s_cur_mvd_bitpos;
 
 static const short maxpos       [] = {15, 14, 63, 31, 31, 15,  3, 14,  7, 15, 15, 14, 63, 31, 31, 15, 15, 14, 63, 31, 31, 15};
 static const short c1isdc       [] = { 1,  0,  1,  1,  1,  1,  1,  0,  1,  1,  1,  0,  1,  1,  1,  1,  1,  0,  1,  1,  1,  1};
@@ -2151,7 +2153,8 @@ void readRunLevel_CABAC (Macroblock *currMB,
 int readSyntaxElement_CABAC(Macroblock *currMB, SyntaxElement *se, DataPartition *this_dataPart)
 {
   DecodingEnvironmentPtr dep_dp = &(this_dataPart->de_cabac);
-  int curr_len = arideco_bits_read(dep_dp);
+  int curr_len = arideco_bits_read(dep_dp);		//解析前已解码的长度
+	s_cur_mvd_bitpos = curr_len;
 
   // perform the actual decoding by calling the appropriate method
   se->reading(currMB, se, dep_dp);
@@ -2159,7 +2162,7 @@ int readSyntaxElement_CABAC(Macroblock *currMB, SyntaxElement *se, DataPartition
   se->len = (arideco_bits_read(dep_dp) - curr_len);
 
 #if (TRACE==2)
-  fprintf(p_Dec->p_trace, "curr_len: %d\n",curr_len);
+  fprintf(p_Dec->p_trace, "curr_len: %d\n",curr_len);		//解析前该语法后所在的位置
   fprintf(p_Dec->p_trace, "se_len: %d\n",se->len);
 #endif
 

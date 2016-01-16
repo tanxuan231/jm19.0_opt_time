@@ -47,6 +47,7 @@ typedef struct bit_stream_dec Bitstream;
 #define ET_SIZE 300      //!< size of error text buffer
 #define KEY_UNIT_BUFFER_SIZE 1000*30
 #define KEY_UNIT_BUFFER_SIZE_APPEND	500
+#define NALU_NUM_IN_BITSTREAM 1000*2
 
 extern char errortext[ET_SIZE]; //!< buffer for error message for exit with error()
 
@@ -92,7 +93,7 @@ typedef struct
   unsigned int    Dvalue;
   int             DbitsLeft;
   byte            *Dcodestrm;
-  int             *Dcodestrm_len;
+  int             *Dcodestrm_len;		//当前RBSP已解码的位数 = *Dcodestrm_len - DbitsLeft
 } DecodingEnvironment;
 
 typedef DecodingEnvironment *DecodingEnvironmentPtr;
@@ -1056,7 +1057,7 @@ typedef struct decoder_params
 	int BitStreamFile;
 	int BitStreamFileLen;	//范围:0~BitStreamFileLen-1
 	
-	int pre_MVD_BOffset;	
+	int pre_mvd_absolute_byte_pos;	
 	int *nalu_pos_array;	//记录了每个nalu的位置,不能大于264文件长度
 	int nalu_pos_array_idx;
 
