@@ -158,8 +158,8 @@ static void init_mvc_picture(Slice *currSlice)
   }
   else
   {
-    process_picture_in_dpb_s(p_Vid, p_pic);
-    store_proc_picture_in_dpb (currSlice->p_Dpb, clone_storable_picture(p_Vid, p_pic));
+    //process_picture_in_dpb_s(p_Vid, p_pic);
+    //store_proc_picture_in_dpb (currSlice->p_Dpb, clone_storable_picture(p_Vid, p_pic));
   }
 }
 #endif
@@ -251,8 +251,8 @@ static void init_picture(VideoParameters *p_Vid, Slice *currSlice, InputParamete
   if (p_Vid->recovery_frame_num == (int) currSlice->frame_num && p_Vid->recovery_poc == 0x7fffffff)
     p_Vid->recovery_poc = currSlice->framepoc;
 
-  if(currSlice->nal_reference_idc)
-    p_Vid->last_ref_pic_poc = currSlice->framepoc;
+  //if(currSlice->nal_reference_idc)
+    //p_Vid->last_ref_pic_poc = currSlice->framepoc;
 
   //  dumppoc (p_Vid);
 
@@ -423,13 +423,13 @@ static void init_picture(VideoParameters *p_Vid, Slice *currSlice, InputParamete
     dec_picture->seiHasTone_mapping = 0;
 #endif
 
-  if( (p_Vid->separate_colour_plane_flag != 0) )
+  //if( (p_Vid->separate_colour_plane_flag != 0) )
   {
-    p_Vid->dec_picture_JV[0] = p_Vid->dec_picture;
-    p_Vid->dec_picture_JV[1] = alloc_storable_picture (p_Vid, (PictureStructure) currSlice->structure, p_Vid->width, p_Vid->height, p_Vid->width_cr, p_Vid->height_cr, 1);
-    copy_dec_picture_JV( p_Vid, p_Vid->dec_picture_JV[1], p_Vid->dec_picture_JV[0] );
-    p_Vid->dec_picture_JV[2] = alloc_storable_picture (p_Vid, (PictureStructure) currSlice->structure, p_Vid->width, p_Vid->height, p_Vid->width_cr, p_Vid->height_cr, 1);
-    copy_dec_picture_JV( p_Vid, p_Vid->dec_picture_JV[2], p_Vid->dec_picture_JV[0] );
+    //p_Vid->dec_picture_JV[0] = p_Vid->dec_picture;
+    //p_Vid->dec_picture_JV[1] = alloc_storable_picture (p_Vid, (PictureStructure) currSlice->structure, p_Vid->width, p_Vid->height, p_Vid->width_cr, p_Vid->height_cr, 1);
+    //copy_dec_picture_JV( p_Vid, p_Vid->dec_picture_JV[1], p_Vid->dec_picture_JV[0] );
+    //p_Vid->dec_picture_JV[2] = alloc_storable_picture (p_Vid, (PictureStructure) currSlice->structure, p_Vid->width, p_Vid->height, p_Vid->width_cr, p_Vid->height_cr, 1);
+    //copy_dec_picture_JV( p_Vid, p_Vid->dec_picture_JV[2], p_Vid->dec_picture_JV[0] );
   }
 }
 
@@ -644,7 +644,7 @@ static void init_picture_decoding(VideoParameters *p_Vid)
 #if (MVC_EXTENSION_ENABLE)
   if((pSlice->layer_id>0) && (pSlice->svc_extension_flag == 0 && pSlice->NaluHeaderMVCExt.non_idr_flag == 0))
   {
-   idr_memory_management(p_Vid->p_Dpb_layer[pSlice->layer_id], p_Vid->dec_picture);
+   //idr_memory_management(p_Vid->p_Dpb_layer[pSlice->layer_id], p_Vid->dec_picture);
   }
   update_ref_list(p_Vid->p_Dpb_layer[pSlice->view_id]);
   update_ltref_list(p_Vid->p_Dpb_layer[pSlice->view_id]);
@@ -1833,19 +1833,19 @@ void exit_picture(VideoParameters *p_Vid, StorablePicture **dec_picture)
   }
 #endif
 
-  if ((*dec_picture)->mb_aff_frame_flag)
-    MbAffPostProc(p_Vid);
+  //if ((*dec_picture)->mb_aff_frame_flag)
+    //MbAffPostProc(p_Vid);
 
   if (p_Vid->structure == FRAME)         // buffer mgt. for frame mode
     frame_postprocessing(p_Vid);
   else
     field_postprocessing(p_Vid);   // reset all interlaced variables
 #if (MVC_EXTENSION_ENABLE)
-  if((*dec_picture)->used_for_reference || ((*dec_picture)->inter_view_flag == 1))
-    pad_dec_picture(p_Vid, *dec_picture);
+  //if((*dec_picture)->used_for_reference || ((*dec_picture)->inter_view_flag == 1))
+    //pad_dec_picture(p_Vid, *dec_picture);
 #else
-  if((*dec_picture)->used_for_reference)
-    pad_dec_picture(p_Vid, *dec_picture);
+  //if((*dec_picture)->used_for_reference)
+    //pad_dec_picture(p_Vid, *dec_picture);
 #endif
   structure  = (*dec_picture)->structure;
   slice_type = (*dec_picture)->slice_type;
@@ -1934,7 +1934,7 @@ void exit_picture(VideoParameters *p_Vid, StorablePicture **dec_picture)
     else
       fprintf(stdout,"Completed Decoding frame %05d.\r",snr->frame_ctr);
 
-    fflush(stdout);
+    //fflush(stdout);
 
     if(slice_type == I_SLICE || slice_type == SI_SLICE || slice_type == P_SLICE || refpic)   // I or P pictures
     {
@@ -2115,6 +2115,7 @@ void field_postprocessing(VideoParameters *p_Vid)
  */
 void copy_dec_picture_JV( VideoParameters *p_Vid, StorablePicture *dst, StorablePicture *src )
 {
+#if 0	
   dst->top_poc              = src->top_poc;
   dst->bottom_poc           = src->bottom_poc;
   dst->frame_poc            = src->frame_poc;
@@ -2169,6 +2170,7 @@ void copy_dec_picture_JV( VideoParameters *p_Vid, StorablePicture *dst, Storable
     memcpy(dst->tone_mapping_lut, src->tone_mapping_lut, sizeof(imgpel) * coded_data_bit_max);
   }
 #endif
+#endif
 }
 
 
@@ -2176,6 +2178,7 @@ void copy_dec_picture_JV( VideoParameters *p_Vid, StorablePicture *dst, Storable
 // i.e. per slice rather than per MB
 static void init_cur_imgy(Slice *currSlice, VideoParameters *p_Vid)
 {
+#if 0	
   int i,j;
   if ((p_Vid->separate_colour_plane_flag != 0))  
   {
@@ -2222,6 +2225,7 @@ static void init_cur_imgy(Slice *currSlice, VideoParameters *p_Vid)
       }
     }
   }
+#endif	
 }
 
 

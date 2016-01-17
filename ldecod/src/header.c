@@ -129,7 +129,7 @@ int RestOfSliceHeader(Slice *currSlice)
   {
     p_Vid->pre_frame_num = currSlice->frame_num;
     // picture error concealment
-    p_Vid->last_ref_pic_poc = 0;
+    //p_Vid->last_ref_pic_poc = 0;
     assert(currSlice->frame_num == 0);
   }
 

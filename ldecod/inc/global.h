@@ -553,7 +553,7 @@ typedef struct slice
   char  *intra_block;
   char  chroma_vector_adjustment[6][32];
   void (*read_CBP_and_coeffs_from_NAL) (Macroblock *currMB);
-  int  (*decode_one_component     )    (Macroblock *currMB, ColorPlane curr_plane, imgpel **currImg, struct storable_picture *dec_picture);
+  //int  (*decode_one_component     )    (Macroblock *currMB, ColorPlane curr_plane, imgpel **currImg, struct storable_picture *dec_picture);
   int  (*readSlice                )    (struct video_par *, struct inp_par *);  
   int  (*nal_startcode_follows    )    (struct slice*, int );
   void (*read_motion_info_from_NAL)    (Macroblock *currMB);
@@ -771,7 +771,7 @@ typedef struct video_par
   TIME_T end_time;
 
   // picture error concealment
-  int last_ref_pic_poc;
+  //int last_ref_pic_poc;
   int ref_poc_gap;
   int poc_gap;
   int conceal_mode;
@@ -1096,7 +1096,6 @@ extern unsigned CeilLog2_sf( unsigned uiVal);
 
 // For 4:4:4 independent mode
 extern void change_plane_JV      ( VideoParameters *p_Vid, int nplane, Slice *pSlice);
-extern void make_frame_picture_JV( VideoParameters *p_Vid );
 
 #if (MVC_EXTENSION_ENABLE)
 extern void nal_unit_header_mvc_extension(NALUnitHeaderMVCExt_t *NaluHeaderMVCExt, struct bit_stream_dec *bitstream);

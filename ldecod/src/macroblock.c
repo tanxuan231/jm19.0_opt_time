@@ -447,10 +447,10 @@ static void readMBMotionVectors (SyntaxElement *currSE, DataPartition *dP, Macro
       j4  = currMB->block_y;
       mvd = &currMB->mvd [list][0];
 
-      get_neighbors(currMB, block, 0, 0, step_h0 << 2);
+      //get_neighbors(currMB, block, 0, 0, step_h0 << 2);
 
       // first get MV predictor
-      currMB->GetMVPredictor (currMB, block, &pred_mv, mv_info[j4][i4].ref_idx[list], mv_info, list, 0, 0, step_h0 << 2, step_v0 << 2);
+      //currMB->GetMVPredictor (currMB, block, &pred_mv, mv_info[j4][i4].ref_idx[list], mv_info, list, 0, 0, step_h0 << 2, step_v0 << 2);
 
       // X component
 #if TRACE
@@ -488,6 +488,7 @@ static void readMBMotionVectors (SyntaxElement *currSE, DataPartition *dP, Macro
 			key_data_len += currSE->len;
 			write_mvd2keyfile(bit_offset_from_rbsp, key_data_len,curr_mvd[0]+curr_mvd[1],2);
 
+#if 0
       curr_mv.mv_x = (short)(curr_mvd[0] + pred_mv.mv_x);  // compute motion vector x
       curr_mv.mv_y = (short)(curr_mvd[1] + pred_mv.mv_y);  // compute motion vector y
 
@@ -513,6 +514,7 @@ static void readMBMotionVectors (SyntaxElement *currSE, DataPartition *dP, Macro
       {
         memcpy(mvd[jj][0], mvd[0][0],  2 * step_h0 * sizeof(short));
       }
+#endif			
     }
   }
   else
@@ -571,10 +573,10 @@ static void readMBMotionVectors (SyntaxElement *currSE, DataPartition *dP, Macro
               currMB->subblock_x = i << 2; // position used for context determination
               i4 = currMB->block_x + i;
 
-              get_neighbors(currMB, block, BLOCK_SIZE * i, BLOCK_SIZE * j, step_h4);
+              //get_neighbors(currMB, block, BLOCK_SIZE * i, BLOCK_SIZE * j, step_h4);
 
               // first get MV predictor
-              currMB->GetMVPredictor (currMB, block, &pred_mv, cur_ref_idx, mv_info, list, BLOCK_SIZE * i, BLOCK_SIZE * j, step_h4, step_v4);
+              //currMB->GetMVPredictor (currMB, block, &pred_mv, cur_ref_idx, mv_info, list, BLOCK_SIZE * i, BLOCK_SIZE * j, step_h4, step_v4);
 
               for (k=0; k < 2; ++k)
               {
@@ -602,7 +604,7 @@ static void readMBMotionVectors (SyntaxElement *currSE, DataPartition *dP, Macro
 								mvd_sum += curr_mvd[k];
 								key_data_len += currSE->len;								
               }
-
+#if 0
               curr_mv.mv_x = (short)(curr_mvd[0] + pred_mv.mv_x);  // compute motion vector 
               curr_mv.mv_y = (short)(curr_mvd[1] + pred_mv.mv_y);  // compute motion vector 
 
@@ -628,6 +630,7 @@ static void readMBMotionVectors (SyntaxElement *currSE, DataPartition *dP, Macro
               {
                 memcpy(&mvd[jj][i][0], &mvd[0][i][0],  2 * step_h * sizeof(short));
               }
+#endif							
             }
           }
         }
@@ -1382,48 +1385,6 @@ static void init_cur_imgy(VideoParameters *p_Vid,Slice *currSlice,int pl)
 /*!
  ************************************************************************
  * \brief
- *    decode one macroblock
- ************************************************************************
- */
-
-int decode_one_macroblock(Macroblock *currMB, StorablePicture *dec_picture)
-{
-  Slice *currSlice = currMB->p_Slice;
-  VideoParameters *p_Vid = currMB->p_Vid;  
-
-  // macroblock decoding **************************************************
-  if (currSlice->chroma444_not_separate)  
-  {
-    if (!currMB->is_intra_block)
-    {
-      init_cur_imgy(p_Vid, currSlice, PLANE_Y);
-      currSlice->decode_one_component(currMB, PLANE_Y, dec_picture->imgY, dec_picture);
-      init_cur_imgy(p_Vid, currSlice, PLANE_U);
-      currSlice->decode_one_component(currMB, PLANE_U, dec_picture->imgUV[0], dec_picture);
-      init_cur_imgy(p_Vid, currSlice, PLANE_V);
-      currSlice->decode_one_component(currMB, PLANE_V, dec_picture->imgUV[1], dec_picture);
-    }
-    else
-    {
-      currSlice->decode_one_component(currMB, PLANE_Y, dec_picture->imgY, dec_picture);
-      currSlice->decode_one_component(currMB, PLANE_U, dec_picture->imgUV[0], dec_picture);
-      currSlice->decode_one_component(currMB, PLANE_V, dec_picture->imgUV[1], dec_picture);      
-    }
-    currSlice->is_reset_coeff = FALSE;
-    currSlice->is_reset_coeff_cr = FALSE;
-  }
-  else
-  {
-    currSlice->decode_one_component(currMB, PLANE_Y, dec_picture->imgY, dec_picture);
-  }
-
-  return 0;
-}
-
-
-/*!
- ************************************************************************
- * \brief
  *    change target plane
  *    for 4:4:4 Independent mode
  ************************************************************************
@@ -1444,39 +1405,6 @@ void change_plane_JV( VideoParameters *p_Vid, int nplane, Slice *pSlice)
     pSlice->siblock = p_Vid->siblock_JV[nplane];
     pSlice->ipredmode = p_Vid->ipredmode_JV[nplane];
     pSlice->intra_block = p_Vid->intra_block_JV[nplane];
-  }
-}
-
-/*!
- ************************************************************************
- * \brief
- *    make frame picture from each plane data
- *    for 4:4:4 Independent mode
- ************************************************************************
- */
-void make_frame_picture_JV(VideoParameters *p_Vid)
-{
-  int uv, line;
-  int nsize;
-  p_Vid->dec_picture = p_Vid->dec_picture_JV[0];
-  //copy;
-  if(p_Vid->dec_picture->used_for_reference) 
-  {
-    nsize = (p_Vid->dec_picture->size_y/BLOCK_SIZE)*(p_Vid->dec_picture->size_x/BLOCK_SIZE)*sizeof(PicMotionParams);
-    memcpy( &(p_Vid->dec_picture->JVmv_info[PLANE_Y][0][0]), &(p_Vid->dec_picture_JV[PLANE_Y]->mv_info[0][0]), nsize);
-    memcpy( &(p_Vid->dec_picture->JVmv_info[PLANE_U][0][0]), &(p_Vid->dec_picture_JV[PLANE_U]->mv_info[0][0]), nsize);
-    memcpy( &(p_Vid->dec_picture->JVmv_info[PLANE_V][0][0]), &(p_Vid->dec_picture_JV[PLANE_V]->mv_info[0][0]), nsize);
-  }
-
-  // This could be done with pointers and seems not necessary
-  for( uv=0; uv<2; uv++ )
-  {
-    for( line=0; line<p_Vid->height; line++ )
-    {
-      nsize = sizeof(imgpel) * p_Vid->width;
-      memcpy( p_Vid->dec_picture->imgUV[uv][line], p_Vid->dec_picture_JV[uv+1]->imgY[line], nsize );
-    }
-    free_storable_picture(p_Vid->dec_picture_JV[uv+1]);
   }
 }
 
