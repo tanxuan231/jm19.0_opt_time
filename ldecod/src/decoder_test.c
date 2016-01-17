@@ -40,10 +40,6 @@ static void Configure(InputParameters *p_Inp, int ac, char *av[])
   //strcpy(p_Inp->outfile, DECRECON_FILENAME); //! set default output file name
   //strcpy(p_Inp->reffile, ENCRECON_FILENAME); //! set default reference file name
   
-#ifdef _LEAKYBUCKET_
-  strcpy(p_Inp->LeakyBucketParamFile,"leakybucketparam.cfg");    // file where Leaky Bucket parameters (computed by encoder) are stored
-#endif
-
   ParseCommand(p_Inp, ac, av);
 
   fprintf(stdout,"----------------------------- JM %s %s -----------------------------\n", VERSION, EXT_VERSION);
@@ -57,14 +53,6 @@ static void Configure(InputParameters *p_Inp, int ac, char *av[])
     //fprintf(stdout," Input reference file                   : %s \n",p_Inp->reffile);
 
     fprintf(stdout,"--------------------------------------------------------------------------\n");
-  #ifdef _LEAKYBUCKET_
-    fprintf(stdout," Rate_decoder        : %8ld \n",p_Inp->R_decoder);
-    fprintf(stdout," B_decoder           : %8ld \n",p_Inp->B_decoder);
-    fprintf(stdout," F_decoder           : %8ld \n",p_Inp->F_decoder);
-    fprintf(stdout," LeakyBucketParamFile: %s \n",p_Inp->LeakyBucketParamFile); // Leaky Bucket Param file
-    calc_buffer(p_Inp);
-    fprintf(stdout,"--------------------------------------------------------------------------\n");
-  #endif
   }
   
 }

@@ -759,14 +759,14 @@ void reset_format_info(seq_parameter_set_rbsp_t *sps, VideoParameters *p_Vid, Fr
     crop_left = crop_right = crop_top = crop_bottom = 0;
   }
 
-  if ((sps->chroma_format_idc==YUV400) && p_Inp->write_uv)
+  //if ((sps->chroma_format_idc==YUV400) && p_Inp->write_uv)
   {
-    source->width[1]  = (source->width[0] >> 1);
-    source->width[2]  = source->width[1];
-    source->height[1] = (source->height[0] >> 1);
-    source->height[2] = source->height[1];
+    //source->width[1]  = (source->width[0] >> 1);
+    //source->width[2]  = source->width[1];
+    //source->height[1] = (source->height[0] >> 1);
+    //source->height[2] = source->height[1];
   }
-  else
+  //else
   {
     source->width[1]  = p_Vid->width_cr - crop_left - crop_right;
     source->width[2]  = source->width[1];

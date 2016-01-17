@@ -977,7 +977,7 @@ typedef struct inp_par
   int FileFormat;                         //!< File format of the Input file, PAR_OF_ANNEXB or PAR_OF_RTP
   int ref_offset;
   int poc_scale;
-  int write_uv;
+  //int write_uv;
   int silent;
   int intra_profile_deblocking;               //!< Loop filter usage determined by flags and parameters in bitstream 
 
@@ -992,13 +992,6 @@ typedef struct inp_par
   VideoDataFile input_file3;          //!< Input video file3
 #if (MVC_EXTENSION_ENABLE)
   int  DecodeAllLayers;
-#endif
-
-#ifdef _LEAKYBUCKET_
-  unsigned long R_decoder;                //!< Decoder Rate in HRD Model
-  unsigned long B_decoder;                //!< Decoder Buffer size in HRD model
-  unsigned long F_decoder;                //!< Decoder Initial buffer fullness in HRD model
-  char LeakyBucketParamFile[FILE_NAME_SIZE];         //!< LeakyBucketParamFile
 #endif
 
   // picture error concealment
