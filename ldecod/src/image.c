@@ -72,8 +72,8 @@ static void setup_buffers(VideoParameters *p_Vid, int layer_id)
 
   if(p_Vid->last_dec_layer_id != layer_id)
   {
-    p_Vid->imgY_ref = cps->imgY_ref;
-    p_Vid->imgUV_ref = cps->imgUV_ref;
+    //p_Vid->imgY_ref = cps->imgY_ref;
+    //p_Vid->imgUV_ref = cps->imgUV_ref;
     if(cps->separate_colour_plane_flag)
     {
      for( i=0; i<MAX_PLANE; i++ )
@@ -1118,129 +1118,6 @@ void calculate_frame_no(VideoParameters *p_Vid, StorablePicture *p)
   p_Vid->frame_no = p_Vid->idr_psnr_number + psnrPOC;
 }
 
-
-/*!
-************************************************************************
-* \brief
-*    Find PSNR for all three components.Compare decoded frame with
-*    the original sequence. Read p_Inp->jumpd frames to reflect frame skipping.
-* \param p_Vid
-*      video encoding parameters for current picture
-* \param p
-*      picture to be compared
-* \param p_ref
-*      file pointer piont to reference YUV reference file
-************************************************************************
-*/
-void find_snr(VideoParameters *p_Vid, 
-              StorablePicture *p,
-              int *p_ref)
-{
-  InputParameters *p_Inp = p_Vid->p_Inp;
-  SNRParameters   *snr   = p_Vid->snr;
-
-  int k;
-  int ret;
-  int64 diff_comp[3] = {0};
-  int64  status;
-  int symbol_size_in_bytes = (p_Vid->pic_unit_bitsize_on_disk >> 3);
-  int comp_size_x[3], comp_size_y[3];
-  int64 framesize_in_bytes;
-
-  unsigned int max_pix_value_sqd[3];
-
-  Boolean rgb_output = (Boolean) (p_Vid->active_sps->vui_seq_parameters.matrix_coefficients==0);
-  unsigned char *buf;
-  imgpel **cur_ref [3];
-  imgpel **cur_comp[3]; 
-  // picture error concealment
-  char yuv_types[4][6]= {"4:0:0","4:2:0","4:2:2","4:4:4"};
-
-  max_pix_value_sqd[0] = iabs2(p_Vid->max_pel_value_comp[0]);
-  max_pix_value_sqd[1] = iabs2(p_Vid->max_pel_value_comp[1]);
-  max_pix_value_sqd[2] = iabs2(p_Vid->max_pel_value_comp[2]);
-
-  cur_ref[0]  = p_Vid->imgY_ref;
-  cur_ref[1]  = p->chroma_format_idc != YUV400 ? p_Vid->imgUV_ref[0] : NULL;
-  cur_ref[2]  = p->chroma_format_idc != YUV400 ? p_Vid->imgUV_ref[1] : NULL;
-
-  cur_comp[0] = p->imgY;
-  cur_comp[1] = p->chroma_format_idc != YUV400 ? p->imgUV[0]  : NULL;
-  cur_comp[2] =  p->chroma_format_idc!= YUV400 ? p->imgUV[1]  : NULL; 
-
-  comp_size_x[0] = p_Inp->source.width[0];
-  comp_size_y[0] = p_Inp->source.height[0];
-  comp_size_x[1] = comp_size_x[2] = p_Inp->source.width[1];
-  comp_size_y[1] = comp_size_y[2] = p_Inp->source.height[1];
-
-  framesize_in_bytes = (((int64) comp_size_x[0] * comp_size_y[0]) + ((int64) comp_size_x[1] * comp_size_y[1] ) * 2) * symbol_size_in_bytes;
-
-  // KS: this buffer should actually be allocated only once, but this is still much faster than the previous version
-  buf = malloc ( comp_size_x[0] * comp_size_y[0] * symbol_size_in_bytes );
-
-  if (NULL == buf)
-  {
-    no_mem_exit("find_snr: buf");
-  }
-
-  status = lseek (*p_ref, framesize_in_bytes * p_Vid->frame_no, SEEK_SET);
-  if (status == -1)
-  {
-    fprintf(stderr, "Warning: Could not seek to frame number %d in reference file. Shown PSNR might be wrong.\n", p_Vid->frame_no);
-    free (buf);
-    return;
-  }
-
-  if(rgb_output)
-    lseek (*p_ref, framesize_in_bytes/3, SEEK_CUR);
-
-  for (k = 0; k < ((p->chroma_format_idc != YUV400) ? 3 : 1); ++k)
-  {
-
-    if(rgb_output && k == 2)
-      lseek (*p_ref, -framesize_in_bytes, SEEK_CUR);
-
-    ret = read(*p_ref, buf, comp_size_x[k] * comp_size_y[k] * symbol_size_in_bytes);
-    if (ret != comp_size_x[k] * comp_size_y[k] * symbol_size_in_bytes)
-    {
-      printf ("Warning: could not read from reconstructed file\n");
-      fast_memset (buf, 0, comp_size_x[k] * comp_size_y[k] * symbol_size_in_bytes);
-      close(*p_ref);
-      *p_ref = -1;
-      break;
-    }
-    buffer2img(cur_ref[k], buf, comp_size_x[k], comp_size_y[k], symbol_size_in_bytes);
-
-    // Compute SSE
-    diff_comp[k] = compute_SSE(cur_ref[k], cur_comp[k], 0, 0, comp_size_y[k], comp_size_x[k]);
-
-    // Collecting SNR statistics
-    snr->snr[k] = psnr( max_pix_value_sqd[k], comp_size_x[k] * comp_size_y[k], (float) diff_comp[k]);   
-
-    if (snr->frame_ctr == 0) // first
-    {
-      snr->snra[k] = snr->snr[k];                                                        // keep luma snr for first frame
-    }
-    else
-    {
-      snr->snra[k] = (float)(snr->snra[k]*(snr->frame_ctr)+snr->snr[k])/(snr->frame_ctr + 1); // average snr chroma for all frames
-    }
-  }
-
-  if(rgb_output)
-    lseek (*p_ref, framesize_in_bytes * 2 / 3, SEEK_CUR);
-
-  free (buf);
-
-  // picture error concealment
-  if(p->concealed_pic)
-  {
-    fprintf(stdout,"%04d(P)  %8d %5d %5d %7.4f %7.4f %7.4f  %s %5d\n",
-      p_Vid->frame_no, p->frame_poc, p->pic_num, p->qp,
-      snr->snr[0], snr->snr[1], snr->snr[2], yuv_types[p->chroma_format_idc], 0);
-  }
-}
-
 /*!
  ************************************************************************
  * \brief
@@ -1923,10 +1800,10 @@ void exit_picture(VideoParameters *p_Vid, StorablePicture **dec_picture)
     if (p_Inp->silent == FALSE)
     {
       SNRParameters   *snr = p_Vid->snr;
-      if (p_Vid->p_ref != -1)
-        fprintf(stdout,"%05d(%s%5d %5d %5d %8.4f %8.4f %8.4f  %s %7d\n",
-        p_Vid->frame_no, p_Vid->cslice_type, frame_poc, pic_num, qp, snr->snr[0], snr->snr[1], snr->snr[2], yuvFormat, (int) tmp_time);
-      else
+      //if (p_Vid->p_ref != -1)
+        //fprintf(stdout,"%05d(%s%5d %5d %5d %8.4f %8.4f %8.4f  %s %7d\n",
+        //p_Vid->frame_no, p_Vid->cslice_type, frame_poc, pic_num, qp, snr->snr[0], snr->snr[1], snr->snr[2], yuvFormat, (int) tmp_time);
+      //else
         fprintf(stdout,"%05d(%s%5d %5d %5d                             %s %7d\n",
         p_Vid->frame_no, p_Vid->cslice_type, frame_poc, pic_num, qp, yuvFormat, (int)tmp_time);
     }

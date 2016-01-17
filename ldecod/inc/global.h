@@ -650,8 +650,8 @@ typedef struct coding_par
   void (*img2buf)          (imgpel** imgX, unsigned char* buf, int size_x, int size_y, int symbol_size_in_bytes, int crop_left, int crop_right, int crop_top, int crop_bottom, int iOutStride);
   int rgb_output;
 
-  imgpel **imgY_ref;                              //!< reference frame find snr
-  imgpel ***imgUV_ref;
+  //imgpel **imgY_ref;                              //!< reference frame find snr
+  //imgpel ***imgUV_ref;
   Macroblock *mb_data;               //!< array containing all MBs of a whole frame
   Macroblock *mb_data_JV[MAX_PLANE]; //!< mb_data to be used for 4:4:4 independent mode
   char  *intra_block;
@@ -813,11 +813,11 @@ typedef struct video_par
   int64 tot_time;
 
   // files
-  int p_out;                       //!< file descriptor to output YUV file
+  //int p_out;                       //!< file descriptor to output YUV file
 #if (MVC_EXTENSION_ENABLE)
-  int p_out_mvc[MAX_VIEW_NUM];     //!< file descriptor to output YUV file for MVC
+  //int p_out_mvc[MAX_VIEW_NUM];     //!< file descriptor to output YUV file for MVC
 #endif
-  int p_ref;                       //!< pointer to input original reference YUV file file
+  //int p_ref;                       //!< pointer to input original reference YUV file file
 
   //FILE *p_log;                     //!< SNR file
   int LastAccessUnitExists;
@@ -831,8 +831,8 @@ typedef struct video_par
   Boolean global_init_done[2];
 
   // global picture format dependent buffers, memory allocation in decod.c
-  imgpel **imgY_ref;                              //!< reference frame find snr
-  imgpel ***imgUV_ref;
+  //imgpel **imgY_ref;                              //!< reference frame find snr
+  //imgpel ***imgUV_ref;
 
   int *qp_per_matrix;
   int *qp_rem_matrix;
@@ -849,7 +849,7 @@ typedef struct video_par
   //struct ercVariables_s *erc_errorVar;
 
   //int erc_mvperMB;
-  struct video_par *erc_img;
+  //struct video_par *erc_img;
   //int ec_flag[SE_MAX_ELEMENTS];        //!< array to set errorconcealment
 
   struct annex_b_struct *annex_b;
@@ -857,8 +857,8 @@ typedef struct video_par
   //struct frame_store *out_buffer;
 
   //struct storable_picture *pending_output;
-  int    pending_output_state;
-  int    recovery_flag;
+  //int    pending_output_state;
+  //int    recovery_flag;
 
   int BitStreamFile;
 
@@ -896,9 +896,6 @@ typedef struct video_par
   //int bDeblockEnable;
   int iPostProcess;
   int bFrameInit;
-#if _FLTDBG_
-  FILE *fpDbg;
-#endif
   pic_parameter_set_rbsp_t *pNextPPS;
   int last_dec_poc;
   int last_dec_view_id;

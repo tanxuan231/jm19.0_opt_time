@@ -417,6 +417,7 @@ void interpret_spare_pic( byte* payload, int size, VideoParameters *p_Vid )
               Y[i*16+i0][j*16+j0]=tmp;
         }
 
+#if 0
       // write the map image
       for (i=0; i < p_Vid->height; i++)
         for (j=0; j < p_Vid->width; j++)
@@ -426,6 +427,7 @@ void interpret_spare_pic( byte* payload, int size, VideoParameters *p_Vid )
         for (i=0; i < p_Vid->height>>1; i++)
           for (j=0; j < p_Vid->width>>1; j++)
             fwrite(&(p_Vid->dc_pred_value_comp[1]), symbol_size_in_bytes, 1, p_out);
+#endif				
     }
     fclose( fp );
     free_mem2Dpel( Y );

@@ -334,8 +334,8 @@ static void init(VideoParameters *p_Vid)  //!< video parameters
   InputParameters *p_Inp = p_Vid->p_Inp;
   p_Vid->oldFrameSizeInMbs = (unsigned int) -1;
 
-  p_Vid->imgY_ref  = NULL;
-  p_Vid->imgUV_ref = NULL;
+  //p_Vid->imgY_ref  = NULL;
+  //p_Vid->imgUV_ref = NULL;
 
   p_Vid->recovery_point = 0;
   p_Vid->recovery_point_found = 0;
@@ -372,8 +372,8 @@ static void init(VideoParameters *p_Vid)  //!< video parameters
 
   //p_Vid->out_buffer = NULL;
   //p_Vid->pending_output = NULL;
-  p_Vid->pending_output_state = FRAME;
-  p_Vid->recovery_flag = 0;
+  //p_Vid->pending_output_state = FRAME;
+  //p_Vid->recovery_flag = 0;
 
 
 #if (ENABLE_OUTPUT_TONEMAPPING)
@@ -870,6 +870,7 @@ int init_global_buffers(VideoParameters *p_Vid, int layer_id)
     free_layer_buffers(p_Vid, layer_id);
   }
 
+#if 0
   // allocate memory for reference frame in find_snr
   memory_size += get_mem2Dpel(&cps->imgY_ref, cps->height, cps->width);
   if (cps->yuv_format != YUV400)
@@ -878,6 +879,7 @@ int init_global_buffers(VideoParameters *p_Vid, int layer_id)
   }
   else
     cps->imgUV_ref = NULL;
+#endif	
 
   // allocate memory in structure p_Vid
   if( (cps->separate_colour_plane_flag != 0) )
@@ -982,6 +984,7 @@ void free_layer_buffers(VideoParameters *p_Vid, int layer_id)
   if(!p_Vid->global_init_done[layer_id])
     return;
 
+#if 0
   if (cps->imgY_ref)
   {
     free_mem2Dpel (cps->imgY_ref);
@@ -992,6 +995,7 @@ void free_layer_buffers(VideoParameters *p_Vid, int layer_id)
     free_mem3Dpel (cps->imgUV_ref);
     cps->imgUV_ref = NULL;
   }
+#endif	
   // CAVLC free mem
   if (cps->nz_coeff)
   {
@@ -1236,12 +1240,6 @@ int OpenDecoder(InputParameters *p_Inp)
   init_subset_sps_list(pDecoder->p_Vid->SubsetSeqParSet, MAXSPS);
 #endif
 
-
-#if _FLTDBG_
-  pDecoder->p_Vid->fpDbg = fopen("c:/fltdbg.txt", "a");
-  fprintf(pDecoder->p_Vid->fpDbg, "\ndecoder is opened.\n");
-#endif
-
   return DEC_OPEN_NOERR;
 }
 
@@ -1325,20 +1323,20 @@ int CloseDecoder()
   }
 
 #if (MVC_EXTENSION_ENABLE)
-  for(i=0;i<MAX_VIEW_NUM;i++)
+  //for(i=0;i<MAX_VIEW_NUM;i++)
   {
-    if (pDecoder->p_Vid->p_out_mvc[i] != -1)
+    //if (pDecoder->p_Vid->p_out_mvc[i] != -1)
     {
-      close(pDecoder->p_Vid->p_out_mvc[i]);
+      //close(pDecoder->p_Vid->p_out_mvc[i]);
     }
   }
 #else
-  if(pDecoder->p_Vid->p_out >=0)
-    close(pDecoder->p_Vid->p_out);
+  //if(pDecoder->p_Vid->p_out >=0)
+    //close(pDecoder->p_Vid->p_out);
 #endif
 
-  if (pDecoder->p_Vid->p_ref != -1)
-    close(pDecoder->p_Vid->p_ref);
+  //if (pDecoder->p_Vid->p_ref != -1)
+    //close(pDecoder->p_Vid->p_ref);
 
 #if TRACE
   fclose(pDecoder->p_trace);
@@ -1359,14 +1357,6 @@ int CloseDecoder()
 
 
   //uninit_out_buffer(pDecoder->p_Vid);
-#if _FLTDBG_
-  if(pDecoder->p_Vid->fpDbg)
-  {
-    fprintf(pDecoder->p_Vid->fpDbg, "decoder is closed.\n");
-    fclose(pDecoder->p_Vid->fpDbg);
-    pDecoder->p_Vid->fpDbg = NULL;
-  }
-#endif
 
   free_img (pDecoder->p_Vid);
   free (pDecoder->p_Inp);
