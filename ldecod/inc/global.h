@@ -854,9 +854,9 @@ typedef struct video_par
 
   struct annex_b_struct *annex_b;
 
-  struct frame_store *out_buffer;
+  //struct frame_store *out_buffer;
 
-  struct storable_picture *pending_output;
+  //struct storable_picture *pending_output;
   int    pending_output_state;
   int    recovery_flag;
 
