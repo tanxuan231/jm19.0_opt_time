@@ -27,7 +27,6 @@
 #include "mbuffer.h"
 #include "mbuffer_common.h"
 #include "memalloc.h"
-#include "output.h"
 #include "mbuffer_mvc.h"
 #include "fast_memory.h"
 #include "input.h"

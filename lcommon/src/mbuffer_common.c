@@ -23,7 +23,6 @@
 #include "mbuffer_common.h"
 #include "mbuffer.h"
 #include "memalloc.h"
-#include "output.h"
 #include "fast_memory.h"
 #include "input.h"
 

@@ -24,7 +24,6 @@
 #include "mbuffer_common.h"
 #include "mbuffer_mvc.h"
 #include "memalloc.h"
-#include "output.h"
 
 #if (MVC_EXTENSION_ENABLE)
 /*!

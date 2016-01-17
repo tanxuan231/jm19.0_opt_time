@@ -54,7 +54,6 @@
 #include "mbuffer.h"
 #include "leaky_bucket.h"
 #include "fmo.h"
-#include "output.h"
 #include "cabac.h"
 #include "parset.h"
 #include "sei.h"
@@ -64,7 +63,6 @@
 #include "img_io.h"
 #include "rtp.h"
 #include "input.h"
-#include "output.h"
 #include "h264decoder.h"
 #include "dec_statistics.h"
 
