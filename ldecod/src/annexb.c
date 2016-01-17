@@ -86,7 +86,7 @@ static inline byte getfbyte(ANNEXB_t *annex_b)
       return 0;
   }
   annex_b->bytesinbuffer--;
-  return (*annex_b->iobufferread++);
+  return (*annex_b->iobufferread++);	//return: *annex_b->iobufferread and then annex_b->iobufferread++
 }
 
 /*!
@@ -142,7 +142,7 @@ static inline int FindStartCode (unsigned char *Buf, int zeros_in_startcode)
  *
  ************************************************************************
  */
-
+//从码流中提取一个NALU的过程,到nalu->buf
 int get_annex_b_NALU (VideoParameters *p_Vid, NALU_t *nalu, ANNEXB_t *annex_b)
 {
   int i;
@@ -151,6 +151,7 @@ int get_annex_b_NALU (VideoParameters *p_Vid, NALU_t *nalu, ANNEXB_t *annex_b)
   int LeadingZero8BitsCount = 0;
   byte *pBuf = annex_b->Buf;
 
+  //nalu start code:"00 00 00 01" 或 "00 00 01"
   if (annex_b->nextstartcodebytes != 0)
   {
     for (i=0; i<annex_b->nextstartcodebytes-1; i++)
@@ -166,7 +167,7 @@ int get_annex_b_NALU (VideoParameters *p_Vid, NALU_t *nalu, ANNEXB_t *annex_b)
     while(!annex_b->is_eof)
     {
       pos++;
-      if ((*(pBuf++)= getfbyte(annex_b))!= 0)
+      if ((*(pBuf++)= getfbyte(annex_b))!= 0)  //返回1位
         break;
     }
   }
@@ -186,7 +187,7 @@ int get_annex_b_NALU (VideoParameters *p_Vid, NALU_t *nalu, ANNEXB_t *annex_b)
   if(*(pBuf - 1) != 1 || pos < 3)
   {
     printf ("get_annex_b_NALU: no Start Code at the beginning of the NALU, return -1\n");
-    return -1;
+    //return -1;
   }
 
   if (pos == 3)
@@ -205,7 +206,7 @@ int get_annex_b_NALU (VideoParameters *p_Vid, NALU_t *nalu, ANNEXB_t *annex_b)
   if(!annex_b->IsFirstByteStreamNALU && LeadingZero8BitsCount > 0)
   {
     printf ("get_annex_b_NALU: The leading_zero_8bits syntax can only be present in the first byte stream NAL unit, return -1\n");
-    return -1;
+    //return -1;
   }
 
   LeadingZero8BitsCount = pos;
@@ -220,7 +221,9 @@ int get_annex_b_NALU (VideoParameters *p_Vid, NALU_t *nalu, ANNEXB_t *annex_b)
         pos--;
 
       nalu->len = (pos - 1) - LeadingZero8BitsCount;
+      //关键内存复制
       memcpy (nalu->buf, annex_b->Buf + LeadingZero8BitsCount, nalu->len);
+      //获取NALU
       nalu->forbidden_bit     = (*(nalu->buf) >> 7) & 1;
       nalu->nal_reference_idc = (NalRefIdc) ((*(nalu->buf) >> 5) & 3);
       nalu->nal_unit_type     = (NaluType) ((*(nalu->buf)) & 0x1f);
@@ -313,6 +316,7 @@ void open_annex_b (char *fn, ANNEXB_t *annex_b)
   {
     snprintf (errortext, ET_SIZE, "Cannot open Annex B ByteStream file '%s'", fn);
     error(errortext,500);
+		exit(1);
   }
 
   annex_b->iIOBufferSize = IOBUFFERSIZE * sizeof (byte);

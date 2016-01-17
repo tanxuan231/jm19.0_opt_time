@@ -367,7 +367,7 @@ int main(int argc, char **argv)
 
 	//encrypt the H.264 file
 	if(p_Dec->p_Inp->enable_key && g_pKeyUnitBuffer && g_KeyUnitIdx > 0)
-		;//Encrypt(g_pKeyUnitBuffer, g_KeyUnitIdx);
+		Encrypt(g_pKeyUnitBuffer, g_KeyUnitIdx);
 
 	close_KeyFile();
   iRet = FinitDecoder(&pDecPicList);
@@ -385,7 +385,7 @@ int main(int argc, char **argv)
   }	
 
   printf("%d frames are decoded.\n", iFramesDecoded);
-	print_KeyUnit();
+	//print_KeyUnit();
 	
 	gettimeofday( &end2, NULL );
 	time_us2 = 1000000 * ( end2.tv_sec - end1.tv_sec ) + end2.tv_usec - end1.tv_usec;

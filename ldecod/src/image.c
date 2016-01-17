@@ -729,6 +729,9 @@ void init_slice(VideoParameters *p_Vid, Slice *currSlice)
 
 void decode_slice(Slice *currSlice, int current_header)
 {
+	if (currSlice->slice_type == I_SLICE || currSlice->slice_type == SI_SLICE)
+		return;
+	
   if (currSlice->active_pps->entropy_coding_mode_flag)
   {
     init_contexts  (currSlice);
@@ -912,10 +915,13 @@ int decode_one_frame(DecoderParams *pDecoder)
     }
     else
     {
-      if(ppSliceList[p_Vid->iSliceNumOfCurrPic-1]->mb_aff_frame_flag)
-       ppSliceList[p_Vid->iSliceNumOfCurrPic-1]->end_mb_nr_plus1 = p_Vid->FrameSizeInMbs/2;
-      else
-       ppSliceList[p_Vid->iSliceNumOfCurrPic-1]->end_mb_nr_plus1 = p_Vid->FrameSizeInMbs/(1+ppSliceList[p_Vid->iSliceNumOfCurrPic-1]->field_pic_flag);
+			//if(p_Vid->iSliceNumOfCurrPic > 0)
+			{
+	      if(ppSliceList[p_Vid->iSliceNumOfCurrPic-1]->mb_aff_frame_flag)
+	       ppSliceList[p_Vid->iSliceNumOfCurrPic-1]->end_mb_nr_plus1 = p_Vid->FrameSizeInMbs/2;
+	      else
+	       ppSliceList[p_Vid->iSliceNumOfCurrPic-1]->end_mb_nr_plus1 = p_Vid->FrameSizeInMbs/(1+ppSliceList[p_Vid->iSliceNumOfCurrPic-1]->field_pic_flag);
+			}
        p_Vid->newframe = 1;
        currSlice->current_slice_nr = 0;
        //keep it in currentslice;
@@ -930,24 +936,23 @@ int decode_one_frame(DecoderParams *pDecoder)
   iRet = current_header;
   init_picture_decoding(p_Vid);
 
+  for(iSliceNo=0; iSliceNo<p_Vid->iSliceNumOfCurrPic; iSliceNo++)
   {
-    for(iSliceNo=0; iSliceNo<p_Vid->iSliceNumOfCurrPic; iSliceNo++)
-    {
-      currSlice = ppSliceList[iSliceNo];
-      current_header = currSlice->current_header;
-      //p_Vid->currentSlice = currSlice;
+    currSlice = ppSliceList[iSliceNo];
+    current_header = currSlice->current_header;
+    //p_Vid->currentSlice = currSlice;
 
-      assert(current_header != EOS);
-      assert(currSlice->current_slice_nr == iSliceNo);
+    assert(current_header != EOS);
+    assert(currSlice->current_slice_nr == iSliceNo);
 
-      init_slice(p_Vid, currSlice);
-      decode_slice(currSlice, current_header);
+    init_slice(p_Vid, currSlice);
+    decode_slice(currSlice, current_header);
 
-      p_Vid->iNumOfSlicesDecoded++;
-      p_Vid->num_dec_mb += currSlice->num_dec_mb;
-      p_Vid->erc_mvperMB += currSlice->erc_mvperMB;
-    }
+    p_Vid->iNumOfSlicesDecoded++;
+    p_Vid->num_dec_mb += currSlice->num_dec_mb;
+    p_Vid->erc_mvperMB += currSlice->erc_mvperMB;
   }
+
 #if MVC_EXTENSION_ENABLE
   p_Vid->last_dec_view_id = p_Vid->dec_picture->view_id;
 #endif
@@ -2228,7 +2233,7 @@ static void init_cur_imgy(Slice *currSlice, VideoParameters *p_Vid)
  ************************************************************************
  */
 void decode_one_slice(Slice *currSlice)
-{
+{	
   VideoParameters *p_Vid = currSlice->p_Vid;
   Boolean end_of_slice = FALSE;
   Macroblock *currMB = NULL;

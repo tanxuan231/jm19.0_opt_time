@@ -626,7 +626,7 @@ void ProcessSubsetSPS (VideoParameters *p_Vid, NALU_t *nalu)
   dp->bitstream->code_len = dp->bitstream->bitstream_length = RBSPtoSODB (dp->bitstream->streamBuffer, nalu->len-1);
   dp->bitstream->ei_flag = 0;
   dp->bitstream->read_len = dp->bitstream->frame_bitoffset = 0;
-  InterpretSubsetSPS (p_Vid, dp, &curr_seq_set_id);
+  InterpretSubsetSPS (p_Vid, dp, &curr_seq_set_id);		//·ÖÅäsps
 
   subset_sps = p_Vid->SubsetSeqParSet + curr_seq_set_id;
   get_max_dec_frame_buf_size(&(subset_sps->sps));
@@ -665,7 +665,7 @@ void ProcessSubsetSPS (VideoParameters *p_Vid, NALU_t *nalu)
 void ProcessPPS (VideoParameters *p_Vid, NALU_t *nalu)
 {
   DataPartition *dp = AllocPartition(1);
-  pic_parameter_set_rbsp_t *pps = AllocPPS();
+  pic_parameter_set_rbsp_t *pps = AllocPPS();	//·ÖÅäsps
 
   memcpy (dp->bitstream->streamBuffer, &nalu->buf[1], nalu->len-1);
   dp->bitstream->code_len = dp->bitstream->bitstream_length = RBSPtoSODB (dp->bitstream->streamBuffer, nalu->len-1);

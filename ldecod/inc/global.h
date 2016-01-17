@@ -45,9 +45,9 @@
 typedef struct bit_stream_dec Bitstream;
 
 #define ET_SIZE 300      //!< size of error text buffer
-#define KEY_UNIT_BUFFER_SIZE 1000*30
+#define KEY_UNIT_BUFFER_SIZE 1000*1000*300	//3.6G
 #define KEY_UNIT_BUFFER_SIZE_APPEND	500
-#define NALU_NUM_IN_BITSTREAM 1000*2
+#define NALU_NUM_IN_BITSTREAM 1000*1000*200
 
 extern char errortext[ET_SIZE]; //!< buffer for error message for exit with error()
 
