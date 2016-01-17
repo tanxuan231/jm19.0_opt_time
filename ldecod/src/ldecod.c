@@ -62,7 +62,6 @@
 #include "block.h"
 #include "nalu.h"
 #include "img_io.h"
-#include "loopfilter.h"
 #include "rtp.h"
 #include "input.h"
 #include "output.h"
@@ -398,7 +397,7 @@ static void init(VideoParameters *p_Vid)  //!< video parameters
   p_Vid->iChromaPadY = MCBUF_CHROMA_PAD_Y;
 
   p_Vid->iPostProcess = 0;
-  p_Vid->bDeblockEnable = 0x3;
+  //p_Vid->bDeblockEnable = 0x3;
   p_Vid->last_dec_view_id = -1;
   p_Vid->last_dec_layer_id = -1;
 

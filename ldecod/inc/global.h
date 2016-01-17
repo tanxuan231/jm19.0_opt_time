@@ -876,24 +876,24 @@ typedef struct video_par
   void (*buf2img)          (imgpel** imgX, unsigned char* buf, int size_x, int size_y, int o_size_x, int o_size_y, int symbol_size_in_bytes, int bitshift);
   void (*getNeighbour)     (Macroblock *currMB, int xN, int yN, int mb_size[2], PixelPos *pix);
   void (*get_mb_block_pos) (BlockPos *PicPos, int mb_addr, short *x, short *y);
-  void (*GetStrengthVer)   (Macroblock *MbQ, int edge, int mvlimit, struct storable_picture *p);
-  void (*GetStrengthHor)   (Macroblock *MbQ, int edge, int mvlimit, struct storable_picture *p);
-  void (*EdgeLoopLumaVer)  (ColorPlane pl, imgpel** Img, byte *Strength, Macroblock *MbQ, int edge);
-  void (*EdgeLoopLumaHor)  (ColorPlane pl, imgpel** Img, byte *Strength, Macroblock *MbQ, int edge, struct storable_picture *p);
-  void (*EdgeLoopChromaVer)(imgpel** Img, byte *Strength, Macroblock *MbQ, int edge, int uv, struct storable_picture *p);
-  void (*EdgeLoopChromaHor)(imgpel** Img, byte *Strength, Macroblock *MbQ, int edge, int uv, struct storable_picture *p);
+  //void (*GetStrengthVer)   (Macroblock *MbQ, int edge, int mvlimit, struct storable_picture *p);
+  //void (*GetStrengthHor)   (Macroblock *MbQ, int edge, int mvlimit, struct storable_picture *p);
+  //void (*EdgeLoopLumaVer)  (ColorPlane pl, imgpel** Img, byte *Strength, Macroblock *MbQ, int edge);
+  //void (*EdgeLoopLumaHor)  (ColorPlane pl, imgpel** Img, byte *Strength, Macroblock *MbQ, int edge, struct storable_picture *p);
+  //void (*EdgeLoopChromaVer)(imgpel** Img, byte *Strength, Macroblock *MbQ, int edge, int uv, struct storable_picture *p);
+  //void (*EdgeLoopChromaHor)(imgpel** Img, byte *Strength, Macroblock *MbQ, int edge, int uv, struct storable_picture *p);
   void (*img2buf)          (imgpel** imgX, unsigned char* buf, int size_x, int size_y, int symbol_size_in_bytes, int crop_left, int crop_right, int crop_top, int crop_bottom, int iOutStride);
 
   ImageData tempData3;
   DecodedPicList *pDecOuputPic;
-  int iDeblockMode;  //0: deblock in picture, 1: deblock in slice;
+  //int iDeblockMode;  //0: deblock in picture, 1: deblock in slice;
   struct nalu_t *nalu;
   int iLumaPadX;
   int iLumaPadY;
   int iChromaPadX;
   int iChromaPadY;
   //control;
-  int bDeblockEnable;
+  //int bDeblockEnable;
   int iPostProcess;
   int bFrameInit;
 #if _FLTDBG_

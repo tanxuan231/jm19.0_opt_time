@@ -45,8 +45,6 @@
 #include "memalloc.h"
 #include "macroblock.h"
 
-#include "loopfilter.h"
-
 #include "biaridecod.h"
 #include "context_ini.h"
 #include "cabac.h"
@@ -615,7 +613,7 @@ static void fill_wp_params(Slice *currSlice)
 static void init_picture_decoding(VideoParameters *p_Vid)
 {
   Slice *pSlice = p_Vid->ppSliceList[0];
-  int j, i, iDeblockMode=1;
+  int j, i; //iDeblockMode=1;
 
   if(p_Vid->iSliceNumOfCurrPic >= MAX_NUM_SLICES)
   {
@@ -656,17 +654,17 @@ static void init_picture_decoding(VideoParameters *p_Vid)
   update_pic_num(pSlice);
   i = 0;
 #endif
-  init_Deblock(p_Vid, pSlice->mb_aff_frame_flag);
+  //init_Deblock(p_Vid, pSlice->mb_aff_frame_flag);
   //init mb_data;
-  for(j=0; j<p_Vid->iSliceNumOfCurrPic; j++)
-  {
-    if(p_Vid->ppSliceList[j]->DFDisableIdc != 1)
-      iDeblockMode=0;
+  //for(j=0; j<p_Vid->iSliceNumOfCurrPic; j++)
+  //{
+    //if(p_Vid->ppSliceList[j]->DFDisableIdc != 1)
+      //iDeblockMode=0;
 #if (MVC_EXTENSION_ENABLE)
-    assert(p_Vid->ppSliceList[j]->view_id == i);
+    //assert(p_Vid->ppSliceList[j]->view_id == i);
 #endif
-  }
-  p_Vid->iDeblockMode = iDeblockMode;
+  //}
+  //p_Vid->iDeblockMode = iDeblockMode;
 }
 
 void init_slice(VideoParameters *p_Vid, Slice *currSlice)
@@ -1804,6 +1802,7 @@ void exit_picture(VideoParameters *p_Vid, StorablePicture **dec_picture)
     return;
   }
 
+#if 0
   if(!p_Vid->iDeblockMode && (p_Vid->bDeblockEnable & (1<<(*dec_picture)->used_for_reference)))
   {
     //deblocking for frame or field
@@ -1815,14 +1814,14 @@ void exit_picture(VideoParameters *p_Vid, StorablePicture **dec_picture)
       {
         p_Vid->ppSliceList[0]->colour_plane_id = nplane;
         change_plane_JV( p_Vid, nplane, NULL );
-        DeblockPicture( p_Vid, *dec_picture );
+        //DeblockPicture( p_Vid, *dec_picture );
       }
       p_Vid->ppSliceList[0]->colour_plane_id = colour_plane_id;
       make_frame_picture_JV(p_Vid);
     }
     else
     {
-      DeblockPicture( p_Vid, *dec_picture );
+      //DeblockPicture( p_Vid, *dec_picture );
     }
   }
   else
@@ -1832,6 +1831,7 @@ void exit_picture(VideoParameters *p_Vid, StorablePicture **dec_picture)
       make_frame_picture_JV(p_Vid);
     }
   }
+#endif
 
   if ((*dec_picture)->mb_aff_frame_flag)
     MbAffPostProc(p_Vid);
