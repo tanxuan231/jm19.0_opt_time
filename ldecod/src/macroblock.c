@@ -72,10 +72,6 @@ extern void read_coeff_4x4_CAVLC_444           (Macroblock *currMB, int block_ty
 static void read_motion_info_from_NAL_p_slice  (Macroblock *currMB);
 static void read_motion_info_from_NAL_b_slice  (Macroblock *currMB);
 
-static int  decode_one_component_i_slice       (Macroblock *currMB, ColorPlane curr_plane, imgpel **currImg, StorablePicture *dec_picture);
-static int  decode_one_component_p_slice       (Macroblock *currMB, ColorPlane curr_plane, imgpel **currImg, StorablePicture *dec_picture);
-static int  decode_one_component_b_slice       (Macroblock *currMB, ColorPlane curr_plane, imgpel **currImg, StorablePicture *dec_picture);
-static int  decode_one_component_sp_slice      (Macroblock *currMB, ColorPlane curr_plane, imgpel **currImg, StorablePicture *dec_picture);
 extern void update_direct_types                (Slice *currSlice);
 extern void set_intra_prediction_modes         (Slice *currSlice);
 extern void set_read_comp_coeff_cavlc          (Macroblock *currMB);
@@ -1053,7 +1049,7 @@ void setup_slice_methods(Slice *currSlice)
   case P_SLICE: 
     currSlice->interpret_mb_mode         = interpret_mb_mode_P;
     currSlice->read_motion_info_from_NAL = read_motion_info_from_NAL_p_slice;
-    currSlice->decode_one_component      = decode_one_component_p_slice;
+    //currSlice->decode_one_component      = decode_one_component_p_slice;
     currSlice->update_direct_mv_info     = NULL;
 #if (MVC_EXTENSION_ENABLE)
     currSlice->init_lists                = currSlice->view_id ? init_lists_p_slice_mvc : init_lists_p_slice;
@@ -1064,7 +1060,7 @@ void setup_slice_methods(Slice *currSlice)
   case SP_SLICE:
     currSlice->interpret_mb_mode         = interpret_mb_mode_P;
     currSlice->read_motion_info_from_NAL = read_motion_info_from_NAL_p_slice;
-    currSlice->decode_one_component      = decode_one_component_sp_slice;
+    //currSlice->decode_one_component      = decode_one_component_sp_slice;
     currSlice->update_direct_mv_info     = NULL;
 #if (MVC_EXTENSION_ENABLE)
     currSlice->init_lists                = currSlice->view_id ? init_lists_p_slice_mvc : init_lists_p_slice;
@@ -1075,7 +1071,7 @@ void setup_slice_methods(Slice *currSlice)
   case B_SLICE:
     currSlice->interpret_mb_mode         = interpret_mb_mode_B;
     currSlice->read_motion_info_from_NAL = read_motion_info_from_NAL_b_slice;
-    currSlice->decode_one_component      = decode_one_component_b_slice;
+    //currSlice->decode_one_component      = decode_one_component_b_slice;
     update_direct_types(currSlice);
 #if (MVC_EXTENSION_ENABLE)
     currSlice->init_lists                = currSlice->view_id ? init_lists_b_slice_mvc : init_lists_b_slice;
@@ -1086,7 +1082,7 @@ void setup_slice_methods(Slice *currSlice)
   case I_SLICE: 
     currSlice->interpret_mb_mode         = interpret_mb_mode_I;
     currSlice->read_motion_info_from_NAL = NULL;
-    currSlice->decode_one_component      = decode_one_component_i_slice;
+    //currSlice->decode_one_component      = decode_one_component_i_slice;
     currSlice->update_direct_mv_info     = NULL;
 #if (MVC_EXTENSION_ENABLE)
     currSlice->init_lists                = currSlice->view_id ? init_lists_i_slice_mvc : init_lists_i_slice;
@@ -1097,7 +1093,7 @@ void setup_slice_methods(Slice *currSlice)
   case SI_SLICE: 
     currSlice->interpret_mb_mode         = interpret_mb_mode_SI;
     currSlice->read_motion_info_from_NAL = NULL;
-    currSlice->decode_one_component      = decode_one_component_i_slice;
+    //currSlice->decode_one_component      = decode_one_component_i_slice;
     currSlice->update_direct_mv_info     = NULL;
 #if (MVC_EXTENSION_ENABLE)
     currSlice->init_lists                = currSlice->view_id ? init_lists_i_slice_mvc : init_lists_i_slice;
@@ -1337,148 +1333,6 @@ void check_dp_neighbors (Macroblock *currMB)
       currMB->dpl_flag |= p_Vid->mb_data[up.mb_addr].dpl_flag;
     }
   }
-}
-
-
-/*!
- ************************************************************************
- * \brief
- *    decode one color component in an I slice
- ************************************************************************
- */
-
-static int decode_one_component_i_slice(Macroblock *currMB, ColorPlane curr_plane, imgpel **currImg, StorablePicture *dec_picture)
-{
-  //For residual DPCM
-  currMB->ipmode_DPCM = NO_INTRA_PMODE; 
-  if(currMB->mb_type == IPCM)
-    mb_pred_ipcm(currMB);
-  else if (currMB->mb_type==I16MB)
-    mb_pred_intra16x16(currMB, curr_plane, dec_picture);
-  else if (currMB->mb_type == I4MB)
-    mb_pred_intra4x4(currMB, curr_plane, currImg, dec_picture);
-  else if (currMB->mb_type == I8MB) 
-    mb_pred_intra8x8(currMB, curr_plane, currImg, dec_picture);
-
-  return 1;
-}
-
-/*!
- ************************************************************************
- * \brief
- *    decode one color component for a p slice
- ************************************************************************
- */
-static int decode_one_component_p_slice(Macroblock *currMB, ColorPlane curr_plane, imgpel **currImg, StorablePicture *dec_picture)
-{
-  //For residual DPCM
-  currMB->ipmode_DPCM = NO_INTRA_PMODE; 
-  if(currMB->mb_type == IPCM)
-    mb_pred_ipcm(currMB);
-  else if (currMB->mb_type==I16MB)
-    mb_pred_intra16x16(currMB, curr_plane, dec_picture);
-  else if (currMB->mb_type == I4MB)
-    mb_pred_intra4x4(currMB, curr_plane, currImg, dec_picture);
-  else if (currMB->mb_type == I8MB) 
-    mb_pred_intra8x8(currMB, curr_plane, currImg, dec_picture);
-  else if (currMB->mb_type == PSKIP)
-    mb_pred_skip(currMB, curr_plane, currImg, dec_picture);
-  else if (currMB->mb_type == P16x16)
-    mb_pred_p_inter16x16(currMB, curr_plane, dec_picture);  
-  else if (currMB->mb_type == P16x8)
-    mb_pred_p_inter16x8(currMB, curr_plane, dec_picture);
-  else if (currMB->mb_type == P8x16)
-    mb_pred_p_inter8x16(currMB, curr_plane, dec_picture);
-  else
-    mb_pred_p_inter8x8(currMB, curr_plane, dec_picture);
-
-  return 1;
-}
-
-
-/*!
- ************************************************************************
- * \brief
- *    decode one color component for a sp slice
- ************************************************************************
- */
-static int decode_one_component_sp_slice(Macroblock *currMB, ColorPlane curr_plane, imgpel **currImg, StorablePicture *dec_picture)
-{   
-  //For residual DPCM
-  currMB->ipmode_DPCM = NO_INTRA_PMODE; 
-
-  if (currMB->mb_type == IPCM)
-    mb_pred_ipcm(currMB);
-  else if (currMB->mb_type==I16MB)
-    mb_pred_intra16x16(currMB, curr_plane, dec_picture);
-  else if (currMB->mb_type == I4MB)
-    mb_pred_intra4x4(currMB, curr_plane, currImg, dec_picture);
-  else if (currMB->mb_type == I8MB) 
-    mb_pred_intra8x8(currMB, curr_plane, currImg, dec_picture);
-  else if (currMB->mb_type == PSKIP)
-    mb_pred_sp_skip(currMB, curr_plane, dec_picture);
-  else if (currMB->mb_type == P16x16)
-    mb_pred_p_inter16x16(currMB, curr_plane, dec_picture);  
-  else if (currMB->mb_type == P16x8)
-    mb_pred_p_inter16x8(currMB, curr_plane, dec_picture);
-  else if (currMB->mb_type == P8x16)
-    mb_pred_p_inter8x16(currMB, curr_plane, dec_picture);
-  else
-    mb_pred_p_inter8x8(currMB, curr_plane, dec_picture);
-
-  return 1;
-}
-
-
-
-/*!
- ************************************************************************
- * \brief
- *    decode one color component for a b slice
- ************************************************************************
- */
-
-static int decode_one_component_b_slice(Macroblock *currMB, ColorPlane curr_plane, imgpel **currImg, StorablePicture *dec_picture)
-{  
-  //For residual DPCM
-  currMB->ipmode_DPCM = NO_INTRA_PMODE; 
-
-  if(currMB->mb_type == IPCM)
-    mb_pred_ipcm(currMB);
-  else if (currMB->mb_type==I16MB)
-    mb_pred_intra16x16(currMB, curr_plane, dec_picture);
-  else if (currMB->mb_type == I4MB)
-    mb_pred_intra4x4(currMB, curr_plane, currImg, dec_picture);
-  else if (currMB->mb_type == I8MB) 
-    mb_pred_intra8x8(currMB, curr_plane, currImg, dec_picture);  
-  else if (currMB->mb_type == P16x16)
-    mb_pred_p_inter16x16(currMB, curr_plane, dec_picture);
-  else if (currMB->mb_type == P16x8)
-    mb_pred_p_inter16x8(currMB, curr_plane, dec_picture);
-  else if (currMB->mb_type == P8x16)
-    mb_pred_p_inter8x16(currMB, curr_plane, dec_picture);
-  else if (currMB->mb_type == BSKIP_DIRECT)
-  {
-    Slice *currSlice = currMB->p_Slice;
-    if (currSlice->direct_spatial_mv_pred_flag == 0)
-    {
-      if (currSlice->active_sps->direct_8x8_inference_flag)
-        mb_pred_b_d8x8temporal (currMB, curr_plane, currImg, dec_picture);
-      else
-        mb_pred_b_d4x4temporal (currMB, curr_plane, currImg, dec_picture);
-    }
-    else
-    {
-      if (currSlice->active_sps->direct_8x8_inference_flag)
-        mb_pred_b_d8x8spatial (currMB, curr_plane, currImg, dec_picture);
-      else
-        mb_pred_b_d4x4spatial (currMB, curr_plane, currImg, dec_picture);
-    }
-  }
-  else
-    mb_pred_b_inter8x8 (currMB, curr_plane, dec_picture);
-
- return 1;
 }
 
 // probably a better way (or place) to do this, but I'm not sure what (where) it is [CJV]

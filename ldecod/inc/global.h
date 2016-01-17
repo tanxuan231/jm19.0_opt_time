@@ -545,7 +545,7 @@ typedef struct slice
   int max_mb_vmv_r;                          //!< maximum vertical motion vector range in luma quarter pixel units for the current level_idc
   int ref_flag[17];                //!< 0: i-th previous frame is incorrect
 
-  int erc_mvperMB;
+  //int erc_mvperMB;
   Macroblock *mb_data;
   struct storable_picture *dec_picture;
   int **siblock;
@@ -736,8 +736,8 @@ typedef struct video_par
   // picture error concealment
   // concealment_head points to first node in list, concealment_end points to
   // last node in list. Initialize both to NULL, meaning no nodes in list yet
-  struct concealment_node *concealment_head;
-  struct concealment_node *concealment_end;
+  //struct concealment_node *concealment_head;
+  //struct concealment_node *concealment_end;
 
   unsigned int pre_frame_num;           //!< store the frame_num in the last decoded slice. For detecting gap in frame_num.
   int non_conforming_stream;
@@ -845,12 +845,12 @@ typedef struct video_par
   struct storable_picture *no_reference_picture; //!< dummy storable picture for recovery point
 
   // Error parameters
-  struct object_buffer  *erc_object_list;
-  struct ercVariables_s *erc_errorVar;
+  //struct object_buffer  *erc_object_list;
+  //struct ercVariables_s *erc_errorVar;
 
-  int erc_mvperMB;
+  //int erc_mvperMB;
   struct video_par *erc_img;
-  int ec_flag[SE_MAX_ELEMENTS];        //!< array to set errorconcealment
+  //int ec_flag[SE_MAX_ELEMENTS];        //!< array to set errorconcealment
 
   struct annex_b_struct *annex_b;
 

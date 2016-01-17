@@ -285,7 +285,7 @@ static void init_picture(VideoParameters *p_Vid, Slice *currSlice, InputParamete
   // reset all variables of the error concealment instance before decoding of every frame.
   // here the third parameter should, if perfectly, be equal to the number of slices per frame.
   // using little value is ok, the code will allocate more memory if the slice number is larger
-  p_Vid->erc_mvperMB = 0;
+  //p_Vid->erc_mvperMB = 0;
 
   switch (currSlice->structure )
   {
@@ -948,7 +948,7 @@ int decode_one_frame(DecoderParams *pDecoder)
 
     p_Vid->iNumOfSlicesDecoded++;
     p_Vid->num_dec_mb += currSlice->num_dec_mb;
-    p_Vid->erc_mvperMB += currSlice->erc_mvperMB;
+    //p_Vid->erc_mvperMB += currSlice->erc_mvperMB;
   }
 
 #if MVC_EXTENSION_ENABLE
