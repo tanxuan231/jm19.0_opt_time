@@ -947,23 +947,10 @@ static void read_CBP_and_coeffs_from_NAL_CAVLC_400(Macroblock *currMB)
   DataPartition *dP = NULL;
   Slice *currSlice = currMB->p_Slice;
   const byte *partMap = assignSE2partition[currSlice->dp_mode];
-  int i0, j0;
-
   int levarr[16], runarr[16], numcoeff;
-
-  int qp_per, qp_rem;
   VideoParameters *p_Vid = currMB->p_Vid;
-
   int intra = (currMB->is_intra_block == TRUE);
-
   int need_transform_size_flag;
-
-  int (*InvLevelScale4x4)[4] = NULL;
-  int (*InvLevelScale8x8)[8] = NULL;
-  // select scan type
-  const byte (*pos_scan4x4)[2] = ((p_Vid->structure == FRAME) && (!currMB->mb_field)) ? SNGL_SCAN : FIELD_SCAN;
-  const byte *pos_scan_4x4 = pos_scan4x4[0];
-
 
   // read CBP if not new intra mode
   if (!IS_I16MB (currMB))
@@ -1013,26 +1000,6 @@ static void read_CBP_and_coeffs_from_NAL_CAVLC_400(Macroblock *currMB)
     if (cbp !=0)
     {
       read_delta_quant(&currSE, dP, currMB, partMap, ((currMB->is_intra_block == FALSE)) ? SE_DELTA_QUANT_INTER : SE_DELTA_QUANT_INTRA);
-
-      if (currSlice->dp_mode)
-      {
-        if ((currMB->is_intra_block == FALSE) && currSlice->dpC_NotPresent ) 
-          currMB->dpl_flag = 1;
-
-        if( intra && currSlice->dpB_NotPresent )
-        {
-          currMB->ei_flag = 1;
-          currMB->dpl_flag = 1;
-        }
-
-        // check for prediction from neighbours
-        check_dp_neighbors (currMB);
-        if (currMB->dpl_flag)
-        {
-          cbp = 0; 
-          currMB->cbp = cbp;
-        }
-      }
     }
   }
   else  // read DC coeffs for new intra modes
@@ -1041,53 +1008,13 @@ static void read_CBP_and_coeffs_from_NAL_CAVLC_400(Macroblock *currMB)
   
     read_delta_quant(&currSE, dP, currMB, partMap, SE_DELTA_QUANT_INTRA);
 
-    if (currSlice->dp_mode)
-    {  
-      if (currSlice->dpB_NotPresent)
-      {
-        currMB->ei_flag  = 1;
-        currMB->dpl_flag = 1;
-      }
-      check_dp_neighbors (currMB);
-      if (currMB->dpl_flag)
-      {
-        currMB->cbp = cbp = 0; 
-      }
-    }
-
     if (!currMB->dpl_flag)
     {
-      pos_scan_4x4 = pos_scan4x4[0];
-
       currSlice->read_coeff_4x4_CAVLC(currMB, LUMA_INTRA16x16DC, 0, 0, levarr, runarr, &numcoeff);
-
-      for(k = 0; k < numcoeff; ++k)
-      {
-        if (levarr[k] != 0)                     // leave if level == 0
-        {
-          pos_scan_4x4 += 2 * runarr[k];
-
-          i0 = ((*pos_scan_4x4++) << 2);
-          j0 = ((*pos_scan_4x4++) << 2);
-
-          currSlice->cof[0][j0][i0] = levarr[k];// add new intra DC coeff
-          //currSlice->fcf[0][j0][i0] = levarr[k];// add new intra DC coeff
-        }
-      }
-
-
-      if(currMB->is_lossless == FALSE)
-        itrans_2(currMB, (ColorPlane) currSlice->colour_plane_id);// transform new intra DC
     }
   }
 
   update_qp(currMB, currSlice->qp);
-
-  qp_per = p_Vid->qp_per_matrix[ currMB->qp_scaled[PLANE_Y] ];
-  qp_rem = p_Vid->qp_rem_matrix[ currMB->qp_scaled[PLANE_Y] ];
-
-  InvLevelScale4x4 = intra? currSlice->InvLevelScale4x4_Intra[currSlice->colour_plane_id][qp_rem] : currSlice->InvLevelScale4x4_Inter[currSlice->colour_plane_id][qp_rem];
-  InvLevelScale8x8 = intra? currSlice->InvLevelScale8x8_Intra[currSlice->colour_plane_id][qp_rem] : currSlice->InvLevelScale8x8_Inter[currSlice->colour_plane_id][qp_rem];
 
   // luma coefficients
   if (cbp)
@@ -1124,31 +1051,14 @@ static void read_CBP_and_coeffs_from_NAL_CAVLC_422(Macroblock *currMB)
   DataPartition *dP = NULL;
   Slice *currSlice = currMB->p_Slice;
   const byte *partMap = assignSE2partition[currSlice->dp_mode];
-  int coef_ctr, i0, j0, b8;
+  int b8;
   int ll;
   int levarr[16], runarr[16], numcoeff;
-
-  int qp_per, qp_rem;
   VideoParameters *p_Vid = currMB->p_Vid;
-
   int uv; 
-  int qp_per_uv[2];
-  int qp_rem_uv[2];
-
   int intra = (currMB->is_intra_block == TRUE);
-
   int b4;
-  //StorablePicture *dec_picture = currSlice->dec_picture;
-  int m6[4];
-
   int need_transform_size_flag;
-
-  int (*InvLevelScale4x4)[4] = NULL;
-  int (*InvLevelScale8x8)[8] = NULL;
-  // select scan type
-  const byte (*pos_scan4x4)[2] = ((p_Vid->structure == FRAME) && (!currMB->mb_field)) ? SNGL_SCAN : FIELD_SCAN;
-  const byte *pos_scan_4x4 = pos_scan4x4[0];
-
 
   // read CBP if not new intra mode
   if (!IS_I16MB (currMB))
@@ -1303,25 +1213,11 @@ static void read_CBP_and_coeffs_from_NAL_CAVLC_444(Macroblock *currMB)
   DataPartition *dP = NULL;
   Slice *currSlice = currMB->p_Slice;
   const byte *partMap = assignSE2partition[currSlice->dp_mode];
-  int coef_ctr, i0, j0;
   int levarr[16], runarr[16], numcoeff;
-
-  int qp_per, qp_rem;
   VideoParameters *p_Vid = currMB->p_Vid;
-
   int uv; 
-  int qp_per_uv[3];
-  int qp_rem_uv[3];
-
   int intra = (currMB->is_intra_block == TRUE);
-
   int need_transform_size_flag;
-
-  int (*InvLevelScale4x4)[4] = NULL;
-  int (*InvLevelScale8x8)[8] = NULL;
-  // select scan type
-  const byte (*pos_scan4x4)[2] = ((p_Vid->structure == FRAME) && (!currMB->mb_field)) ? SNGL_SCAN : FIELD_SCAN;
-  const byte *pos_scan_4x4 = pos_scan4x4[0];
 
   // read CBP if not new intra mode
   if (!IS_I16MB (currMB))
@@ -1371,26 +1267,6 @@ static void read_CBP_and_coeffs_from_NAL_CAVLC_444(Macroblock *currMB)
     if (cbp !=0)
     {
       read_delta_quant(&currSE, dP, currMB, partMap, ((currMB->is_intra_block == FALSE)) ? SE_DELTA_QUANT_INTER : SE_DELTA_QUANT_INTRA);
-
-      if (currSlice->dp_mode)
-      {
-        if ((currMB->is_intra_block == FALSE) && currSlice->dpC_NotPresent ) 
-          currMB->dpl_flag = 1;
-
-        if( intra && currSlice->dpB_NotPresent )
-        {
-          currMB->ei_flag = 1;
-          currMB->dpl_flag = 1;
-        }
-
-        // check for prediction from neighbours
-        check_dp_neighbors (currMB);
-        if (currMB->dpl_flag)
-        {
-          cbp = 0; 
-          currMB->cbp = cbp;
-        }
-      }
     }
   }
   else  // read DC coeffs for new intra modes
@@ -1399,60 +1275,13 @@ static void read_CBP_and_coeffs_from_NAL_CAVLC_444(Macroblock *currMB)
 
     read_delta_quant(&currSE, dP, currMB, partMap, SE_DELTA_QUANT_INTRA);
 
-    if (currSlice->dp_mode)
-    {  
-      if (currSlice->dpB_NotPresent)
-      {
-        currMB->ei_flag  = 1;
-        currMB->dpl_flag = 1;
-      }
-      check_dp_neighbors (currMB);
-      if (currMB->dpl_flag)
-      {
-        currMB->cbp = cbp = 0; 
-      }
-    }
-
     if (!currMB->dpl_flag)
     {
-      pos_scan_4x4 = pos_scan4x4[0];
-
       currSlice->read_coeff_4x4_CAVLC(currMB, LUMA_INTRA16x16DC, 0, 0, levarr, runarr, &numcoeff);
-
-      for(k = 0; k < numcoeff; ++k)
-      {
-        if (levarr[k] != 0)                     // leave if level == 0
-        {
-          pos_scan_4x4 += 2 * runarr[k];
-
-          i0 = ((*pos_scan_4x4++) << 2);
-          j0 = ((*pos_scan_4x4++) << 2);
-
-          currSlice->cof[0][j0][i0] = levarr[k];// add new intra DC coeff
-          //currSlice->fcf[0][j0][i0] = levarr[k];// add new intra DC coeff
-        }
-      }
-
-
-      if(currMB->is_lossless == FALSE)
-        itrans_2(currMB, (ColorPlane) currSlice->colour_plane_id);// transform new intra DC
     }
   }
 
   update_qp(currMB, currSlice->qp);
-
-  qp_per = p_Vid->qp_per_matrix[ currMB->qp_scaled[currSlice->colour_plane_id] ];
-  qp_rem = p_Vid->qp_rem_matrix[ currMB->qp_scaled[currSlice->colour_plane_id] ];
-
-  //init quant parameters for chroma 
-  for(i=PLANE_U; i <= PLANE_V; ++i)
-  {
-    qp_per_uv[i] = p_Vid->qp_per_matrix[ currMB->qp_scaled[i] ];
-    qp_rem_uv[i] = p_Vid->qp_rem_matrix[ currMB->qp_scaled[i] ];
-  }
-
-  InvLevelScale4x4 = intra? currSlice->InvLevelScale4x4_Intra[currSlice->colour_plane_id][qp_rem] : currSlice->InvLevelScale4x4_Inter[currSlice->colour_plane_id][qp_rem];
-  InvLevelScale8x8 = intra? currSlice->InvLevelScale8x8_Intra[currSlice->colour_plane_id][qp_rem] : currSlice->InvLevelScale8x8_Inter[currSlice->colour_plane_id][qp_rem];
 
   // luma coefficients
   if (cbp)
@@ -1480,36 +1309,9 @@ static void read_CBP_and_coeffs_from_NAL_CAVLC_444(Macroblock *currMB)
         currSlice->read_coeff_4x4_CAVLC(currMB, CB_INTRA16x16DC, 0, 0, levarr, runarr, &numcoeff);
       else
         currSlice->read_coeff_4x4_CAVLC(currMB, CR_INTRA16x16DC, 0, 0, levarr, runarr, &numcoeff);
-
-      coef_ctr=-1;
-
-      for(k = 0; k < numcoeff; ++k)
-      {
-        if (levarr[k] != 0)                     // leave if level == 0
-        {
-          coef_ctr += runarr[k] + 1;
-
-          i0 = pos_scan4x4[coef_ctr][0];
-          j0 = pos_scan4x4[coef_ctr][1];
-          currSlice->cof[uv][j0<<2][i0<<2] = levarr[k];// add new intra DC coeff
-          //currSlice->fcf[uv][j0<<2][i0<<2] = levarr[k];// add new intra DC coeff
-        } //if leavarr[k]
-      } //k loop
-
-      if(currMB->is_lossless == FALSE)
-      {
-        itrans_2(currMB, (ColorPlane) (uv)); // transform new intra DC
-      }
     } //IS_I16MB
 
     update_qp(currMB, currSlice->qp);
-
-    //init constants for every chroma qp offset
-    qp_per_uv[uv] = p_Vid->qp_per_matrix[ currMB->qp_scaled[uv] ];
-    qp_rem_uv[uv] = p_Vid->qp_rem_matrix[ currMB->qp_scaled[uv] ];
-
-    InvLevelScale4x4 = intra? currSlice->InvLevelScale4x4_Intra[uv][qp_rem_uv[uv]] : currSlice->InvLevelScale4x4_Inter[uv][qp_rem_uv[uv]];
-    InvLevelScale8x8 = intra? currSlice->InvLevelScale8x8_Intra[uv][qp_rem_uv[uv]] : currSlice->InvLevelScale8x8_Inter[uv][qp_rem_uv[uv]];
 
     if (!currMB->luma_transform_size_8x8_flag) // 4x4 transform
     {
@@ -1538,31 +1340,16 @@ static void read_CBP_and_coeffs_from_NAL_CAVLC_420(Macroblock *currMB)
   DataPartition *dP = NULL;
   Slice *currSlice = currMB->p_Slice;
   const byte *partMap = assignSE2partition[currSlice->dp_mode];
-  int coef_ctr, i0, j0, b8;
+  int b8;
   int ll;
   int levarr[16], runarr[16], numcoeff;
-
-  int qp_per, qp_rem;
   VideoParameters *p_Vid = currMB->p_Vid;
-  int smb = ((p_Vid->type==SP_SLICE) && (currMB->is_intra_block == FALSE)) || (p_Vid->type == SI_SLICE && currMB->mb_type == SI4MB);
-
   int uv; 
-  int qp_per_uv[2];
-  int qp_rem_uv[2];
-
   int intra = (currMB->is_intra_block == TRUE);
-  int temp[4];
-
   int b4;
   //StorablePicture *dec_picture = currSlice->dec_picture;
 
   int need_transform_size_flag;
-
-  int (*InvLevelScale4x4)[4] = NULL;
-  int (*InvLevelScale8x8)[8] = NULL;
-  // select scan type
-  const byte (*pos_scan4x4)[2] = ((p_Vid->structure == FRAME) && (!currMB->mb_field)) ? SNGL_SCAN : FIELD_SCAN;
-  const byte *pos_scan_4x4 = pos_scan4x4[0];
 
   // read CBP if not new intra mode
   if (!IS_I16MB (currMB))
@@ -1611,26 +1398,6 @@ static void read_CBP_and_coeffs_from_NAL_CAVLC_420(Macroblock *currMB)
     if (cbp !=0)
     {
       read_delta_quant(&currSE, dP, currMB, partMap, ((currMB->is_intra_block == FALSE)) ? SE_DELTA_QUANT_INTER : SE_DELTA_QUANT_INTRA);
-
-      if (currSlice->dp_mode)
-      {
-        if ((currMB->is_intra_block == FALSE) && currSlice->dpC_NotPresent ) 
-          currMB->dpl_flag = 1;
-
-        if( intra && currSlice->dpB_NotPresent )
-        {
-          currMB->ei_flag = 1;
-          currMB->dpl_flag = 1;
-        }
-
-        // check for prediction from neighbours
-        check_dp_neighbors (currMB);
-        if (currMB->dpl_flag)
-        {
-          cbp = 0; 
-          currMB->cbp = cbp;
-        }
-      }
     }
   }
   else
@@ -1638,60 +1405,13 @@ static void read_CBP_and_coeffs_from_NAL_CAVLC_420(Macroblock *currMB)
     cbp = currMB->cbp;  
     read_delta_quant(&currSE, dP, currMB, partMap, SE_DELTA_QUANT_INTRA);
 
-    if (currSlice->dp_mode)
-    {  
-      if (currSlice->dpB_NotPresent)
-      {
-        currMB->ei_flag  = 1;
-        currMB->dpl_flag = 1;
-      }
-      check_dp_neighbors (currMB);
-      if (currMB->dpl_flag)
-      {
-        currMB->cbp = cbp = 0; 
-      }
-    }
-
     if (!currMB->dpl_flag)
     {
-      pos_scan_4x4 = pos_scan4x4[0];
-
       currSlice->read_coeff_4x4_CAVLC(currMB, LUMA_INTRA16x16DC, 0, 0, levarr, runarr, &numcoeff);
-
-      for(k = 0; k < numcoeff; ++k)
-      {
-        if (levarr[k] != 0)                     // leave if level == 0
-        {
-          pos_scan_4x4 += 2 * runarr[k];
-
-          i0 = ((*pos_scan_4x4++) << 2);
-          j0 = ((*pos_scan_4x4++) << 2);
-
-          currSlice->cof[0][j0][i0] = levarr[k];// add new intra DC coeff
-          //currSlice->fcf[0][j0][i0] = levarr[k];// add new intra DC coeff
-        }
-      }
-
-
-      if(currMB->is_lossless == FALSE)
-        itrans_2(currMB, (ColorPlane) currSlice->colour_plane_id);// transform new intra DC
     }
   }
 
   update_qp(currMB, currSlice->qp);
-
-  qp_per = p_Vid->qp_per_matrix[ currMB->qp_scaled[currSlice->colour_plane_id] ];
-  qp_rem = p_Vid->qp_rem_matrix[ currMB->qp_scaled[currSlice->colour_plane_id] ];
-
-  //init quant parameters for chroma 
-  for(i=0; i < 2; ++i)
-  {
-    qp_per_uv[i] = p_Vid->qp_per_matrix[ currMB->qp_scaled[i + 1] ];
-    qp_rem_uv[i] = p_Vid->qp_rem_matrix[ currMB->qp_scaled[i + 1] ];
-  }
-
-  InvLevelScale4x4 = intra? currSlice->InvLevelScale4x4_Intra[currSlice->colour_plane_id][qp_rem] : currSlice->InvLevelScale4x4_Inter[currSlice->colour_plane_id][qp_rem];
-  InvLevelScale8x8 = intra? currSlice->InvLevelScale8x8_Intra[currSlice->colour_plane_id][qp_rem] : currSlice->InvLevelScale8x8_Inter[currSlice->colour_plane_id][qp_rem];
 
   // luma coefficients
   if (cbp)
@@ -1718,49 +1438,9 @@ static void read_CBP_and_coeffs_from_NAL_CAVLC_420(Macroblock *currMB)
     for (ll=0;ll<3;ll+=2)
     {
       uv = ll>>1;          
-
-      InvLevelScale4x4 = intra ? currSlice->InvLevelScale4x4_Intra[PLANE_U + uv][qp_rem_uv[uv]] : currSlice->InvLevelScale4x4_Inter[PLANE_U + uv][qp_rem_uv[uv]];
       //===================== CHROMA DC YUV420 ======================
       memset(currSlice->cofu, 0, 4 *sizeof(int));
-      coef_ctr=-1;
-
-      currSlice->read_coeff_4x4_CAVLC(currMB, CHROMA_DC, 0, 0, levarr, runarr, &numcoeff);
-
-      for(k = 0; k < numcoeff; ++k)
-      {
-        if (levarr[k] != 0)
-        {
-          currMB->s_cbp[0].blk |= 0xf0000 << (ll<<1) ;
-          coef_ctr += runarr[k] + 1;
-          currSlice->cofu[coef_ctr]=levarr[k];
-        }
-      }
-
-
-      if (smb || (currMB->is_lossless == TRUE)) // check to see if MB type is SPred or SIntra4x4
-      {
-        currSlice->cof[PLANE_U + uv][0][0] = currSlice->cofu[0];
-        currSlice->cof[PLANE_U + uv][0][4] = currSlice->cofu[1];
-        currSlice->cof[PLANE_U + uv][4][0] = currSlice->cofu[2];
-        currSlice->cof[PLANE_U + uv][4][4] = currSlice->cofu[3];
-        //currSlice->fcf[PLANE_U + uv][0][0] = currSlice->cofu[0];
-        //currSlice->fcf[PLANE_U + uv][4][0] = currSlice->cofu[1];
-        //currSlice->fcf[PLANE_U + uv][0][4] = currSlice->cofu[2];
-        //currSlice->fcf[PLANE_U + uv][4][4] = currSlice->cofu[3];
-      }
-      else
-      {
-        ihadamard2x2(currSlice->cofu, temp);
-        //currSlice->fcf[PLANE_U + uv][0][0] = temp[0];
-        //currSlice->fcf[PLANE_U + uv][0][4] = temp[1];
-        //currSlice->fcf[PLANE_U + uv][4][0] = temp[2];
-        //currSlice->fcf[PLANE_U + uv][4][4] = temp[3];
-
-        currSlice->cof[PLANE_U + uv][0][0] = (((temp[0] * InvLevelScale4x4[0][0])<<qp_per_uv[uv])>>5);
-        currSlice->cof[PLANE_U + uv][0][4] = (((temp[1] * InvLevelScale4x4[0][0])<<qp_per_uv[uv])>>5);
-        currSlice->cof[PLANE_U + uv][4][0] = (((temp[2] * InvLevelScale4x4[0][0])<<qp_per_uv[uv])>>5);
-        currSlice->cof[PLANE_U + uv][4][4] = (((temp[3] * InvLevelScale4x4[0][0])<<qp_per_uv[uv])>>5);
-      }          
+      currSlice->read_coeff_4x4_CAVLC(currMB, CHROMA_DC, 0, 0, levarr, runarr, &numcoeff);        
     }     
   }
 
@@ -1778,30 +1458,13 @@ static void read_CBP_and_coeffs_from_NAL_CAVLC_420(Macroblock *currMB)
       for (b8=0; b8 < p_Vid->num_blk8x8_uv; ++b8)
       {
         currMB->is_v_block = uv = (b8 > ((p_Vid->num_uv_blocks) - 1 ));
-        InvLevelScale4x4 = intra ? currSlice->InvLevelScale4x4_Intra[PLANE_U + uv][qp_rem_uv[uv]] : currSlice->InvLevelScale4x4_Inter[PLANE_U + uv][qp_rem_uv[uv]];
 
         for (b4=0; b4 < 4; ++b4)
         {
           i = cofuv_blk_x[0][b8][b4];
           j = cofuv_blk_y[0][b8][b4];
 
-          currSlice->read_coeff_4x4_CAVLC(currMB, CHROMA_AC, i + 2*uv, j + 4, levarr, runarr, &numcoeff);
-          coef_ctr = 0;
-
-          for(k = 0; k < numcoeff;++k)
-          {
-            if (levarr[k] != 0)
-            {
-              currMB->s_cbp[0].blk |= i64_power2(cbp_blk_chroma[b8][b4]);
-              coef_ctr += runarr[k] + 1;
-
-              i0=pos_scan4x4[coef_ctr][0];
-              j0=pos_scan4x4[coef_ctr][1];
-
-              currSlice->cof[PLANE_U + uv][(j<<2) + j0][(i<<2) + i0] = rshift_rnd_sf((levarr[k] * InvLevelScale4x4[j0][i0])<<qp_per_uv[uv], 4);
-              //currSlice->fcf[PLANE_U + uv][(j<<2) + j0][(i<<2) + i0] = levarr[k];
-            }
-          }
+          currSlice->read_coeff_4x4_CAVLC(currMB, CHROMA_AC, i + 2*uv, j + 4, levarr, runarr, &numcoeff);          
         }
       }        
     }
@@ -1816,22 +1479,7 @@ static void read_CBP_and_coeffs_from_NAL_CAVLC_420(Macroblock *currMB)
           i = cofuv_blk_x[0][b8][b4];
           j = cofuv_blk_y[0][b8][b4];
 
-          currSlice->read_coeff_4x4_CAVLC(currMB, CHROMA_AC, i + 2*uv, j + 4, levarr, runarr, &numcoeff);
-          coef_ctr = 0;
-
-          for(k = 0; k < numcoeff;++k)
-          {
-            if (levarr[k] != 0)
-            {
-              currMB->s_cbp[0].blk |= i64_power2(cbp_blk_chroma[b8][b4]);
-              coef_ctr += runarr[k] + 1;
-
-              i0=pos_scan4x4[coef_ctr][0];
-              j0=pos_scan4x4[coef_ctr][1];
-
-              currSlice->cof[PLANE_U + uv][(j<<2) + j0][(i<<2) + i0] = levarr[k];
-            }
-          }
+          currSlice->read_coeff_4x4_CAVLC(currMB, CHROMA_AC, i + 2*uv, j + 4, levarr, runarr, &numcoeff);          
         }
       }        
     } 
