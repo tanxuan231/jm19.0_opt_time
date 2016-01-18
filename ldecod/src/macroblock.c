@@ -234,7 +234,7 @@ void read_delta_quant(SyntaxElement *currSE, DataPartition *dP, Macroblock *curr
  */
 static void readMBRefPictureIdx (SyntaxElement *currSE, DataPartition *dP, Macroblock *currMB, PicMotionParams **mv_info, int list, int step_v0, int step_h0)
 {
-  if (currMB->mb_type == 1)
+  if (currMB->mb_type == 1)	//P16x16
   {
     if ((currMB->b8pdir[0] == list || currMB->b8pdir[0] == BI_PRED))
     {
@@ -244,7 +244,8 @@ static void readMBRefPictureIdx (SyntaxElement *currSE, DataPartition *dP, Macro
 
       currMB->subblock_x = 0;
       currMB->subblock_y = 0;
-      refframe = currMB->readRefPictureIdx(currMB, currSE, dP, 1, list);
+      refframe = currMB->readRefPictureIdx(currMB, currSE, dP, 1, list);	//readRefPictureIdx_FLC readRefPictureIdx_VLC
+			#if	0      
       for (j = 0; j <  step_v0; ++j)
       {
         char *ref_idx = &mv_info[j][currMB->block_x].ref_idx[list];
@@ -256,9 +257,10 @@ static void readMBRefPictureIdx (SyntaxElement *currSE, DataPartition *dP, Macro
           ref_idx += sizeof(PicMotionParams);
         }
       }
+			#endif
     }
   }
-  else if (currMB->mb_type == 2)
+  else if (currMB->mb_type == 2)	//P16x8
   {
     int k, j, i, j0;
     char refframe;
@@ -272,6 +274,7 @@ static void readMBRefPictureIdx (SyntaxElement *currSE, DataPartition *dP, Macro
         currMB->subblock_y = j0 << 2;
         currMB->subblock_x = 0;
         refframe = currMB->readRefPictureIdx(currMB, currSE, dP, currMB->b8mode[k], list);
+				#if 0
         for (j = j0; j < j0 + step_v0; ++j)
         {
           char *ref_idx = &mv_info[j][currMB->block_x].ref_idx[list];
@@ -283,10 +286,11 @@ static void readMBRefPictureIdx (SyntaxElement *currSE, DataPartition *dP, Macro
             ref_idx += sizeof(PicMotionParams);
           }
         }
+				#endif
       }
     }
   }  
-  else if (currMB->mb_type == 3)
+  else if (currMB->mb_type == 3)	//P8x16
   {
     int k, j, i, i0;
     char refframe;
@@ -300,6 +304,7 @@ static void readMBRefPictureIdx (SyntaxElement *currSE, DataPartition *dP, Macro
       {
         currMB->subblock_x = i0 << 2;
         refframe = currMB->readRefPictureIdx(currMB, currSE, dP, currMB->b8mode[k], list);
+				#if 0
         for (j = 0; j < step_v0; ++j)
         {
           char *ref_idx = &mv_info[j][currMB->block_x + i0].ref_idx[list];
@@ -311,6 +316,7 @@ static void readMBRefPictureIdx (SyntaxElement *currSE, DataPartition *dP, Macro
             ref_idx += sizeof(PicMotionParams);
           }
         }
+				#endif
       }
     }
   }
@@ -330,6 +336,7 @@ static void readMBRefPictureIdx (SyntaxElement *currSE, DataPartition *dP, Macro
         {
           currMB->subblock_x = i0 << 2;
           refframe = currMB->readRefPictureIdx(currMB, currSE, dP, currMB->b8mode[k], list);
+					#if 0
           for (j = j0; j < j0 + step_v0; ++j)
           {
             char *ref_idx = &mv_info[j][currMB->block_x + i0].ref_idx[list];
@@ -341,6 +348,7 @@ static void readMBRefPictureIdx (SyntaxElement *currSE, DataPartition *dP, Macro
               ref_idx += sizeof(PicMotionParams);
             }
           }
+					#endif
         }
       }
     }
@@ -1223,6 +1231,7 @@ static void read_motion_info_from_NAL_p_slice (Macroblock *currMB)
   readMBMotionVectors (&currSE, dP, currMB, LIST_0, step_h0, step_v0);
 
   // record reference picture Ids for deblocking decisions  
+#if 0  
   for(j4 = 0; j4 < 4;++j4)
   {
     mv_info = &p_mv_info[j4][currMB->block_x];
@@ -1234,6 +1243,7 @@ static void read_motion_info_from_NAL_p_slice (Macroblock *currMB)
     mv_info++;
     mv_info->ref_pic[LIST_0] = list0[(short) mv_info->ref_idx[LIST_0]];
   }
+#endif	
 }
 
 
@@ -1262,8 +1272,8 @@ static void read_motion_info_from_NAL_b_slice (Macroblock *currMB)
   StorablePicture **list1 = currSlice->listX[LIST_1 + list_offset];
   PicMotionParams **p_mv_info = &dec_picture->mv_info[currMB->block_y];
 
-  if (currMB->mb_type == P8x8)
-    currSlice->update_direct_mv_info(currMB);   
+  //if (currMB->mb_type == P8x8)
+    //currSlice->update_direct_mv_info(currMB);   
 
   //=====  READ REFERENCE PICTURE INDICES =====
   currSE.type = SE_REFFRAME;
@@ -1292,7 +1302,7 @@ static void read_motion_info_from_NAL_b_slice (Macroblock *currMB)
   readMBMotionVectors (&currSE, dP, currMB, LIST_1, step_h0, step_v0);
 
   // record reference picture Ids for deblocking decisions
-
+#if 0
   for(j4 = 0; j4 < 4; ++j4)
   {
     for(i4 = currMB->block_x; i4 < (currMB->block_x + 4); ++i4)
@@ -1305,6 +1315,7 @@ static void read_motion_info_from_NAL_b_slice (Macroblock *currMB)
       mv_info->ref_pic[LIST_1] = (ref_idx >= 0) ? list1[ref_idx] : NULL;
     }
   }
+#endif	
 }
 
 

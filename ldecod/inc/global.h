@@ -243,7 +243,7 @@ typedef struct macroblock_dec
   struct macroblock_dec   *mbleft; // neighbors for loopfilter
 
   // some storage of macroblock syntax elements for global access
-  short         mb_type;
+  short         mb_type;	//MBModeTypes
   short         mvd[2][BLOCK_MULTIPLE][BLOCK_MULTIPLE][2];      //!< indices correspond to [forw,backw][block_y][block_x][x,y]
   //short         ****mvd;      //!< indices correspond to [forw,backw][block_y][block_x][x,y]
   int           cbp;
