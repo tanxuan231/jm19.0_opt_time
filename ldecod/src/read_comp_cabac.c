@@ -177,7 +177,8 @@ static void read_comp_coeff_4x4_CABAC (Macroblock *currMB, SyntaxElement *currSE
       if (cbp & (1 << ((block_y >> 2) + (block_x >> 3))))  // are there any coeff in current block at all
       {
         read_comp_coeff_4x4_smb_CABAC (currMB, currSE, pl, block_y, block_x, start_scan, cbp_blk);
-
+				
+				#if 0
         if (start_scan == 0)
         {
           for (j = 0; j < BLOCK_SIZE_8x8; ++j)
@@ -223,7 +224,8 @@ static void read_comp_coeff_4x4_CABAC (Macroblock *currMB, SyntaxElement *currSE
               coef++;
             }
           }
-        }        
+        }  
+				#endif				
       }
     }
   }
@@ -293,7 +295,7 @@ static void readCompCoeff8x8_CABAC (Macroblock *currMB, SyntaxElement *currSE, C
     // select scan type
     const byte (*pos_scan8x8) = ((currSlice->structure == FRAME) && (!currMB->mb_field)) ? SNGL_SCAN8x8[0] : FIELD_SCAN8x8[0];
 
-    int qp_per = p_Vid->qp_per_matrix[ currMB->qp_scaled[pl] ];
+    //int qp_per = p_Vid->qp_per_matrix[ currMB->qp_scaled[pl] ];
     int qp_rem = p_Vid->qp_rem_matrix[ currMB->qp_scaled[pl] ];
     
     int (*InvLevelScale8x8)[8] = (currMB->is_intra_block == TRUE) ? currSlice->InvLevelScale8x8_Intra[transform_pl][qp_rem] : currSlice->InvLevelScale8x8_Inter[transform_pl][qp_rem];
@@ -341,7 +343,7 @@ static void readCompCoeff8x8_CABAC (Macroblock *currMB, SyntaxElement *currSE, C
       i = *pos_scan8x8++;
       j = *pos_scan8x8++;
 
-      tcoeffs[j][boff_x + i] = rshift_rnd_sf((level * InvLevelScale8x8[j][i]) << qp_per, 6); // dequantization
+      //tcoeffs[j][boff_x + i] = rshift_rnd_sf((level * InvLevelScale8x8[j][i]) << qp_per, 6); // dequantization
       //tcoeffs[ j][boff_x + i] = level;
 
       // AC coefficients
@@ -361,7 +363,7 @@ static void readCompCoeff8x8_CABAC (Macroblock *currMB, SyntaxElement *currSE, C
 
         dP->readSyntaxElement(currMB, currSE, dP);
         level = currSE->value1;
-
+#if 0
         //============ decode =============
         if (level != 0)    /* leave if level == 0 */
         {
@@ -373,6 +375,7 @@ static void readCompCoeff8x8_CABAC (Macroblock *currMB, SyntaxElement *currSE, C
           tcoeffs[ j][boff_x + i] = rshift_rnd_sf((level * InvLevelScale8x8[j][i]) << qp_per, 6); // dequantization
           //tcoeffs[ j][boff_x + i] = level;
         }
+#endif				
       }
       /*
       for (j = 0; j < 8; j++)

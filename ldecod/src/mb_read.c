@@ -863,7 +863,7 @@ void skip_macroblock(Macroblock *currMB)
     PicMotionParams **dec_mv_info = &dec_picture->mv_info[img_block_y];
     PicMotionParams *mv_info = NULL;
     StorablePicture *cur_pic = currSlice->listX[list_offset][0];
-    currMB->GetMVPredictor (currMB, mb, &pred_mv, 0, dec_picture->mv_info, LIST_0, 0, 0, MB_BLOCK_SIZE, MB_BLOCK_SIZE);
+    //currMB->GetMVPredictor (currMB, mb, &pred_mv, 0, dec_picture->mv_info, LIST_0, 0, 0, MB_BLOCK_SIZE, MB_BLOCK_SIZE);
 
     // Set first block line (position img_block_y)
     for(j = 0; j < BLOCK_SIZE; ++j)

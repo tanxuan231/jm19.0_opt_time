@@ -115,7 +115,7 @@ typedef enum {
 
 //  Available MB modes
 typedef enum {
-  PSKIP        =  0,
+  PSKIP        =  0,	//P mbльсп╣д
   BSKIP_DIRECT =  0,
   P16x16       =  1,
   P16x8        =  2,

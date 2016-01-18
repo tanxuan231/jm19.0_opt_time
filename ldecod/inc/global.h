@@ -274,8 +274,8 @@ typedef struct macroblock_dec
   void (*itrans_4x4)(struct macroblock_dec *currMB, ColorPlane pl, int ioff, int joff);
   void (*itrans_8x8)(struct macroblock_dec *currMB, ColorPlane pl, int ioff, int joff);
 
-  void (*GetMVPredictor) (struct macroblock_dec *currMB, PixelPos *block, 
-    MotionVector *pmv, short ref_frame, struct pic_motion_params **mv_info, int list, int mb_x, int mb_y, int blockshape_x, int blockshape_y);
+  //void (*GetMVPredictor) (struct macroblock_dec *currMB, PixelPos *block, 
+    //MotionVector *pmv, short ref_frame, struct pic_motion_params **mv_info, int list, int mb_x, int mb_y, int blockshape_x, int blockshape_y);
 
   int  (*read_and_store_CBP_block_bit)  (struct macroblock_dec *currMB, DecodingEnvironmentPtr  dep_dp, int type);
   char (*readRefPictureIdx)             (struct macroblock_dec *currMB, struct syntaxelement_dec *currSE, struct datapartition_dec *dP, char b8mode, int list);
