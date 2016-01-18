@@ -39,7 +39,6 @@
 #include "biaridecod.h"
 #include "transform.h"
 #include "quant.h"
-#include "mv_prediction.h"
 #include "fast_memory.h"
 #include "filehandle.h"
 

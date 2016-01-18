@@ -272,7 +272,7 @@ void read_coeff_4x4_CAVLC (Macroblock *currMB,
 
   if (!cdc)
   {    
-    // luma or chroma AC    
+    // luma or chroma AC   can't remove 
     nnz = (!cac) ? predict_nnz(currMB, LUMA, i<<2, j<<2) : predict_nnz_chroma(currMB, i, ((j-4)<<2));
 
     currSE.value1 = (nnz < 2) ? 0 : ((nnz < 4) ? 1 : ((nnz < 8) ? 2 : 3));
