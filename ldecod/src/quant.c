@@ -17,7 +17,6 @@
 
 #include "global.h"
 #include "memalloc.h"
-#include "block.h"
 #include "image.h"
 #include "mb_access.h"
 #include "transform.h"
