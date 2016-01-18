@@ -91,6 +91,7 @@ static void read_comp_coeff_4x4_smb_CABAC (Macroblock *currMB, SyntaxElement *cu
         dP->readSyntaxElement(currMB, currSE, dP);
         level = currSE->value1;
 
+				#if 0
         if (level != 0)    /* leave if level == 0 */
         {
           pos_scan_4x4 += 2 * currSE->value2;
@@ -103,6 +104,7 @@ static void read_comp_coeff_4x4_smb_CABAC (Macroblock *currMB, SyntaxElement *cu
           cof[j + j0][i + i0]= level;
           //currSlice->fcf[pl][j + j0][i + i0]= level;
         }
+				#endif
       }
 
       if (level != 0)
@@ -130,6 +132,7 @@ static void read_comp_coeff_4x4_smb_CABAC (Macroblock *currMB, SyntaxElement *cu
           dP->readSyntaxElement(currMB, currSE, dP);
           level = currSE->value1;
 
+					#if 0
           if (level != 0)    /* leave if level == 0 */
           {
             pos_scan_4x4 += 2 * currSE->value2;
@@ -140,6 +143,7 @@ static void read_comp_coeff_4x4_smb_CABAC (Macroblock *currMB, SyntaxElement *cu
             cof[j + j0][i + i0] = level;
             //currSlice->fcf[pl][j + j0][i + i0]= level;
           }
+					#endif
         }
       }
     }
@@ -296,9 +300,9 @@ static void readCompCoeff8x8_CABAC (Macroblock *currMB, SyntaxElement *currSE, C
     const byte (*pos_scan8x8) = ((currSlice->structure == FRAME) && (!currMB->mb_field)) ? SNGL_SCAN8x8[0] : FIELD_SCAN8x8[0];
 
     //int qp_per = p_Vid->qp_per_matrix[ currMB->qp_scaled[pl] ];
-    int qp_rem = p_Vid->qp_rem_matrix[ currMB->qp_scaled[pl] ];
+    //int qp_rem = p_Vid->qp_rem_matrix[ currMB->qp_scaled[pl] ];
     
-    int (*InvLevelScale8x8)[8] = (currMB->is_intra_block == TRUE) ? currSlice->InvLevelScale8x8_Intra[transform_pl][qp_rem] : currSlice->InvLevelScale8x8_Inter[transform_pl][qp_rem];
+    //int (*InvLevelScale8x8)[8] = (currMB->is_intra_block == TRUE) ? currSlice->InvLevelScale8x8_Intra[transform_pl][qp_rem] : currSlice->InvLevelScale8x8_Inter[transform_pl][qp_rem];
 
     // === set offset in current macroblock ===
     boff_x = (b8&0x01) << 3;
@@ -463,6 +467,7 @@ static void readCompCoeff8x8_CABAC_lossless (Macroblock *currMB, SyntaxElement *
       dP->readSyntaxElement(currMB, currSE, dP);
       level = currSE->value1;
 
+			#if 0
       //============ decode =============
       if (level != 0)    /* leave if level == 0 */
       {
@@ -475,6 +480,7 @@ static void readCompCoeff8x8_CABAC_lossless (Macroblock *currMB, SyntaxElement *
 
         tcoeffs[j][boff_x + i] = level;
       }
+			#endif
     }
   }
 }
@@ -612,6 +618,7 @@ static void read_CBP_and_coeffs_from_NAL_CABAC_420(Macroblock *currMB)
     {
       read_delta_quant(&currSE, dP, currMB, partMap, ((currMB->is_intra_block == FALSE)) ? SE_DELTA_QUANT_INTER : SE_DELTA_QUANT_INTRA);
 
+			#if 0
       if (currSlice->dp_mode)
       {
         if ((currMB->is_intra_block == FALSE) && currSlice->dpC_NotPresent ) 
@@ -631,6 +638,7 @@ static void read_CBP_and_coeffs_from_NAL_CABAC_420(Macroblock *currMB)
           currMB->cbp = cbp;
         }
       }
+			#endif
     }
   }
   else // read DC coeffs for new intra modes
@@ -639,6 +647,7 @@ static void read_CBP_and_coeffs_from_NAL_CABAC_420(Macroblock *currMB)
   
     read_delta_quant(&currSE, dP, currMB, partMap, SE_DELTA_QUANT_INTRA);
 
+		#if 0
     if (currSlice->dp_mode)
     {  
       if (currSlice->dpB_NotPresent)
@@ -652,6 +661,7 @@ static void read_CBP_and_coeffs_from_NAL_CABAC_420(Macroblock *currMB)
         currMB->cbp = cbp = 0; 
       }
     }
+		#endif
 
     if (!currMB->dpl_flag)
     {
@@ -684,6 +694,7 @@ static void read_CBP_and_coeffs_from_NAL_CABAC_420(Macroblock *currMB)
         dP->readSyntaxElement(currMB, &currSE, dP);
         level = currSE.value1;
 
+				#if 0
         if (level != 0)    /* leave if level == 0 */
         {
           pos_scan_4x4 += (2 * currSE.value2);
@@ -694,10 +705,11 @@ static void read_CBP_and_coeffs_from_NAL_CABAC_420(Macroblock *currMB)
           cof[j0][i0] = level;// add new intra DC coeff
           //currSlice->fcf[0][j0][i0] = level;// add new intra DC coeff
         }
+				#endif
       }
 
-      if(currMB->is_lossless == FALSE)
-        itrans_2(currMB, (ColorPlane) currSlice->colour_plane_id);// transform new intra DC
+      //if(currMB->is_lossless == FALSE)
+        //itrans_2(currMB, (ColorPlane) currSlice->colour_plane_id);// transform new intra DC      
     }
   }
 
@@ -767,7 +779,7 @@ static void read_CBP_and_coeffs_from_NAL_CABAC_420(Macroblock *currMB)
 
         dP->readSyntaxElement(currMB, &currSE, dP);
         level = currSE.value1;
-
+				
         if (level != 0)
         {
           s_cbp->blk |= 0xf0000 << (ll<<1) ;
