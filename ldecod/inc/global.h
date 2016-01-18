@@ -561,10 +561,10 @@ typedef struct slice
   void (*interpret_mb_mode        )    (Macroblock *currMB);
   void (*init_lists               )    (struct slice *currSlice);
 
-  void (*intra_pred_chroma        )    (Macroblock *currMB);
-  int  (*intra_pred_4x4)               (Macroblock *currMB, ColorPlane pl, int ioff, int joff,int i4,int j4);
-  int  (*intra_pred_8x8)               (Macroblock *currMB, ColorPlane pl, int ioff, int joff);
-  int  (*intra_pred_16x16)             (Macroblock *currMB, ColorPlane pl, int predmode);
+  //void (*intra_pred_chroma        )    (Macroblock *currMB);
+  //int  (*intra_pred_4x4)               (Macroblock *currMB, ColorPlane pl, int ioff, int joff,int i4,int j4);
+  //int  (*intra_pred_8x8)               (Macroblock *currMB, ColorPlane pl, int ioff, int joff);
+  //int  (*intra_pred_16x16)             (Macroblock *currMB, ColorPlane pl, int predmode);
 
   void (*linfo_cbp_intra          )    (int len, int info, int *cbp, int *dummy);
   void (*linfo_cbp_inter          )    (int len, int info, int *cbp, int *dummy);    

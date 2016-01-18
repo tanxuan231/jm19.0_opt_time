@@ -41,7 +41,6 @@
 #include "mc_prediction.h"
 #include "quant.h"
 #include "mv_prediction.h"
-#include "mb_prediction.h"
 #include "fast_memory.h"
 #include "filehandle.h"
 
@@ -1109,7 +1108,7 @@ void setup_slice_methods(Slice *currSlice)
     break;
   }
 
-  set_intra_prediction_modes(currSlice);
+  //set_intra_prediction_modes(currSlice);
 
   if ( currSlice->p_Vid->active_sps->chroma_format_idc==YUV444 && (currSlice->p_Vid->separate_colour_plane_flag == 0) )
     currSlice->read_coeff_4x4_CAVLC = read_coeff_4x4_CAVLC_444;
