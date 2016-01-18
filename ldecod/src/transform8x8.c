@@ -23,7 +23,6 @@
 #include "elements.h"
 #include "transform8x8.h"
 #include "transform.h"
-#include "quant.h"
 
 static void recon8x8(int **m7, imgpel **mb_rec, imgpel **mpr, int max_imgpel_value, int ioff)
 {

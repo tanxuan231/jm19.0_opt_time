@@ -48,7 +48,6 @@
 #include "context_ini.h"
 #include "cabac.h"
 #include "vlc.h"
-#include "quant.h"
 
 #include "mbuffer_common.h"
 #include "mbuffer_mvc.h"
@@ -96,8 +95,8 @@ static void setup_buffers(VideoParameters *p_Vid, int layer_id)
     }
     p_Vid->PicPos = cps->PicPos;
     p_Vid->nz_coeff = cps->nz_coeff;
-    p_Vid->qp_per_matrix = cps->qp_per_matrix;
-    p_Vid->qp_rem_matrix = cps->qp_rem_matrix;
+    //p_Vid->qp_per_matrix = cps->qp_per_matrix;
+    //p_Vid->qp_rem_matrix = cps->qp_rem_matrix;
     p_Vid->oldFrameSizeInMbs = cps->oldFrameSizeInMbs;
     p_Vid->img2buf = cps->img2buf;
     p_Vid->last_dec_layer_id = layer_id;

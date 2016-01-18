@@ -663,8 +663,8 @@ typedef struct coding_par
   byte ****nz_coeff;
   int **siblock;
   int **siblock_JV[MAX_PLANE];
-  int *qp_per_matrix;
-  int *qp_rem_matrix;
+  //int *qp_per_matrix;
+  //int *qp_rem_matrix;
 }CodingParameters;
 
 typedef struct layer_par
@@ -835,8 +835,8 @@ typedef struct video_par
   //imgpel **imgY_ref;                              //!< reference frame find snr
   //imgpel ***imgUV_ref;
 
-  int *qp_per_matrix;
-  int *qp_rem_matrix;
+  //int *qp_per_matrix;
+  //int *qp_rem_matrix;
 
   struct frame_store *last_out_fs;
   int pocs_in_dpb[100];

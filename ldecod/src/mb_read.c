@@ -37,7 +37,6 @@
 #include "mb_access.h"
 #include "biaridecod.h"
 #include "transform.h"
-#include "quant.h"
 #include "fast_memory.h"
 #include "filehandle.h"
 

@@ -55,7 +55,6 @@
 #include "cabac.h"
 #include "parset.h"
 #include "sei.h"
-#include "quant.h"
 #include "nalu.h"
 #include "img_io.h"
 #include "rtp.h"
@@ -946,7 +945,7 @@ int init_global_buffers(VideoParameters *p_Vid, int layer_id)
   {
     memory_size += get_mem2Dint(&(cps->siblock), cps->FrameHeightInMbs, cps->PicWidthInMbs);
   }
-  init_qp_process(cps);
+  //init_qp_process(cps);
   cps->oldFrameSizeInMbs = cps->FrameSizeInMbs;
 
   if(layer_id == 0 )
@@ -1044,7 +1043,7 @@ void free_layer_buffers(VideoParameters *p_Vid, int layer_id)
     cps->PicPos = NULL;
   }
 
-  free_qp_matrices(cps);
+  //free_qp_matrices(cps);
 
 
   p_Vid->global_init_done[layer_id] = 0;
