@@ -23,7 +23,6 @@
 #include "global.h"
 
 #include "macroblock.h"
-#include "mc_prediction.h"
 #include "image.h"
 #include "mb_access.h"
 

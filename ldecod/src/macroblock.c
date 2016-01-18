@@ -38,7 +38,6 @@
 #include "mb_access.h"
 #include "biaridecod.h"
 #include "transform.h"
-#include "mc_prediction.h"
 #include "quant.h"
 #include "mv_prediction.h"
 #include "fast_memory.h"
@@ -1060,7 +1059,7 @@ void setup_slice_methods(Slice *currSlice)
     currSlice->interpret_mb_mode         = interpret_mb_mode_P;
     currSlice->read_motion_info_from_NAL = read_motion_info_from_NAL_p_slice;
     //currSlice->decode_one_component      = decode_one_component_p_slice;
-    currSlice->update_direct_mv_info     = NULL;
+    //currSlice->update_direct_mv_info     = NULL;
 #if (MVC_EXTENSION_ENABLE)
     currSlice->init_lists                = currSlice->view_id ? init_lists_p_slice_mvc : init_lists_p_slice;
 #else
@@ -1071,7 +1070,7 @@ void setup_slice_methods(Slice *currSlice)
     currSlice->interpret_mb_mode         = interpret_mb_mode_P;
     currSlice->read_motion_info_from_NAL = read_motion_info_from_NAL_p_slice;
     //currSlice->decode_one_component      = decode_one_component_sp_slice;
-    currSlice->update_direct_mv_info     = NULL;
+    //currSlice->update_direct_mv_info     = NULL;
 #if (MVC_EXTENSION_ENABLE)
     currSlice->init_lists                = currSlice->view_id ? init_lists_p_slice_mvc : init_lists_p_slice;
 #else
@@ -1082,7 +1081,7 @@ void setup_slice_methods(Slice *currSlice)
     currSlice->interpret_mb_mode         = interpret_mb_mode_B;
     currSlice->read_motion_info_from_NAL = read_motion_info_from_NAL_b_slice;
     //currSlice->decode_one_component      = decode_one_component_b_slice;
-    update_direct_types(currSlice);
+    //update_direct_types(currSlice);
 #if (MVC_EXTENSION_ENABLE)
     currSlice->init_lists                = currSlice->view_id ? init_lists_b_slice_mvc : init_lists_b_slice;
 #else
@@ -1093,7 +1092,7 @@ void setup_slice_methods(Slice *currSlice)
     currSlice->interpret_mb_mode         = interpret_mb_mode_I;
     currSlice->read_motion_info_from_NAL = NULL;
     //currSlice->decode_one_component      = decode_one_component_i_slice;
-    currSlice->update_direct_mv_info     = NULL;
+    //currSlice->update_direct_mv_info     = NULL;
 #if (MVC_EXTENSION_ENABLE)
     currSlice->init_lists                = currSlice->view_id ? init_lists_i_slice_mvc : init_lists_i_slice;
 #else
@@ -1104,7 +1103,7 @@ void setup_slice_methods(Slice *currSlice)
     currSlice->interpret_mb_mode         = interpret_mb_mode_SI;
     currSlice->read_motion_info_from_NAL = NULL;
     //currSlice->decode_one_component      = decode_one_component_i_slice;
-    currSlice->update_direct_mv_info     = NULL;
+    //currSlice->update_direct_mv_info     = NULL;
 #if (MVC_EXTENSION_ENABLE)
     currSlice->init_lists                = currSlice->view_id ? init_lists_i_slice_mvc : init_lists_i_slice;
 #else

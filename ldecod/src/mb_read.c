@@ -38,10 +38,8 @@
 #include "mb_access.h"
 #include "biaridecod.h"
 #include "transform.h"
-#include "mc_prediction.h"
 #include "quant.h"
 #include "mv_prediction.h"
-#include "mb_prediction.h"
 #include "fast_memory.h"
 #include "filehandle.h"
 

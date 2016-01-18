@@ -498,11 +498,11 @@ typedef struct slice
 
   int cofu[16];
 
-  imgpel **tmp_block_l0;
-  imgpel **tmp_block_l1;  
-  int    **tmp_res;
-  imgpel **tmp_block_l2;
-  imgpel **tmp_block_l3;  
+  //imgpel **tmp_block_l0;
+  //imgpel **tmp_block_l1;  
+  //int    **tmp_res;
+  //imgpel **tmp_block_l2;
+  //imgpel **tmp_block_l3;  
 
   // Scaling matrix info
   int  InvLevelScale4x4_Intra[3][6][4][4];
@@ -568,7 +568,7 @@ typedef struct slice
 
   void (*linfo_cbp_intra          )    (int len, int info, int *cbp, int *dummy);
   void (*linfo_cbp_inter          )    (int len, int info, int *cbp, int *dummy);    
-  void (*update_direct_mv_info    )    (Macroblock *currMB);
+  //void (*update_direct_mv_info    )    (Macroblock *currMB);
   void (*read_coeff_4x4_CAVLC     )    (Macroblock *currMB, int block_type, int i, int j, int levarr[16], int runarr[16], int *number_coefficients);
 
 } Slice;
