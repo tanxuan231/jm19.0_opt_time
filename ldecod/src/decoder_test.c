@@ -354,6 +354,7 @@ int main(int argc, char **argv)
 	printf("run time0: %ld us\n",time_us1);
 
 	//encrypt the H.264 file
+	printf("key unit count: %d\n",g_KeyUnitIdx);
 	if(p_Dec->p_Inp->enable_key && g_pKeyUnitBuffer && g_KeyUnitIdx > 0)
 		Encrypt(g_pKeyUnitBuffer, g_KeyUnitIdx);
 

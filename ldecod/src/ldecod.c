@@ -61,7 +61,6 @@
 #include "nalu.h"
 #include "img_io.h"
 #include "rtp.h"
-#include "input.h"
 #include "h264decoder.h"
 #include "dec_statistics.h"
 
