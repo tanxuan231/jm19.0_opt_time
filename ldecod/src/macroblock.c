@@ -185,10 +185,10 @@ void set_chroma_qp(Macroblock* currMB)
 void update_qp(Macroblock *currMB, int qp)
 {
   VideoParameters *p_Vid = currMB->p_Vid;
-  currMB->qp = qp;
-  currMB->qp_scaled[0] = qp + p_Vid->bitdepth_luma_qp_scale;
-  set_chroma_qp(currMB);
-  currMB->is_lossless = (Boolean) ((currMB->qp_scaled[0] == 0) && (p_Vid->lossless_qpprime_flag == 1));
+  //currMB->qp = qp;
+  //currMB->qp_scaled[0] = qp + p_Vid->bitdepth_luma_qp_scale;
+  //set_chroma_qp(currMB);
+  //currMB->is_lossless = (Boolean) ((currMB->qp_scaled[0] == 0) && (p_Vid->lossless_qpprime_flag == 1));
   set_read_comp_coeff_cavlc(currMB);
   set_read_comp_coeff_cabac(currMB);
 }
