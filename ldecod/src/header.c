@@ -268,7 +268,6 @@ int RestOfSliceHeader(Slice *currSlice)
   }
 
   val = read_se_v("SH: slice_qp_delta", currStream, &p_Dec->UsedBits);
-  //currSlice->qp = p_Vid->qp = 26 + p_Vid->active_pps->pic_init_qp_minus26 + val;
   currSlice->qp = 26 + p_Vid->active_pps->pic_init_qp_minus26 + val;
 
   if ((currSlice->qp < -p_Vid->bitdepth_luma_qp_scale) || (currSlice->qp > 51))
@@ -281,44 +280,16 @@ int RestOfSliceHeader(Slice *currSlice)
       currSlice->sp_switch = read_u_1 ("SH: sp_for_switch_flag", currStream, &p_Dec->UsedBits);
     }
     val = read_se_v("SH: slice_qs_delta", currStream, &p_Dec->UsedBits);
-    //currSlice->qs = 26 + p_Vid->active_pps->pic_init_qs_minus26 + val;    
-    //if ((currSlice->qs < 0) || (currSlice->qs > 51))
-      //error ("slice_qs_delta makes slice_qs_y out of range", 500);
   }
 
-#if DPF_PARAM_DISP
-  printf("deblocking_filter_control_present_flag:%d\n", p_Vid->active_pps->deblocking_filter_control_present_flag);
-#endif
   if (p_Vid->active_pps->deblocking_filter_control_present_flag)
   {
     if (read_ue_v ("SH: disable_deblocking_filter_idc", currStream, &p_Dec->UsedBits) != 1)
     {
-      //currSlice->DFAlphaC0Offset = (short) (2 * 
 			read_se_v("SH: slice_alpha_c0_offset_div2", currStream, &p_Dec->UsedBits);
-      //currSlice->DFBetaOffset    = (short) (2 * 
 			read_se_v("SH: slice_beta_offset_div2", currStream, &p_Dec->UsedBits);
     }
-    else
-    {
-      //currSlice->DFAlphaC0Offset = currSlice->DFBetaOffset = 0;
-    }
   }
-  else
-  {
-    //currSlice->DFAlphaC0Offset = currSlice->DFBetaOffset = 0;
-  }
-#if DPF_PARAM_DISP
-  //printf("Slice:%d, DFParameters:(%d,%d,%d)\n\n", currSlice->current_slice_nr, currSlice->DFDisableIdc, currSlice->DFAlphaC0Offset, currSlice->DFBetaOffset);
-#endif
-
-  // The conformance point for intra profiles is without deblocking, but decoders are still recommended to filter the output.
-  // We allow in the decoder config to skip the loop filtering. This is achieved by modifying the parameters here.
-  //if ( is_HI_intra_only_profile(active_sps->profile_idc, active_sps->constrained_set3_flag) && (p_Inp->intra_profile_deblocking == 0) )
-  //{
-    //currSlice->DFDisableIdc =1;
-    //currSlice->DFAlphaC0Offset = currSlice->DFBetaOffset = 0;
-  //}
-
 
   if (p_Vid->active_pps->num_slice_groups_minus1>0 && p_Vid->active_pps->slice_group_map_type>=3 &&
       p_Vid->active_pps->slice_group_map_type<=5)

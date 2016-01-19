@@ -52,7 +52,7 @@ int read_ue_v (char *tracestring, Bitstream *bitstream, int *used_bits)
   //assert (bitstream->streamBuffer != NULL);
   symbol.type = SE_HEADER;
   symbol.mapping = linfo_ue;   // Mapping rule
-  SYMTRACESTRING(tracestring);
+  //SYMTRACESTRING(tracestring);
   readSyntaxElement_VLC (&symbol, bitstream);
   *used_bits+=symbol.len;
   return symbol.value1;
@@ -83,7 +83,7 @@ int read_se_v (char *tracestring, Bitstream *bitstream, int *used_bits)
   //assert (bitstream->streamBuffer != NULL);
   symbol.type = SE_HEADER;
   symbol.mapping = linfo_se;   // Mapping rule: signed integer
-  SYMTRACESTRING(tracestring);
+  //SYMTRACESTRING(tracestring);
   readSyntaxElement_VLC (&symbol, bitstream);
   *used_bits+=symbol.len;
   return symbol.value1;
@@ -119,7 +119,7 @@ int read_u_v (int LenInBits, char*tracestring, Bitstream *bitstream, int *used_b
   symbol.type = SE_HEADER;
   symbol.mapping = linfo_ue;   // Mapping rule
   symbol.len = LenInBits;
-  SYMTRACESTRING(tracestring);
+  //SYMTRACESTRING(tracestring);
   readSyntaxElement_FLC (&symbol, bitstream);
   *used_bits+=symbol.len;
 
@@ -155,7 +155,7 @@ int read_i_v (int LenInBits, char*tracestring, Bitstream *bitstream, int *used_b
   symbol.type = SE_HEADER;
   symbol.mapping = linfo_ue;   // Mapping rule
   symbol.len = LenInBits;
-  SYMTRACESTRING(tracestring);
+  //SYMTRACESTRING(tracestring);
   readSyntaxElement_FLC (&symbol, bitstream);
   *used_bits+=symbol.len;
 
