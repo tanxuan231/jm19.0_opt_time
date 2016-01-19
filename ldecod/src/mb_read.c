@@ -120,6 +120,7 @@ static void read_ipred_8x8_modes_mbaff(Macroblock *currMB)
       dP->readSyntaxElement(currMB, &currSE, dP);
     }
 
+#if 0
     get4x4Neighbour(currMB, (bx << 2) - 1, (by << 2),     p_Vid->mb_size[IS_LUMA], &left_block);
     get4x4Neighbour(currMB, (bx << 2),     (by << 2) - 1, p_Vid->mb_size[IS_LUMA], &top_block );
 
@@ -143,7 +144,8 @@ static void read_ipred_8x8_modes_mbaff(Macroblock *currMB)
     currSlice->ipredmode[bj    ][bi    ] = (byte) dec;
     currSlice->ipredmode[bj    ][bi + 1] = (byte) dec;
     currSlice->ipredmode[bj + 1][bi    ] = (byte) dec;
-    currSlice->ipredmode[bj + 1][bi + 1] = (byte) dec;             
+    currSlice->ipredmode[bj + 1][bi + 1] = (byte) dec;       
+#endif		
   }
 }
 
@@ -200,6 +202,7 @@ static void read_ipred_8x8_modes(Macroblock *currMB)
       dP->readSyntaxElement(currMB, &currSE, dP);		//readSyntaxElement_CABAC
     }
 
+#if 0
     get4x4Neighbour(currMB, (bx<<2) - 1, (by<<2),     p_Vid->mb_size[IS_LUMA], &left_block);
     get4x4Neighbour(currMB, (bx<<2),     (by<<2) - 1, p_Vid->mb_size[IS_LUMA], &top_block );
     
@@ -223,7 +226,8 @@ static void read_ipred_8x8_modes(Macroblock *currMB)
     currSlice->ipredmode[bj    ][bi    ] = (byte) dec;
     currSlice->ipredmode[bj    ][bi + 1] = (byte) dec;
     currSlice->ipredmode[bj + 1][bi    ] = (byte) dec;
-    currSlice->ipredmode[bj + 1][bi + 1] = (byte) dec;             
+    currSlice->ipredmode[bj + 1][bi + 1] = (byte) dec;
+#endif		
   }
 }
 
@@ -279,6 +283,7 @@ static void read_ipred_4x4_modes_mbaff(Macroblock *currMB)
           dP->readSyntaxElement(currMB, &currSE, dP);
         }
 
+#if 0
         get4x4Neighbour(currMB, (bx<<2) - 1, (by<<2),     p_Vid->mb_size[IS_LUMA], &left_block);
         get4x4Neighbour(currMB, (bx<<2),     (by<<2) - 1, p_Vid->mb_size[IS_LUMA], &top_block );
 
@@ -309,6 +314,7 @@ static void read_ipred_4x4_modes_mbaff(Macroblock *currMB)
         mostProbableIntraPredMode  = (upIntraPredMode < 0 || leftIntraPredMode < 0) ? DC_PRED : upIntraPredMode < leftIntraPredMode ? upIntraPredMode : leftIntraPredMode;
 
         currSlice->ipredmode[bj][bi] = (byte) ((currSE.value1 == -1) ? mostProbableIntraPredMode : currSE.value1 + (currSE.value1 >= mostProbableIntraPredMode));
+#endif				
       }
     }
   }
@@ -371,6 +377,7 @@ static void read_ipred_4x4_modes(Macroblock *currMB)
           dP->readSyntaxElement(currMB, &currSE, dP);
         }
 
+#if 0
         get4x4Neighbour(currMB, (bx<<2) - 1, (by<<2),     p_Vid->mb_size[IS_LUMA], &left_block);
         get4x4Neighbour(currMB, (bx<<2),     (by<<2) - 1, p_Vid->mb_size[IS_LUMA], &top_block );
 
@@ -401,6 +408,7 @@ static void read_ipred_4x4_modes(Macroblock *currMB)
         mostProbableIntraPredMode  = (upIntraPredMode < 0 || leftIntraPredMode < 0) ? DC_PRED : upIntraPredMode < leftIntraPredMode ? upIntraPredMode : leftIntraPredMode;
 
         currSlice->ipredmode[bj][bi] = (byte) ((currSE.value1 == -1) ? mostProbableIntraPredMode : currSE.value1 + (currSE.value1 >= mostProbableIntraPredMode));
+#endif				
       }
     }
   }
@@ -460,33 +468,6 @@ static void read_ipred_modes(Macroblock *currMB)
   }
 }
 
-
-static inline void reset_mbs(Macroblock *currMB)
-{
-  currMB->slice_nr = -1; 
-  currMB->ei_flag  =  1;
-  currMB->dpl_flag =  0;
-}
-
-static inline void reset_mv_info(PicMotionParams *mv_info, int slice_no)
-{
-  mv_info->ref_pic[LIST_0] = NULL;
-  mv_info->ref_pic[LIST_1] = NULL;
-  mv_info->mv[LIST_0] = zero_mv;
-  mv_info->mv[LIST_1] = zero_mv;
-  mv_info->ref_idx[LIST_0] = -1;
-  mv_info->ref_idx[LIST_1] = -1;
-  mv_info->slice_no = slice_no;
-}
-
-static inline void reset_mv_info_list(PicMotionParams *mv_info, int list, int slice_no)
-{
-  mv_info->ref_pic[list] = NULL;
-  mv_info->mv[list] = zero_mv;
-  mv_info->ref_idx[list] = -1;
-  mv_info->slice_no = slice_no;
-}
-
 /*!
  ************************************************************************
  * \brief
@@ -495,6 +476,7 @@ static inline void reset_mv_info_list(PicMotionParams *mv_info, int list, int sl
  */
 static void init_macroblock_basic(Macroblock *currMB)
 {
+#if 0	
   int j, i;
   PicMotionParams **mv_info = &currMB->p_Slice->dec_picture->mv_info[currMB->block_y]; //&p_Vid->dec_picture->mv_info[currMB->block_y];
   int slice_no =  currMB->p_Slice->current_slice_nr;
@@ -507,6 +489,7 @@ static void init_macroblock_basic(Macroblock *currMB)
     reset_mv_info_list(*mv_info + (i++), LIST_1, slice_no);
     reset_mv_info_list(*(mv_info++) + i, LIST_1, slice_no);
   }
+#endif	
 }
 
 /*!
@@ -517,6 +500,7 @@ static void init_macroblock_basic(Macroblock *currMB)
  */
 static void init_macroblock_direct(Macroblock *currMB)
 {
+#if 0	
   int slice_no = currMB->p_Slice->current_slice_nr;
   PicMotionParams **mv_info = &currMB->p_Slice->dec_picture->mv_info[currMB->block_y]; 
   int i, j;
@@ -531,6 +515,7 @@ static void init_macroblock_direct(Macroblock *currMB)
     (*mv_info+i+2)->slice_no = slice_no;
     (*(mv_info++)+i+3)->slice_no = slice_no;
   }
+#endif	
 }
 
 
@@ -542,21 +527,6 @@ static void init_macroblock_direct(Macroblock *currMB)
  */
 static void init_macroblock(Macroblock *currMB)
 {
-  int j, i;
-  Slice *currSlice = currMB->p_Slice;
-  PicMotionParams **mv_info = &currSlice->dec_picture->mv_info[currMB->block_y]; 
-  int slice_no = currSlice->current_slice_nr;
-  // reset vectors and pred. modes
-
-  for(j = 0; j < BLOCK_SIZE; ++j)
-  {                        
-    i = currMB->block_x;
-    reset_mv_info(*mv_info + (i++), slice_no);
-    reset_mv_info(*mv_info + (i++), slice_no);
-    reset_mv_info(*mv_info + (i++), slice_no);
-    reset_mv_info(*(mv_info++) + i, slice_no);
-  }
-
   set_read_comp_coeff_cabac(currMB);
   set_read_comp_coeff_cavlc(currMB);
 }
@@ -858,7 +828,7 @@ static void read_skip_macroblock(Macroblock *currMB)
   }
 
   //--- init macroblock data ---
-  init_macroblock_basic(currMB);
+  //init_macroblock_basic(currMB);
 
   skip_macroblock(currMB);
 }
@@ -1140,7 +1110,7 @@ static void read_one_macroblock_i_slice_cavlc(Macroblock *currMB)
 
   currMB->block_y_aff = ((currSlice->mb_aff_frame_flag) && (currMB->mb_field)) ? (mb_nr&0x01) ? (currMB->block_y - 4)>>1 : currMB->block_y >> 1 : currMB->block_y;
 
-  currSlice->siblock[currMB->mb.y][currMB->mb.x] = 0;
+  //currSlice->siblock[currMB->mb.y][currMB->mb.x] = 0;
 
   currSlice->interpret_mb_mode(currMB);
 
@@ -1223,7 +1193,7 @@ static void read_one_macroblock_i_slice_cabac(Macroblock *currMB)
 
   currMB->block_y_aff = ((currSlice->mb_aff_frame_flag) && (currMB->mb_field)) ? (mb_nr&0x01) ? (currMB->block_y - 4)>>1 : currMB->block_y >> 1 : currMB->block_y;
 
-  currSlice->siblock[currMB->mb.y][currMB->mb.x] = 0;
+  //currSlice->siblock[currMB->mb.y][currMB->mb.x] = 0;
 
   currSlice->interpret_mb_mode(currMB);		//interpret_mb_mode_I
 
@@ -1351,7 +1321,7 @@ static void read_one_macroblock_p_slice_cavlc(Macroblock *currMB)
 
     currMB->block_y_aff = currMB->block_y;
 
-    currSlice->siblock[currMB->mb.y][currMB->mb.x] = 0;
+    //currSlice->siblock[currMB->mb.y][currMB->mb.x] = 0;
 
     currSlice->interpret_mb_mode(currMB);    
   }
@@ -1454,7 +1424,7 @@ static void read_one_macroblock_p_slice_cavlc(Macroblock *currMB)
 
     currMB->block_y_aff = (currMB->mb_field) ? (mb_nr&0x01) ? (currMB->block_y - 4)>>1 : currMB->block_y >> 1 : currMB->block_y;
 
-    currSlice->siblock[currMB->mb.y][currMB->mb.x] = 0;
+    //currSlice->siblock[currMB->mb.y][currMB->mb.x] = 0;
 
     currSlice->interpret_mb_mode(currMB);
 
@@ -1555,7 +1525,7 @@ static void read_one_macroblock_p_slice_cabac(Macroblock *currMB)
 
     motion->mb_field[mb_nr] = (byte) FALSE;
     currMB->block_y_aff = currMB->block_y;
-    currSlice->siblock[currMB->mb.y][currMB->mb.x] = 0;
+    //currSlice->siblock[currMB->mb.y][currMB->mb.x] = 0;
     currSlice->interpret_mb_mode(currMB);    
   }
   else
@@ -1643,7 +1613,7 @@ static void read_one_macroblock_p_slice_cabac(Macroblock *currMB)
 
     currMB->block_y_aff = (currMB->mb_field) ? (mb_nr&0x01) ? (currMB->block_y - 4)>>1 : currMB->block_y >> 1 : currMB->block_y;
 
-    currSlice->siblock[currMB->mb.y][currMB->mb.x] = 0;
+    //currSlice->siblock[currMB->mb.y][currMB->mb.x] = 0;
 
     currSlice->interpret_mb_mode(currMB);
 
@@ -1752,7 +1722,7 @@ static void read_one_macroblock_b_slice_cavlc(Macroblock *currMB)
 
     motion->mb_field[mb_nr] = FALSE;
     currMB->block_y_aff = currMB->block_y;
-    currSlice->siblock[currMB->mb.y][currMB->mb.x] = 0;
+    //currSlice->siblock[currMB->mb.y][currMB->mb.x] = 0;
 
     currSlice->interpret_mb_mode(currMB);
   }
@@ -1850,7 +1820,7 @@ static void read_one_macroblock_b_slice_cavlc(Macroblock *currMB)
 
     currMB->block_y_aff = (currMB->mb_field) ? (mb_nr&0x01) ? (currMB->block_y - 4)>>1 : currMB->block_y >> 1 : currMB->block_y;
 
-    currSlice->siblock[currMB->mb.y][currMB->mb.x] = 0;
+    //currSlice->siblock[currMB->mb.y][currMB->mb.x] = 0;
 
     currSlice->interpret_mb_mode(currMB);
 
@@ -1893,7 +1863,7 @@ static void read_one_macroblock_b_slice_cavlc(Macroblock *currMB)
     }
 
     //--- init macroblock data ---
-    init_macroblock_direct(currMB);
+    //init_macroblock_direct(currMB);
 
     if (currSlice->cod_counter >= 0)
     {
@@ -1979,7 +1949,7 @@ static void read_one_macroblock_b_slice_cabac(Macroblock *currMB)
 
     motion->mb_field[mb_nr] = (byte) FALSE;
     currMB->block_y_aff = currMB->block_y;
-    currSlice->siblock[currMB->mb.y][currMB->mb.x] = 0;
+    //currSlice->siblock[currMB->mb.y][currMB->mb.x] = 0;
     currSlice->interpret_mb_mode(currMB);
   }
   else
@@ -2072,7 +2042,7 @@ static void read_one_macroblock_b_slice_cabac(Macroblock *currMB)
 
     currMB->block_y_aff = (currMB->mb_field) ? (mb_nr&0x01) ? (currMB->block_y - 4)>>1 : currMB->block_y >> 1 : currMB->block_y;
 
-    currSlice->siblock[currMB->mb.y][currMB->mb.x] = 0;
+    //currSlice->siblock[currMB->mb.y][currMB->mb.x] = 0;
 
     currSlice->interpret_mb_mode(currMB);
 
@@ -2119,7 +2089,7 @@ static void read_one_macroblock_b_slice_cabac(Macroblock *currMB)
     }
 
     //--- init macroblock data ---
-    init_macroblock_direct(currMB);
+    //init_macroblock_direct(currMB);
 
     if (currSlice->cod_counter >= 0)
     {

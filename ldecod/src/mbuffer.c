@@ -50,7 +50,7 @@ FrameStore* alloc_frame_store(void)
 
   f->is_used      = 0;
   f->is_reference = 0;
-  f->is_long_term = 0;
+  //f->is_long_term = 0;
   f->is_orig_reference = 0;
 
   //f->is_output = 0;
@@ -111,23 +111,6 @@ StorablePicture* alloc_storable_picture(VideoParameters *p_Vid, PictureStructure
   }
 
   s->PicSizeInMbs = (size_x*size_y)/256;
-  //s->imgUV = NULL;
-
-  //get_mem2Dpel_pad (&(s->imgY), size_y, size_x, p_Vid->iLumaPadY, p_Vid->iLumaPadX);
-  //s->iLumaStride = size_x+2*p_Vid->iLumaPadX;
-  //s->iLumaExpandedHeight = size_y+2*p_Vid->iLumaPadY;
-
-  //if (active_sps->chroma_format_idc != YUV400)
-  {
-    //get_mem3Dpel_pad(&(s->imgUV), 2, size_y_cr, size_x_cr, p_Vid->iChromaPadY, p_Vid->iChromaPadX);
-  }
-
-  //s->iChromaStride =size_x_cr + 2*p_Vid->iChromaPadX;
-  //s->iChromaExpandedHeight = size_y_cr + 2*p_Vid->iChromaPadY;
-  //s->iLumaPadY   = p_Vid->iLumaPadY;
-  //s->iLumaPadX   = p_Vid->iLumaPadX;
-  //s->iChromaPadY = p_Vid->iChromaPadY;
-  //s->iChromaPadX = p_Vid->iChromaPadX;
 
   s->separate_colour_plane_flag = p_Vid->separate_colour_plane_flag;
 
@@ -147,9 +130,9 @@ StorablePicture* alloc_storable_picture(VideoParameters *p_Vid, PictureStructure
   s->frame_num = 0;
   //s->long_term_frame_idx = 0;
   //s->long_term_pic_num   = 0;
-  s->used_for_reference  = 0;
-  s->is_long_term        = 0;
-  s->non_existing        = 0;
+  //s->used_for_reference  = 0;
+  //s->is_long_term        = 0;
+  //s->non_existing        = 0;
   //s->is_output           = 0;
   s->max_slice_id        = 0;
 #if (MVC_EXTENSION_ENABLE)
@@ -179,21 +162,6 @@ StorablePicture* alloc_storable_picture(VideoParameters *p_Vid, PictureStructure
   //s->top_poc = s->bottom_poc = s->poc = 0;
   //s->seiHasTone_mapping = 0;
 
-#if 0
-  if(!p_Vid->active_sps->frame_mbs_only_flag && structure != FRAME)
-  {
-    int i, j;
-    for(j = 0; j < MAX_NUM_SLICES; j++)
-    {
-      for (i = 0; i < 2; i++)
-      {
-        s->listX[j][i] = calloc(MAX_LIST_SIZE, sizeof (StorablePicture*)); // +1 for reordering
-        if (NULL==s->listX[j][i])
-        no_mem_exit("alloc_storable_picture: s->listX[i]");
-      }
-    }
-  }
-#endif
   return s;
 }
 

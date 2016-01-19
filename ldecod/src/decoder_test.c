@@ -195,7 +195,7 @@ int main(int argc, char **argv)
       //error handling;
       fprintf(stderr, "Error in decoding process: 0x%x\n", iRet);
     }
-  }while((iRet == DEC_SUCCEED) && ((p_Dec->p_Inp->iDecFrmNum==0) /*|| (iFramesDecoded<p_Dec->p_Inp->iDecFrmNum)*/));
+  }while((iRet == DEC_SUCCEED) /*&& ((p_Dec->p_Inp->iDecFrmNum==0) || (iFramesDecoded<p_Dec->p_Inp->iDecFrmNum))*/);
 
 	gettimeofday( &end1, NULL );
 	time_us1 = 1000000 * ( end1.tv_sec - start.tv_sec ) + end1.tv_usec - start.tv_usec;

@@ -981,7 +981,7 @@ static void set_coding_par(seq_parameter_set_rbsp_t *sps, CodingParameters *cps)
   cps->mb_size_shift[1][0] = cps->mb_size_shift[2][0] = CeilLog2_sf (cps->mb_size[1][0]);
   cps->mb_size_shift[1][1] = cps->mb_size_shift[2][1] = CeilLog2_sf (cps->mb_size[1][1]);
 
-  cps->rgb_output =  (sps->vui_seq_parameters.matrix_coefficients==0);
+  //cps->rgb_output =  (sps->vui_seq_parameters.matrix_coefficients==0);
 }
 
 /*!

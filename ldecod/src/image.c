@@ -53,13 +53,6 @@
 extern int testEndian(void);
 void reorder_lists(Slice *currSlice);
 
-static inline void reset_mbs(Macroblock *currMB)
-{
-  currMB->slice_nr = -1; 
-  currMB->ei_flag  =  1;
-  currMB->dpl_flag =  0;
-}
-
 static void setup_buffers(VideoParameters *p_Vid, int layer_id)
 {
   CodingParameters *cps = p_Vid->p_EncodePar[layer_id];
@@ -75,27 +68,27 @@ static void setup_buffers(VideoParameters *p_Vid, int layer_id)
      {
        p_Vid->mb_data_JV[i] = cps->mb_data_JV[i];
        p_Vid->intra_block_JV[i] = cps->intra_block_JV[i];
-       p_Vid->ipredmode_JV[i] = cps->ipredmode_JV[i];
-       p_Vid->siblock_JV[i] = cps->siblock_JV[i];
+       //p_Vid->ipredmode_JV[i] = cps->ipredmode_JV[i];
+       //p_Vid->siblock_JV[i] = cps->siblock_JV[i];
      }
      p_Vid->mb_data = NULL;
      p_Vid->intra_block = NULL;
-     p_Vid->ipredmode = NULL;
-     p_Vid->siblock = NULL;
+     //p_Vid->ipredmode = NULL;
+     //p_Vid->siblock = NULL;
     }
     else
     {
       p_Vid->mb_data = cps->mb_data;
       p_Vid->intra_block = cps->intra_block;
-      p_Vid->ipredmode = cps->ipredmode;
-      p_Vid->siblock = cps->siblock;
+      //p_Vid->ipredmode = cps->ipredmode;
+      //p_Vid->siblock = cps->siblock;
     }
     p_Vid->PicPos = cps->PicPos;
     p_Vid->nz_coeff = cps->nz_coeff;
     //p_Vid->qp_per_matrix = cps->qp_per_matrix;
     //p_Vid->qp_rem_matrix = cps->qp_rem_matrix;
     p_Vid->oldFrameSizeInMbs = cps->oldFrameSizeInMbs;
-    p_Vid->img2buf = cps->img2buf;
+    //p_Vid->img2buf = cps->img2buf;
     p_Vid->last_dec_layer_id = layer_id;
   }
 }
@@ -176,11 +169,11 @@ static void init_picture(VideoParameters *p_Vid, Slice *currSlice, InputParamete
     {      
       Macroblock *currMB = p_Vid->mb_data_JV[nplane];
       char *intra_block = p_Vid->intra_block_JV[nplane];
-      for(i=0; i<(int)p_Vid->PicSizeInMbs; ++i)
+      //for(i=0; i<(int)p_Vid->PicSizeInMbs; ++i)
       {
-        reset_mbs(currMB++);
+        //reset_mbs(currMB++);
       }
-      fast_memset(p_Vid->ipredmode_JV[nplane][0], DC_PRED, 16 * p_Vid->FrameHeightInMbs * p_Vid->PicWidthInMbs * sizeof(char));
+      //fast_memset(p_Vid->ipredmode_JV[nplane][0], DC_PRED, 16 * p_Vid->FrameHeightInMbs * p_Vid->PicWidthInMbs * sizeof(char));
       if(p_Vid->active_pps->constrained_intra_pred_flag)
       {
         for (i=0; i<(int)p_Vid->PicSizeInMbs; ++i)
@@ -199,11 +192,11 @@ static void init_picture(VideoParameters *p_Vid, Slice *currSlice, InputParamete
         p_Vid->intra_block[i] = 1;
       }
     }
-    fast_memset(p_Vid->ipredmode[0], DC_PRED, 16 * p_Vid->FrameHeightInMbs * p_Vid->PicWidthInMbs * sizeof(char));
+    //fast_memset(p_Vid->ipredmode[0], DC_PRED, 16 * p_Vid->FrameHeightInMbs * p_Vid->PicWidthInMbs * sizeof(char));
   }  
 
   dec_picture->slice_type = p_Vid->type;
-  dec_picture->used_for_reference = (currSlice->nal_reference_idc != 0);
+  //dec_picture->used_for_reference = (currSlice->nal_reference_idc != 0);
   dec_picture->idr_flag = currSlice->idr_flag;
   //dec_picture->no_output_of_prior_pics_flag = currSlice->no_output_of_prior_pics_flag;
   //dec_picture->long_term_reference_flag     = currSlice->long_term_reference_flag;
@@ -328,15 +321,15 @@ void init_slice(VideoParameters *p_Vid, Slice *currSlice)
   //else
     //reorder_lists (currSlice);
 
-  if (currSlice->fs_listinterview0)
+  //if (currSlice->fs_listinterview0)
   {
-    free(currSlice->fs_listinterview0);
-    currSlice->fs_listinterview0 = NULL;
+    //free(currSlice->fs_listinterview0);
+    //currSlice->fs_listinterview0 = NULL;
   }
-  if (currSlice->fs_listinterview1)
+  //if (currSlice->fs_listinterview1)
   {
-    free(currSlice->fs_listinterview1);
-    currSlice->fs_listinterview1 = NULL;
+    //free(currSlice->fs_listinterview1);
+    //currSlice->fs_listinterview1 = NULL;
   }
 #else
   //reorder_lists (currSlice);
@@ -1090,7 +1083,7 @@ void exit_picture(VideoParameters *p_Vid, StorablePicture **dec_picture)
 
   structure  = (*dec_picture)->structure;
   slice_type = (*dec_picture)->slice_type;
-  refpic     = (*dec_picture)->used_for_reference;
+  //refpic     = (*dec_picture)->used_for_reference;
   qp         = (*dec_picture)->qp;
   pic_num    = (*dec_picture)->pic_num;
   is_idr     = (*dec_picture)->idr_flag;
@@ -1401,8 +1394,8 @@ void decode_one_slice(Slice *currSlice)
   {
     currSlice->mb_data = p_Vid->mb_data;
     currSlice->dec_picture = p_Vid->dec_picture;
-    currSlice->siblock = p_Vid->siblock;
-    currSlice->ipredmode = p_Vid->ipredmode;
+    //currSlice->siblock = p_Vid->siblock;
+    //currSlice->ipredmode = p_Vid->ipredmode;
     currSlice->intra_block = p_Vid->intra_block;
   }
 

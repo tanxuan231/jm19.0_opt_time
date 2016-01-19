@@ -291,33 +291,33 @@ int RestOfSliceHeader(Slice *currSlice)
 #endif
   if (p_Vid->active_pps->deblocking_filter_control_present_flag)
   {
-    currSlice->DFDisableIdc = (short) read_ue_v ("SH: disable_deblocking_filter_idc", currStream, &p_Dec->UsedBits);
-
-    if (currSlice->DFDisableIdc!=1)
+    if (read_ue_v ("SH: disable_deblocking_filter_idc", currStream, &p_Dec->UsedBits) != 1)
     {
-      currSlice->DFAlphaC0Offset = (short) (2 * read_se_v("SH: slice_alpha_c0_offset_div2", currStream, &p_Dec->UsedBits));
-      currSlice->DFBetaOffset    = (short) (2 * read_se_v("SH: slice_beta_offset_div2", currStream, &p_Dec->UsedBits));
+      //currSlice->DFAlphaC0Offset = (short) (2 * 
+			read_se_v("SH: slice_alpha_c0_offset_div2", currStream, &p_Dec->UsedBits);
+      //currSlice->DFBetaOffset    = (short) (2 * 
+			read_se_v("SH: slice_beta_offset_div2", currStream, &p_Dec->UsedBits);
     }
     else
     {
-      currSlice->DFAlphaC0Offset = currSlice->DFBetaOffset = 0;
+      //currSlice->DFAlphaC0Offset = currSlice->DFBetaOffset = 0;
     }
   }
   else
   {
-    currSlice->DFDisableIdc = currSlice->DFAlphaC0Offset = currSlice->DFBetaOffset = 0;
+    //currSlice->DFAlphaC0Offset = currSlice->DFBetaOffset = 0;
   }
 #if DPF_PARAM_DISP
-  printf("Slice:%d, DFParameters:(%d,%d,%d)\n\n", currSlice->current_slice_nr, currSlice->DFDisableIdc, currSlice->DFAlphaC0Offset, currSlice->DFBetaOffset);
+  //printf("Slice:%d, DFParameters:(%d,%d,%d)\n\n", currSlice->current_slice_nr, currSlice->DFDisableIdc, currSlice->DFAlphaC0Offset, currSlice->DFBetaOffset);
 #endif
 
   // The conformance point for intra profiles is without deblocking, but decoders are still recommended to filter the output.
   // We allow in the decoder config to skip the loop filtering. This is achieved by modifying the parameters here.
-  if ( is_HI_intra_only_profile(active_sps->profile_idc, active_sps->constrained_set3_flag) && (p_Inp->intra_profile_deblocking == 0) )
-  {
-    currSlice->DFDisableIdc =1;
-    currSlice->DFAlphaC0Offset = currSlice->DFBetaOffset = 0;
-  }
+  //if ( is_HI_intra_only_profile(active_sps->profile_idc, active_sps->constrained_set3_flag) && (p_Inp->intra_profile_deblocking == 0) )
+  //{
+    //currSlice->DFDisableIdc =1;
+    //currSlice->DFAlphaC0Offset = currSlice->DFBetaOffset = 0;
+  //}
 
 
   if (p_Vid->active_pps->num_slice_groups_minus1>0 && p_Vid->active_pps->slice_group_map_type>=3 &&
@@ -508,6 +508,7 @@ static void ref_pic_list_mvc_modification(Slice *currSlice)
 //wp weighted prediction
 static void reset_wp_params(Slice *currSlice)
 {
+#if 0	
   int i,comp;
   int log_weight_denom;
 
@@ -520,6 +521,7 @@ static void reset_wp_params(Slice *currSlice)
       currSlice->wp_weight[1][i][comp] = 1 << log_weight_denom;
     }
   }
+#endif	
 }
 
 /*!
@@ -539,12 +541,12 @@ static void pred_weight_table(Slice *currSlice)
   int i,j;
 
   currSlice->luma_log2_weight_denom = (unsigned short) read_ue_v ("SH: luma_log2_weight_denom", currStream, &p_Dec->UsedBits);
-  currSlice->wp_round_luma = currSlice->luma_log2_weight_denom ? 1<<(currSlice->luma_log2_weight_denom - 1): 0;
+  //currSlice->wp_round_luma = currSlice->luma_log2_weight_denom ? 1<<(currSlice->luma_log2_weight_denom - 1): 0;
 
   if ( 0 != active_sps->chroma_format_idc)
   {
     currSlice->chroma_log2_weight_denom = (unsigned short) read_ue_v ("SH: chroma_log2_weight_denom", currStream, &p_Dec->UsedBits);
-    currSlice->wp_round_chroma = currSlice->chroma_log2_weight_denom ? 1<<(currSlice->chroma_log2_weight_denom - 1): 0;
+    //currSlice->wp_round_chroma = currSlice->chroma_log2_weight_denom ? 1<<(currSlice->chroma_log2_weight_denom - 1): 0;
   }
 
   reset_wp_params(currSlice);
@@ -555,14 +557,16 @@ static void pred_weight_table(Slice *currSlice)
 
     if (luma_weight_flag_l0)
     {
-      currSlice->wp_weight[LIST_0][i][0] = read_se_v ("SH: luma_weight_l0", currStream, &p_Dec->UsedBits);
-      currSlice->wp_offset[LIST_0][i][0] = read_se_v ("SH: luma_offset_l0", currStream, &p_Dec->UsedBits);
-      currSlice->wp_offset[LIST_0][i][0] = currSlice->wp_offset[LIST_0][i][0]<<(p_Vid->bitdepth_luma - 8);
+      //currSlice->wp_weight[LIST_0][i][0] = 
+			read_se_v ("SH: luma_weight_l0", currStream, &p_Dec->UsedBits);
+      //currSlice->wp_offset[LIST_0][i][0] = 
+			read_se_v ("SH: luma_offset_l0", currStream, &p_Dec->UsedBits);
+      //currSlice->wp_offset[LIST_0][i][0] = currSlice->wp_offset[LIST_0][i][0]<<(p_Vid->bitdepth_luma - 8);
     }
     else
     {
-      currSlice->wp_weight[LIST_0][i][0] = 1 << currSlice->luma_log2_weight_denom;
-      currSlice->wp_offset[LIST_0][i][0] = 0;
+      //currSlice->wp_weight[LIST_0][i][0] = 1 << currSlice->luma_log2_weight_denom;
+      //currSlice->wp_offset[LIST_0][i][0] = 0;
     }
 
     if (active_sps->chroma_format_idc != 0)
@@ -573,14 +577,16 @@ static void pred_weight_table(Slice *currSlice)
       {
         if (chroma_weight_flag_l0)
         {
-          currSlice->wp_weight[LIST_0][i][j] = read_se_v("SH: chroma_weight_l0", currStream, &p_Dec->UsedBits);
-          currSlice->wp_offset[LIST_0][i][j] = read_se_v("SH: chroma_offset_l0", currStream, &p_Dec->UsedBits);
-          currSlice->wp_offset[LIST_0][i][j] = currSlice->wp_offset[LIST_0][i][j]<<(p_Vid->bitdepth_chroma-8);
+          //currSlice->wp_weight[LIST_0][i][j] = 
+					read_se_v("SH: chroma_weight_l0", currStream, &p_Dec->UsedBits);
+          //currSlice->wp_offset[LIST_0][i][j] = 
+					read_se_v("SH: chroma_offset_l0", currStream, &p_Dec->UsedBits);
+          //currSlice->wp_offset[LIST_0][i][j] = currSlice->wp_offset[LIST_0][i][j]<<(p_Vid->bitdepth_chroma-8);
         }
         else
         {
-          currSlice->wp_weight[LIST_0][i][j] = 1<<currSlice->chroma_log2_weight_denom;
-          currSlice->wp_offset[LIST_0][i][j] = 0;
+          //currSlice->wp_weight[LIST_0][i][j] = 1<<currSlice->chroma_log2_weight_denom;
+          //currSlice->wp_offset[LIST_0][i][j] = 0;
         }
       }
     }
@@ -593,14 +599,16 @@ static void pred_weight_table(Slice *currSlice)
 
       if (luma_weight_flag_l1)
       {
-        currSlice->wp_weight[LIST_1][i][0] = read_se_v ("SH: luma_weight_l1", currStream, &p_Dec->UsedBits);
-        currSlice->wp_offset[LIST_1][i][0] = read_se_v ("SH: luma_offset_l1", currStream, &p_Dec->UsedBits);
-        currSlice->wp_offset[LIST_1][i][0] = currSlice->wp_offset[LIST_1][i][0]<<(p_Vid->bitdepth_luma-8);
+        //currSlice->wp_weight[LIST_1][i][0] = 
+				read_se_v ("SH: luma_weight_l1", currStream, &p_Dec->UsedBits);
+        //currSlice->wp_offset[LIST_1][i][0] = 
+				read_se_v ("SH: luma_offset_l1", currStream, &p_Dec->UsedBits);
+        //currSlice->wp_offset[LIST_1][i][0] = currSlice->wp_offset[LIST_1][i][0]<<(p_Vid->bitdepth_luma-8);
       }
       else
       {
-        currSlice->wp_weight[LIST_1][i][0] = 1<<currSlice->luma_log2_weight_denom;
-        currSlice->wp_offset[LIST_1][i][0] = 0;
+        //currSlice->wp_weight[LIST_1][i][0] = 1<<currSlice->luma_log2_weight_denom;
+        //currSlice->wp_offset[LIST_1][i][0] = 0;
       }
 
       if (active_sps->chroma_format_idc != 0)
@@ -611,14 +619,16 @@ static void pred_weight_table(Slice *currSlice)
         {
           if (chroma_weight_flag_l1)
           {
-            currSlice->wp_weight[LIST_1][i][j] = read_se_v("SH: chroma_weight_l1", currStream, &p_Dec->UsedBits);
-            currSlice->wp_offset[LIST_1][i][j] = read_se_v("SH: chroma_offset_l1", currStream, &p_Dec->UsedBits);
-            currSlice->wp_offset[LIST_1][i][j] = currSlice->wp_offset[LIST_1][i][j]<<(p_Vid->bitdepth_chroma-8);
+            //currSlice->wp_weight[LIST_1][i][j] = 
+						read_se_v("SH: chroma_weight_l1", currStream, &p_Dec->UsedBits);
+            //currSlice->wp_offset[LIST_1][i][j] = 
+						read_se_v("SH: chroma_offset_l1", currStream, &p_Dec->UsedBits);
+            //currSlice->wp_offset[LIST_1][i][j] = currSlice->wp_offset[LIST_1][i][j]<<(p_Vid->bitdepth_chroma-8);
           }
           else
           {
-            currSlice->wp_weight[LIST_1][i][j] = 1<<currSlice->chroma_log2_weight_denom;
-            currSlice->wp_offset[LIST_1][i][j] = 0;
+            //currSlice->wp_weight[LIST_1][i][j] = 1<<currSlice->chroma_log2_weight_denom;
+            //currSlice->wp_offset[LIST_1][i][j] = 0;
           }
         }
       }

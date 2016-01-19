@@ -56,10 +56,10 @@ typedef struct storable_picture
   //int         long_term_pic_num;
   //int         long_term_frame_idx;
 
-  byte        is_long_term;
-  int         used_for_reference;
+  //byte        is_long_term;
+  //int         used_for_reference;
   //int         is_output;
-  int         non_existing;
+  //int         non_existing;
   int         separate_colour_plane_flag;
 
   short       max_slice_id;
@@ -140,7 +140,7 @@ typedef struct frame_store
 {
   int       is_used;                //!< 0=empty; 1=top; 2=bottom; 3=both fields (or frame)
   int       is_reference;           //!< 0=not used for ref; 1=top used; 2=bottom used; 3=both fields (or frame) used
-  int       is_long_term;           //!< 0=not used for ref; 1=top used; 2=bottom used; 3=both fields (or frame) used
+  //int       is_long_term;           //!< 0=not used for ref; 1=top used; 2=bottom used; 3=both fields (or frame) used
   int       is_orig_reference;      //!< original marking by nal_ref_idc: 0=not used for ref; 1=top used; 2=bottom used; 3=both fields (or frame) used
 
   int       is_non_existent;

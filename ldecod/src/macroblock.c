@@ -157,20 +157,6 @@ static void prepareListforRefIdx ( Macroblock *currMB, SyntaxElement *currSE, Da
     currMB->readRefPictureIdx = readRefPictureIdx_Null; 
 }
 
-void set_chroma_qp(Macroblock* currMB)
-{
-  VideoParameters *p_Vid = currMB->p_Vid;
-  StorablePicture *dec_picture = currMB->p_Slice->dec_picture;
-  int i;
-
-  for (i=0; i<2; ++i)
-  {
-    currMB->qpc[i] = iClip3 ( -p_Vid->bitdepth_chroma_qp_scale, 51, currMB->qp + dec_picture->chroma_qp_offset[i] );
-    currMB->qpc[i] = currMB->qpc[i] < 0 ? currMB->qpc[i] : QP_SCALE_CR[currMB->qpc[i]];
-    currMB->qp_scaled[i + 1] = currMB->qpc[i] + p_Vid->bitdepth_chroma_qp_scale;
-  }
-}
-
 /*!
 ************************************************************************
 * \brief
@@ -179,11 +165,6 @@ void set_chroma_qp(Macroblock* currMB)
 */
 void update_qp(Macroblock *currMB, int qp)
 {
-  VideoParameters *p_Vid = currMB->p_Vid;
-  //currMB->qp = qp;
-  //currMB->qp_scaled[0] = qp + p_Vid->bitdepth_luma_qp_scale;
-  //set_chroma_qp(currMB);
-  //currMB->is_lossless = (Boolean) ((currMB->qp_scaled[0] == 0) && (p_Vid->lossless_qpprime_flag == 1));
   set_read_comp_coeff_cavlc(currMB);
   set_read_comp_coeff_cabac(currMB);
 }
@@ -706,13 +687,9 @@ void start_macroblock(Slice *currSlice, Macroblock **currMB)
 
   CheckAvailabilityOfNeighbors(*currMB);
 
-  // Select appropriate MV predictor function
-  //init_motion_vector_prediction(*currMB, currSlice->mb_aff_frame_flag);
-
   set_read_and_store_CBP(currMB, currSlice->active_sps->chroma_format_idc);
 
   // Reset syntax element entries in MB struct
-
   if (currSlice->slice_type != I_SLICE)
   {
     if (currSlice->slice_type != B_SLICE)
@@ -723,38 +700,11 @@ void start_macroblock(Slice *currSlice, Macroblock **currMB)
   
   fast_memset((*currMB)->s_cbp, 0, 3 * sizeof(CBPStructure));
 
-  // initialize currSlice->mb_rres
-  //if (currSlice->is_reset_coeff == FALSE)
-  {
-    //fast_memset_zero( currSlice->mb_rres[0][0], MB_PIXELS * sizeof(int));
-    //fast_memset_zero( currSlice->mb_rres[1][0], p_Vid->mb_cr_size * sizeof(int));
-    //fast_memset_zero( currSlice->mb_rres[2][0], p_Vid->mb_cr_size * sizeof(int));
-    //if (currSlice->is_reset_coeff_cr == FALSE)
-    {
-      //fast_memset_zero( currSlice->cof[0][0], 3 * MB_PIXELS * sizeof(int));
-      //currSlice->is_reset_coeff_cr = TRUE;
-    }
-    //else
-    {
-      //fast_memset_zero( currSlice->cof[0][0], MB_PIXELS * sizeof(int));
-    }
-    //fast_memset_zero( currSlice->cof[0][0], MB_PIXELS * sizeof(int));
-    //fast_memset_zero( currSlice->cof[1][0], p_Vid->mb_cr_size * sizeof(int));
-    //fast_memset_zero( currSlice->cof[2][0], p_Vid->mb_cr_size * sizeof(int));
-
-    //fast_memset(currSlice->fcf[0][0], 0, MB_PIXELS * sizeof(int)); // reset luma coeffs   
-    //fast_memset(currSlice->fcf[1][0], 0, MB_PIXELS * sizeof(int));
-    //fast_memset(currSlice->fcf[2][0], 0, MB_PIXELS * sizeof(int));
-
-    //currSlice->is_reset_coeff = TRUE;
-  }
-
   // store filtering parameters for this MB
-  (*currMB)->DFDisableIdc    = currSlice->DFDisableIdc;
-  (*currMB)->DFAlphaC0Offset = currSlice->DFAlphaC0Offset;
-  (*currMB)->DFBetaOffset    = currSlice->DFBetaOffset;
+  //(*currMB)->DFDisableIdc    = currSlice->DFDisableIdc;
+  //(*currMB)->DFAlphaC0Offset = currSlice->DFAlphaC0Offset;
+  //(*currMB)->DFBetaOffset    = currSlice->DFBetaOffset;
   (*currMB)->list_offset     = 0;
-  (*currMB)->mixedModeEdgeFlag = 0;
 }
 
 /*!
@@ -837,7 +787,7 @@ static void interpret_mb_mode_P(Macroblock *currMB)
     currMB->is_intra_block = TRUE;
     currMB->mb_type = IPCM;
     currMB->cbp = -1;
-    currMB->i16mode = 0;
+    //currMB->i16mode = 0;
 
     memset(currMB->b8mode, 0, 4 * sizeof(char));
     memset(currMB->b8pdir,-1, 4 * sizeof(char));
@@ -847,7 +797,7 @@ static void interpret_mb_mode_P(Macroblock *currMB)
     currMB->is_intra_block = TRUE;
     currMB->mb_type = I16MB;
     currMB->cbp = ICBPTAB[((mbmode-7))>>2];
-    currMB->i16mode = ((mbmode-7)) & 0x03;
+    //currMB->i16mode = ((mbmode-7)) & 0x03;
     memset(currMB->b8mode, 0, 4 * sizeof(char));
     memset(currMB->b8pdir,-1, 4 * sizeof(char));
   }
@@ -876,7 +826,7 @@ static void interpret_mb_mode_I(Macroblock *currMB)
     currMB->is_intra_block = TRUE;
     currMB->mb_type=IPCM;
     currMB->cbp= -1;
-    currMB->i16mode = 0;
+    //currMB->i16mode = 0;
 
     memset(currMB->b8mode, 0,4 * sizeof(char));
     memset(currMB->b8pdir,-1,4 * sizeof(char));
@@ -886,7 +836,7 @@ static void interpret_mb_mode_I(Macroblock *currMB)
     currMB->is_intra_block = TRUE;
     currMB->mb_type = I16MB;
     currMB->cbp= ICBPTAB[(mbmode-1)>>2];
-    currMB->i16mode = (mbmode-1) & 0x03;
+    //currMB->i16mode = (mbmode-1) & 0x03;
     memset(currMB->b8mode, 0, 4 * sizeof(char));
     memset(currMB->b8pdir,-1, 4 * sizeof(char));
   }
@@ -933,7 +883,7 @@ static void interpret_mb_mode_B(Macroblock *currMB)
     memset(currMB->b8pdir, -1, 4 * sizeof(char));
 
     currMB->cbp     = (int) ICBPTAB[(mbtype-24)>>2];
-    currMB->i16mode = (mbtype-24) & 0x03;
+    //currMB->i16mode = (mbtype-24) & 0x03;
   }
   else if (mbtype == 22) // 8x8(+split)
   {
@@ -953,7 +903,7 @@ static void interpret_mb_mode_B(Macroblock *currMB)
     memset(currMB->b8pdir,-1,4 * sizeof(char));
 
     currMB->cbp= -1;
-    currMB->i16mode = 0;
+    //currMB->i16mode = 0;
   }
   else if ((mbtype & 0x01) == 0) // 16x8
   {
@@ -994,7 +944,7 @@ static void interpret_mb_mode_SI(Macroblock *currMB)
     currMB->mb_type = SI4MB;
     memset(currMB->b8mode,IBLOCK,4 * sizeof(char));
     memset(currMB->b8pdir,-1,4 * sizeof(char));
-    currMB->p_Slice->siblock[currMB->mb.y][currMB->mb.x]=1;
+    //currMB->p_Slice->siblock[currMB->mb.y][currMB->mb.x]=1;
   }
   else if (mbmode == 1)
   {
@@ -1008,7 +958,7 @@ static void interpret_mb_mode_SI(Macroblock *currMB)
     currMB->is_intra_block = TRUE;
     currMB->mb_type=IPCM;
     currMB->cbp= -1;
-    currMB->i16mode = 0;
+    //currMB->i16mode = 0;
     memset(currMB->b8mode,0,4 * sizeof(char));
     memset(currMB->b8pdir,-1,4 * sizeof(char));
   }
@@ -1018,7 +968,7 @@ static void interpret_mb_mode_SI(Macroblock *currMB)
     currMB->is_intra_block = TRUE;
     currMB->mb_type = I16MB;
     currMB->cbp= ICBPTAB[(mbmode-2)>>2];
-    currMB->i16mode = (mbmode-2) & 0x03;
+    //currMB->i16mode = (mbmode-2) & 0x03;
     memset(currMB->b8mode,0,4 * sizeof(char));
     memset(currMB->b8pdir,-1,4 * sizeof(char));
   }
@@ -1314,15 +1264,15 @@ void change_plane_JV( VideoParameters *p_Vid, int nplane, Slice *pSlice)
   //p_Vid->colour_plane_id = nplane;
   p_Vid->mb_data = p_Vid->mb_data_JV[nplane];
   p_Vid->dec_picture  = p_Vid->dec_picture_JV[nplane];
-  p_Vid->siblock = p_Vid->siblock_JV[nplane];
-  p_Vid->ipredmode = p_Vid->ipredmode_JV[nplane];
+  //p_Vid->siblock = p_Vid->siblock_JV[nplane];
+  //p_Vid->ipredmode = p_Vid->ipredmode_JV[nplane];
   p_Vid->intra_block = p_Vid->intra_block_JV[nplane];
   if(pSlice)
   {
     pSlice->mb_data = p_Vid->mb_data_JV[nplane];
     pSlice->dec_picture  = p_Vid->dec_picture_JV[nplane];
-    pSlice->siblock = p_Vid->siblock_JV[nplane];
-    pSlice->ipredmode = p_Vid->ipredmode_JV[nplane];
+    //pSlice->siblock = p_Vid->siblock_JV[nplane];
+    //pSlice->ipredmode = p_Vid->ipredmode_JV[nplane];
     pSlice->intra_block = p_Vid->intra_block_JV[nplane];
   }
 }

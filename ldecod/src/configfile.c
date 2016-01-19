@@ -226,11 +226,6 @@ void ParseCommand(InputParameters *p_Inp, int ac, char *av[])
       p_Inp->silent = 1;
       CLcount += 1;
     }
-    else if (0 == strncmp (av[CLcount], "-n", 2) || 0 == strncmp (av[CLcount], "-N", 2))  // A file parameter?
-    {
-      conf_read_check (sscanf(av[CLcount+1],"%d", &p_Inp->iDecFrmNum), 1);
-      CLcount += 2;
-    }
 #if (MVC_EXTENSION_ENABLE)
     else if (0 == strncmp (av[CLcount], "-mpr", 4) || 0 == strncmp (av[CLcount], "-MPR", 4))  // A file parameter?
     {
@@ -291,7 +286,7 @@ void ParseCommand(InputParameters *p_Inp, int ac, char *av[])
 
   PatchInp(p_Inp);
   cfgparams = *p_Inp;
-  p_Inp->enable_32_pulldown = 0;
+  //p_Inp->enable_32_pulldown = 0;
   if (p_Inp->bDisplayDecParams)
     DisplayParams(Map, "Decoder Parameters");
 }
@@ -308,7 +303,7 @@ static void PatchInp (InputParameters *p_Inp)
   //int i;
   //int storedBplus1;
   TestParams(Map, NULL);
-  if(p_Inp->export_views == 1)
-    p_Inp->dpb_plus[1] = imax(1, p_Inp->dpb_plus[1]);
+  //if(p_Inp->export_views == 1)
+    //p_Inp->dpb_plus[1] = imax(1, p_Inp->dpb_plus[1]);
 }
 
