@@ -745,42 +745,6 @@ void decode_slice(Slice *currSlice, int current_header)
 
 }
 
-
-/*!
- ************************************************************************
- * \brief
- *    Error tracking: if current frame is lost or any reference frame of
- *                    current frame is lost, current frame is incorrect.
- ************************************************************************
- */
-static void Error_tracking(VideoParameters *p_Vid, Slice *currSlice)
-{
-  int i;
-
-  if(currSlice->redundant_pic_cnt == 0)
-  {
-    p_Vid->Is_primary_correct = p_Vid->Is_redundant_correct = 1;
-  }
-
-  if(currSlice->redundant_pic_cnt == 0 && p_Vid->type != I_SLICE)
-  {
-    for(i=0;i<currSlice->num_ref_idx_active[LIST_0];++i)
-    {
-      if(currSlice->ref_flag[i] == 0)  // any reference of primary slice is incorrect
-      {
-        p_Vid->Is_primary_correct = 0; // primary slice is incorrect
-      }
-    }
-  }
-  else if(currSlice->redundant_pic_cnt != 0 && p_Vid->type != I_SLICE)
-  {
-    if(currSlice->ref_flag[currSlice->redundant_slice_ref_idx] == 0)  // reference of redundant slice is incorrect
-    {
-      p_Vid->Is_redundant_correct = 0;  // redundant slice is incorrect
-    }
-  }
-}
-
 static void CopyPOC(Slice *pSlice0, Slice *currSlice)
 {
   currSlice->framepoc  = pSlice0->framepoc;
@@ -863,7 +827,7 @@ int decode_one_frame(DecoderParams *pDecoder)
     currSlice->current_header = current_header;
 
     // error tracking of primary and redundant slices.
-    Error_tracking(p_Vid, currSlice);
+    //Error_tracking(p_Vid, currSlice);
     // If primary and redundant are received and primary is correct, discard the redundant
     // else, primary slice will be replaced with redundant slice.
     if(currSlice->frame_num == p_Vid->previous_frame_num && currSlice->redundant_pic_cnt !=0
@@ -2020,7 +1984,7 @@ void decode_one_slice(Slice *currSlice)
 
   if (currSlice->slice_type == B_SLICE)
   {
-    compute_colocated(currSlice, currSlice->listX);
+    //compute_colocated(currSlice, currSlice->listX);
   }
 
   if (currSlice->slice_type != I_SLICE && currSlice->slice_type != SI_SLICE)

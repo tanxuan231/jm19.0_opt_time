@@ -799,7 +799,7 @@ static void free_slice(Slice *currSlice)
   int i;
 
   if (currSlice->slice_type != I_SLICE && currSlice->slice_type != SI_SLICE)
-  free_ref_pic_list_reordering_buffer(currSlice);
+  //free_ref_pic_list_reordering_buffer(currSlice);
   //free_pred_mem(currSlice);
   free_mem3Dint(currSlice->cof    );
   free_mem3Dint(currSlice->mb_rres);

@@ -355,27 +355,27 @@ static void ref_pic_list_reordering(Slice *currSlice)
   Bitstream *currStream = partition->bitstream;
   int i, val;
 
-  alloc_ref_pic_list_reordering_buffer(currSlice);
+  //alloc_ref_pic_list_reordering_buffer(currSlice);
 
   if (currSlice->slice_type != I_SLICE && currSlice->slice_type != SI_SLICE)
   {
-    val = currSlice->ref_pic_list_reordering_flag[LIST_0] = read_u_1 ("SH: ref_pic_list_reordering_flag_l0", currStream, &p_Dec->UsedBits);
+    val = read_u_1 ("SH: ref_pic_list_reordering_flag_l0", currStream, &p_Dec->UsedBits);
 
     if (val)
     {
       i=0;
       do
       {
-        val = currSlice->modification_of_pic_nums_idc[LIST_0][i] = read_ue_v("SH: modification_of_pic_nums_idc_l0", currStream, &p_Dec->UsedBits);
+        val = read_ue_v("SH: modification_of_pic_nums_idc_l0", currStream, &p_Dec->UsedBits);
         if (val==0 || val==1)
         {
-          currSlice->abs_diff_pic_num_minus1[LIST_0][i] = read_ue_v("SH: abs_diff_pic_num_minus1_l0", currStream, &p_Dec->UsedBits);
+          read_ue_v("SH: abs_diff_pic_num_minus1_l0", currStream, &p_Dec->UsedBits);
         }
         else
         {
           if (val==2)
           {
-            currSlice->long_term_pic_idx[LIST_0][i] = read_ue_v("SH: long_term_pic_idx_l0", currStream, &p_Dec->UsedBits);
+            read_ue_v("SH: long_term_pic_idx_l0", currStream, &p_Dec->UsedBits);
           }
         }
         i++;
@@ -386,23 +386,23 @@ static void ref_pic_list_reordering(Slice *currSlice)
 
   if (currSlice->slice_type == B_SLICE)
   {
-    val = currSlice->ref_pic_list_reordering_flag[LIST_1] = read_u_1 ("SH: ref_pic_list_reordering_flag_l1", currStream, &p_Dec->UsedBits);
+    val = read_u_1 ("SH: ref_pic_list_reordering_flag_l1", currStream, &p_Dec->UsedBits);
 
     if (val)
     {
       i=0;
       do
       {
-        val = currSlice->modification_of_pic_nums_idc[LIST_1][i] = read_ue_v("SH: modification_of_pic_nums_idc_l1", currStream, &p_Dec->UsedBits);
+        val = read_ue_v("SH: modification_of_pic_nums_idc_l1", currStream, &p_Dec->UsedBits);
         if (val==0 || val==1)
         {
-          currSlice->abs_diff_pic_num_minus1[LIST_1][i] = read_ue_v("SH: abs_diff_pic_num_minus1_l1", currStream, &p_Dec->UsedBits);
+					read_ue_v("SH: abs_diff_pic_num_minus1_l1", currStream, &p_Dec->UsedBits);
         }
         else
         {
           if (val==2)
           {
-            currSlice->long_term_pic_idx[LIST_1][i] = read_ue_v("SH: long_term_pic_idx_l1", currStream, &p_Dec->UsedBits);
+            read_ue_v("SH: long_term_pic_idx_l1", currStream, &p_Dec->UsedBits);
           }
         }
         i++;
@@ -412,9 +412,9 @@ static void ref_pic_list_reordering(Slice *currSlice)
   }
 
   // set reference index of redundant slices.
-  if(currSlice->redundant_pic_cnt && (currSlice->slice_type != I_SLICE) )
+  //if(currSlice->redundant_pic_cnt && (currSlice->slice_type != I_SLICE) )
   {
-    currSlice->redundant_slice_ref_idx = currSlice->abs_diff_pic_num_minus1[LIST_0][0] + 1;
+    //currSlice->redundant_slice_ref_idx = currSlice->abs_diff_pic_num_minus1[LIST_0][0] + 1;
   }
 }
 
@@ -433,31 +433,31 @@ static void ref_pic_list_mvc_modification(Slice *currSlice)
   Bitstream *currStream = partition->bitstream;
   int i, val;
 
-  alloc_ref_pic_list_reordering_buffer(currSlice);
+  //alloc_ref_pic_list_reordering_buffer(currSlice);
 
   if ((currSlice->slice_type % 5) != I_SLICE && (currSlice->slice_type % 5) != SI_SLICE)
   {
-    val = currSlice->ref_pic_list_reordering_flag[LIST_0] = read_u_1 ("SH: ref_pic_list_modification_flag_l0", currStream, &p_Dec->UsedBits);
+    val = read_u_1 ("SH: ref_pic_list_modification_flag_l0", currStream, &p_Dec->UsedBits);
 
     if (val)
     {
       i=0;
       do
       {
-        val = currSlice->modification_of_pic_nums_idc[LIST_0][i] = read_ue_v("SH: modification_of_pic_nums_idc_l0", currStream, &p_Dec->UsedBits);
+        val = read_ue_v("SH: modification_of_pic_nums_idc_l0", currStream, &p_Dec->UsedBits);
         if (val==0 || val==1)
         {
-          currSlice->abs_diff_pic_num_minus1[LIST_0][i] = read_ue_v("SH: abs_diff_pic_num_minus1_l0", currStream, &p_Dec->UsedBits);
+          read_ue_v("SH: abs_diff_pic_num_minus1_l0", currStream, &p_Dec->UsedBits);
         }
         else
         {
           if (val==2)
           {
-            currSlice->long_term_pic_idx[LIST_0][i] = read_ue_v("SH: long_term_pic_idx_l0", currStream, &p_Dec->UsedBits);
+            read_ue_v("SH: long_term_pic_idx_l0", currStream, &p_Dec->UsedBits);
           }
           else if (val==4 || val==5)
           {
-            currSlice->abs_diff_view_idx_minus1[LIST_0][i] = read_ue_v("SH: abs_diff_view_idx_minus1_l0", currStream, &p_Dec->UsedBits);
+            read_ue_v("SH: abs_diff_view_idx_minus1_l0", currStream, &p_Dec->UsedBits);
           }
         }
         i++;
@@ -468,27 +468,27 @@ static void ref_pic_list_mvc_modification(Slice *currSlice)
 
   if ((currSlice->slice_type % 5) == B_SLICE)
   {
-    val = currSlice->ref_pic_list_reordering_flag[LIST_1] = read_u_1 ("SH: ref_pic_list_reordering_flag_l1", currStream, &p_Dec->UsedBits);
+    val = read_u_1 ("SH: ref_pic_list_reordering_flag_l1", currStream, &p_Dec->UsedBits);
 
     if (val)
     {
       i=0;
       do
       {
-        val = currSlice->modification_of_pic_nums_idc[LIST_1][i] = read_ue_v("SH: modification_of_pic_nums_idc_l1", currStream, &p_Dec->UsedBits);
+        val = read_ue_v("SH: modification_of_pic_nums_idc_l1", currStream, &p_Dec->UsedBits);
         if (val==0 || val==1)
         {
-          currSlice->abs_diff_pic_num_minus1[LIST_1][i] = read_ue_v("SH: abs_diff_pic_num_minus1_l1", currStream, &p_Dec->UsedBits);
+          read_ue_v("SH: abs_diff_pic_num_minus1_l1", currStream, &p_Dec->UsedBits);
         }
         else
         {
           if (val==2)
           {
-            currSlice->long_term_pic_idx[LIST_1][i] = read_ue_v("SH: long_term_pic_idx_l1", currStream, &p_Dec->UsedBits);
+            read_ue_v("SH: long_term_pic_idx_l1", currStream, &p_Dec->UsedBits);
           }
           else if (val==4 || val==5)
           {
-            currSlice->abs_diff_view_idx_minus1[LIST_1][i] = read_ue_v("SH: abs_diff_view_idx_minus1_l1", currStream, &p_Dec->UsedBits);
+            read_ue_v("SH: abs_diff_view_idx_minus1_l1", currStream, &p_Dec->UsedBits);
           }
         }
         i++;
@@ -498,9 +498,9 @@ static void ref_pic_list_mvc_modification(Slice *currSlice)
   }
 
   // set reference index of redundant slices.
-  if(currSlice->redundant_pic_cnt && (currSlice->slice_type != I_SLICE) )
+  //if(currSlice->redundant_pic_cnt && (currSlice->slice_type != I_SLICE) )
   {
-    currSlice->redundant_slice_ref_idx = currSlice->abs_diff_pic_num_minus1[LIST_0][0] + 1;
+    //currSlice->redundant_slice_ref_idx = currSlice->abs_diff_pic_num_minus1[LIST_0][0] + 1;
   }
 }
 #endif
