@@ -643,20 +643,6 @@ static void readMBMotionVectors (SyntaxElement *currSE, DataPartition *dP, Macro
   }
 }
 
-void invScaleCoeff(Macroblock *currMB, int level, int run, int qp_per, int i, int j, int i0, int j0, int coef_ctr, const byte (*pos_scan4x4)[2], int (*InvLevelScale4x4)[4])
-{
-  if (level != 0)    /* leave if level == 0 */
-  {
-    coef_ctr += run + 1;
-
-    i0 = pos_scan4x4[coef_ctr][0];
-    j0 = pos_scan4x4[coef_ctr][1];
-
-    currMB->s_cbp[0].blk |= i64_power2((j << 2) + i) ;
-    currMB->p_Slice->cof[0][(j<<2) + j0][(i<<2) + i0]= rshift_rnd_sf((level * InvLevelScale4x4[j0][i0]) << qp_per, 4);
-  }
-}
-
 static inline void setup_mb_pos_info(Macroblock *currMB)
 {
   int mb_x = currMB->mb.x;
@@ -1201,7 +1187,7 @@ static void read_motion_info_from_NAL_p_slice (Macroblock *currMB)
   PicMotionParams *mv_info = NULL;
 
   int list_offset = currMB->list_offset;
-  StorablePicture **list0 = currSlice->listX[LIST_0 + list_offset];
+  //StorablePicture **list0 = currSlice->listX[LIST_0 + list_offset];
   PicMotionParams **p_mv_info = &dec_picture->mv_info[currMB->block_y];
 
   //=====  READ REFERENCE PICTURE INDICES =====
@@ -1225,19 +1211,6 @@ static void read_motion_info_from_NAL_p_slice (Macroblock *currMB)
   readMBMotionVectors (&currSE, dP, currMB, LIST_0, step_h0, step_v0);
 
   // record reference picture Ids for deblocking decisions  
-#if 0  
-  for(j4 = 0; j4 < 4;++j4)
-  {
-    mv_info = &p_mv_info[j4][currMB->block_x];
-    mv_info->ref_pic[LIST_0] = list0[(short) mv_info->ref_idx[LIST_0]];
-    mv_info++;
-    mv_info->ref_pic[LIST_0] = list0[(short) mv_info->ref_idx[LIST_0]];
-    mv_info++;
-    mv_info->ref_pic[LIST_0] = list0[(short) mv_info->ref_idx[LIST_0]];
-    mv_info++;
-    mv_info->ref_pic[LIST_0] = list0[(short) mv_info->ref_idx[LIST_0]];
-  }
-#endif	
 }
 
 
@@ -1262,8 +1235,8 @@ static void read_motion_info_from_NAL_b_slice (Macroblock *currMB)
   int j4, i4;
 
   int list_offset = currMB->list_offset; 
-  StorablePicture **list0 = currSlice->listX[LIST_0 + list_offset];
-  StorablePicture **list1 = currSlice->listX[LIST_1 + list_offset];
+  //StorablePicture **list0 = currSlice->listX[LIST_0 + list_offset];
+  //StorablePicture **list1 = currSlice->listX[LIST_1 + list_offset];
   PicMotionParams **p_mv_info = &dec_picture->mv_info[currMB->block_y];
 
   //if (currMB->mb_type == P8x8)
@@ -1296,20 +1269,6 @@ static void read_motion_info_from_NAL_b_slice (Macroblock *currMB)
   readMBMotionVectors (&currSE, dP, currMB, LIST_1, step_h0, step_v0);
 
   // record reference picture Ids for deblocking decisions
-#if 0
-  for(j4 = 0; j4 < 4; ++j4)
-  {
-    for(i4 = currMB->block_x; i4 < (currMB->block_x + 4); ++i4)
-    {
-      PicMotionParams *mv_info = &p_mv_info[j4][i4];
-      short ref_idx = mv_info->ref_idx[LIST_0];
-
-      mv_info->ref_pic[LIST_0] = (ref_idx >= 0) ? list0[ref_idx] : NULL;        
-      ref_idx = mv_info->ref_idx[LIST_1];
-      mv_info->ref_pic[LIST_1] = (ref_idx >= 0) ? list1[ref_idx] : NULL;
-    }
-  }
-#endif	
 }
 
 
@@ -1341,50 +1300,6 @@ void check_dp_neighbors (Macroblock *currMB)
     }
   }
 }
-
-// probably a better way (or place) to do this, but I'm not sure what (where) it is [CJV]
-// this is intended to make get_block_luma faster, but I'm still performing
-// this at the MB level, and it really should be done at the slice level
-static void init_cur_imgy(VideoParameters *p_Vid,Slice *currSlice,int pl)
-{
-  int i,j;
-  if (p_Vid->separate_colour_plane_flag == 0)
-  {
-    StorablePicture *vidref = p_Vid->no_reference_picture;
-    int noref = (currSlice->framepoc < p_Vid->recovery_poc);    
-    if (pl==PLANE_Y) 
-    {
-      for (j = 0; j < 6; j++)    // for (j = 0; j < (currSlice->slice_type==B_SLICE?2:1); j++) 
-      {
-        for (i = 0; i < currSlice->listXsize[j] ; i++) 
-        {
-          StorablePicture *curr_ref = currSlice->listX[j][i];
-          if (curr_ref) 
-          {
-            curr_ref->no_ref = noref && (curr_ref == vidref);
-            curr_ref->cur_imgY = curr_ref->imgY;
-          }
-        }
-      }
-    }
-    else 
-    {
-      for (j = 0; j < 6; j++)  //for (j = 0; j < (currSlice->slice_type==B_SLICE?2:1); j++)
-      {
-        for (i = 0; i < currSlice->listXsize[j]; i++) 
-        {
-          StorablePicture *curr_ref = currSlice->listX[j][i];
-          if (curr_ref) 
-          {
-            curr_ref->no_ref = noref && (curr_ref == vidref);
-            curr_ref->cur_imgY = curr_ref->imgUV[pl-1]; 
-          }
-        }
-      }
-    }
-  }
-}
-
 
 /*!
  ************************************************************************

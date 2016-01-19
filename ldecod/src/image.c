@@ -145,8 +145,8 @@ static void init_picture(VideoParameters *p_Vid, Slice *currSlice, InputParamete
   //calculate POC
   //decode_poc(p_Vid, currSlice);
 
-  if (p_Vid->recovery_frame_num == (int) currSlice->frame_num && p_Vid->recovery_poc == 0x7fffffff)
-    p_Vid->recovery_poc = currSlice->framepoc;
+  //if (p_Vid->recovery_frame_num == (int) currSlice->frame_num && p_Vid->recovery_poc == 0x7fffffff)
+    //p_Vid->recovery_poc = currSlice->framepoc;
 
   //if(currSlice->nal_reference_idc)
     //p_Vid->last_ref_pic_poc = currSlice->framepoc;
@@ -267,9 +267,9 @@ static void init_picture(VideoParameters *p_Vid, Slice *currSlice, InputParamete
   dec_picture->slice_type = p_Vid->type;
   dec_picture->used_for_reference = (currSlice->nal_reference_idc != 0);
   dec_picture->idr_flag = currSlice->idr_flag;
-  dec_picture->no_output_of_prior_pics_flag = currSlice->no_output_of_prior_pics_flag;
-  dec_picture->long_term_reference_flag     = currSlice->long_term_reference_flag;
-  dec_picture->adaptive_ref_pic_buffering_flag = currSlice->adaptive_ref_pic_buffering_flag;
+  //dec_picture->no_output_of_prior_pics_flag = currSlice->no_output_of_prior_pics_flag;
+  //dec_picture->long_term_reference_flag     = currSlice->long_term_reference_flag;
+  //dec_picture->adaptive_ref_pic_buffering_flag = currSlice->adaptive_ref_pic_buffering_flag;
 
   dec_picture->dec_ref_pic_marking_buffer = currSlice->dec_ref_pic_marking_buffer;
   currSlice->dec_ref_pic_marking_buffer   = NULL;
@@ -376,136 +376,6 @@ static void MbAffPostProc(VideoParameters *p_Vid)
     }
   }
 }
-
-static void fill_wp_params(Slice *currSlice)
-{
-  if (currSlice->slice_type == B_SLICE)
-  {
-    int i, j, k;
-    int comp;
-    int log_weight_denom;
-    int tb, td;  
-    int tx,DistScaleFactor;
-
-    int max_l0_ref = currSlice->num_ref_idx_active[LIST_0];
-    int max_l1_ref = currSlice->num_ref_idx_active[LIST_1];
-
-    if (currSlice->active_pps->weighted_bipred_idc == 2)
-    {
-      currSlice->luma_log2_weight_denom = 5;
-      currSlice->chroma_log2_weight_denom = 5;
-      currSlice->wp_round_luma   = 16;
-      currSlice->wp_round_chroma = 16;
-
-      for (i=0; i<MAX_REFERENCE_PICTURES; ++i)
-      {
-        for (comp=0; comp<3; ++comp)
-        {
-          log_weight_denom = (comp == 0) ? currSlice->luma_log2_weight_denom : currSlice->chroma_log2_weight_denom;
-          currSlice->wp_weight[0][i][comp] = 1 << log_weight_denom;
-          currSlice->wp_weight[1][i][comp] = 1 << log_weight_denom;
-          currSlice->wp_offset[0][i][comp] = 0;
-          currSlice->wp_offset[1][i][comp] = 0;
-        }
-      }
-    }
-
-    for (i=0; i<max_l0_ref; ++i)
-    {
-      for (j=0; j<max_l1_ref; ++j)
-      {
-        for (comp = 0; comp<3; ++comp)
-        {
-          log_weight_denom = (comp == 0) ? currSlice->luma_log2_weight_denom : currSlice->chroma_log2_weight_denom;
-          if (currSlice->active_pps->weighted_bipred_idc == 1)
-          {
-            currSlice->wbp_weight[0][i][j][comp] =  currSlice->wp_weight[0][i][comp];
-            currSlice->wbp_weight[1][i][j][comp] =  currSlice->wp_weight[1][j][comp];
-          }
-          else if (currSlice->active_pps->weighted_bipred_idc == 2)
-          {
-            td = iClip3(-128,127,currSlice->listX[LIST_1][j]->poc - currSlice->listX[LIST_0][i]->poc);
-            if (td == 0 || currSlice->listX[LIST_1][j]->is_long_term || currSlice->listX[LIST_0][i]->is_long_term)
-            {
-              currSlice->wbp_weight[0][i][j][comp] = 32;
-              currSlice->wbp_weight[1][i][j][comp] = 32;
-            }
-            else
-            {
-              tb = iClip3(-128,127,currSlice->ThisPOC - currSlice->listX[LIST_0][i]->poc);
-
-              tx = (16384 + iabs(td/2))/td;
-              DistScaleFactor = iClip3(-1024, 1023, (tx*tb + 32 )>>6);
-
-              currSlice->wbp_weight[1][i][j][comp] = DistScaleFactor >> 2;
-              currSlice->wbp_weight[0][i][j][comp] = 64 - currSlice->wbp_weight[1][i][j][comp];
-              if (currSlice->wbp_weight[1][i][j][comp] < -64 || currSlice->wbp_weight[1][i][j][comp] > 128)
-              {
-                currSlice->wbp_weight[0][i][j][comp] = 32;
-                currSlice->wbp_weight[1][i][j][comp] = 32;
-                currSlice->wp_offset[0][i][comp] = 0;
-                currSlice->wp_offset[1][j][comp] = 0;
-              }
-            }
-          }
-        }
-      }
-    }
-
-    if (currSlice->mb_aff_frame_flag)
-    {
-      for (i=0; i<2*max_l0_ref; ++i)
-      {
-        for (j=0; j<2*max_l1_ref; ++j)
-        {
-          for (comp = 0; comp<3; ++comp)
-          {
-            for (k=2; k<6; k+=2)
-            {
-              currSlice->wp_offset[k+0][i][comp] = currSlice->wp_offset[0][i>>1][comp];
-              currSlice->wp_offset[k+1][j][comp] = currSlice->wp_offset[1][j>>1][comp];
-
-              log_weight_denom = (comp == 0) ? currSlice->luma_log2_weight_denom : currSlice->chroma_log2_weight_denom;
-              if (currSlice->active_pps->weighted_bipred_idc == 1)
-              {
-                currSlice->wbp_weight[k+0][i][j][comp] =  currSlice->wp_weight[0][i>>1][comp];
-                currSlice->wbp_weight[k+1][i][j][comp] =  currSlice->wp_weight[1][j>>1][comp];
-              }
-              else if (currSlice->active_pps->weighted_bipred_idc == 2)
-              {
-                td = iClip3(-128, 127, currSlice->listX[k+LIST_1][j]->poc - currSlice->listX[k+LIST_0][i]->poc);
-                if (td == 0 || currSlice->listX[k+LIST_1][j]->is_long_term || currSlice->listX[k+LIST_0][i]->is_long_term)
-                {
-                  currSlice->wbp_weight[k+0][i][j][comp] =   32;
-                  currSlice->wbp_weight[k+1][i][j][comp] =   32;
-                }
-                else
-                {
-                  tb = iClip3(-128,127,((k==2)?currSlice->toppoc:currSlice->bottompoc) - currSlice->listX[k+LIST_0][i]->poc);
-
-                  tx = (16384 + iabs(td/2))/td;
-                  DistScaleFactor = iClip3(-1024, 1023, (tx*tb + 32 )>>6);
-
-                  currSlice->wbp_weight[k+1][i][j][comp] = DistScaleFactor >> 2;
-                  currSlice->wbp_weight[k+0][i][j][comp] = 64 - currSlice->wbp_weight[k+1][i][j][comp];
-                  if (currSlice->wbp_weight[k+1][i][j][comp] < -64 || currSlice->wbp_weight[k+1][i][j][comp] > 128)
-                  {
-                    currSlice->wbp_weight[k+1][i][j][comp] = 32;
-                    currSlice->wbp_weight[k+0][i][j][comp] = 32;
-                    currSlice->wp_offset[k+0][i][comp] = 0;
-                    currSlice->wp_offset[k+1][j][comp] = 0;
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-}
-
-
 
 static void init_picture_decoding(VideoParameters *p_Vid)
 {
@@ -633,8 +503,8 @@ void decode_slice(Slice *currSlice, int current_header)
     cabac_new_slice(currSlice);
   }
 
-  if ( (currSlice->active_pps->weighted_bipred_idc > 0  && (currSlice->slice_type == B_SLICE)) || (currSlice->active_pps->weighted_pred_flag && currSlice->slice_type !=I_SLICE))
-    fill_wp_params(currSlice);
+  //if ( (currSlice->active_pps->weighted_bipred_idc > 0  && (currSlice->slice_type == B_SLICE)) || (currSlice->active_pps->weighted_pred_flag && currSlice->slice_type !=I_SLICE))
+    //fill_wp_params(currSlice);
 
   //printf("frame picture %d %d %d\n",currSlice->structure,currSlice->ThisPOC,currSlice->direct_spatial_mv_pred_flag);
 
@@ -1802,63 +1672,6 @@ void copy_dec_picture_JV( VideoParameters *p_Vid, StorablePicture *dst, Storable
 #endif
 }
 
-
-// this is intended to make get_block_luma faster by doing this at a more appropriate level
-// i.e. per slice rather than per MB
-static void init_cur_imgy(Slice *currSlice, VideoParameters *p_Vid)
-{
-#if 0	
-  int i,j;
-  if ((p_Vid->separate_colour_plane_flag != 0))  
-  {
-    StorablePicture *vidref = p_Vid->no_reference_picture;
-    int noref = (currSlice->framepoc < p_Vid->recovery_poc);
-    switch(currSlice->colour_plane_id) 
-    {
-    case 0:
-      for (j = 0; j < 6; j++) //for (j = 0; j < (currSlice->slice_type==B_SLICE?2:1); j++) { 
-      {  
-        for (i = 0; i < MAX_LIST_SIZE; i++) 
-        {
-          StorablePicture *curr_ref = currSlice->listX[j][i];
-          if (curr_ref) 
-          {
-            curr_ref->no_ref = noref && (curr_ref == vidref);
-            curr_ref->cur_imgY = curr_ref->imgY;
-          }
-        }
-      }
-      break;
-    }
-  }
-  else
-  {
-    StorablePicture *vidref = p_Vid->no_reference_picture;
-    int noref = (currSlice->framepoc < p_Vid->recovery_poc);
-    int total_lists = currSlice->mb_aff_frame_flag ? 6 : (currSlice->slice_type==B_SLICE ? 2 : 1);
-    //    for (j = 0; j < 6; j++) {  //for (j = 0; j < (currSlice->slice_type==B_SLICE?2:1); j++) { 
-    for (j = 0; j < total_lists; j++) 
-    {
-      // note that if we always set this to MAX_LIST_SIZE, we avoid crashes with invalid ref_idx being set
-      // since currently this is done at the slice level, it seems safe to do so.
-      // Note for some reason I get now a mismatch between version 12 and this one in cabac. I wonder why.
-      //for (i = 0; i < currSlice->listXsize[j]; i++) 
-      for (i = 0; i < MAX_LIST_SIZE; i++) 
-      {
-        StorablePicture *curr_ref = currSlice->listX[j][i];
-        if (curr_ref) 
-        {
-          curr_ref->no_ref = noref && (curr_ref == vidref);
-          curr_ref->cur_imgY = curr_ref->imgY;
-        }
-      }
-    }
-  }
-#endif	
-}
-
-
-
 /*!
  ************************************************************************
  * \brief
@@ -1890,8 +1703,8 @@ void decode_one_slice(Slice *currSlice)
     //compute_colocated(currSlice, currSlice->listX);
   }
 
-  if (currSlice->slice_type != I_SLICE && currSlice->slice_type != SI_SLICE)
-    init_cur_imgy(currSlice,p_Vid); 
+  //if (currSlice->slice_type != I_SLICE && currSlice->slice_type != SI_SLICE)
+    //init_cur_imgy(currSlice,p_Vid); 
 
   //reset_ec_flags(p_Vid);
 

@@ -449,14 +449,14 @@ typedef struct slice
   int redundant_pic_cnt;
   int sp_switch;                              //!< 1 for switching sp, 0 for normal sp  
   int slice_group_change_cycle;
-  int redundant_slice_ref_idx;     //!< reference index of redundant slice
-  int no_output_of_prior_pics_flag;
-  int long_term_reference_flag;
-  int adaptive_ref_pic_buffering_flag;
+  //int redundant_slice_ref_idx;     //!< reference index of redundant slice
+  //int no_output_of_prior_pics_flag;
+  //int long_term_reference_flag;
+  //int adaptive_ref_pic_buffering_flag;
   DecRefPicMarking_t *dec_ref_pic_marking_buffer;                    //!< stores the memory management control operations
 
-  char listXsize[6];
-  struct storable_picture **listX[6];
+  //char listXsize[6];
+  //struct storable_picture **listX[6];
 
   //  int                 last_mb_nr;    //!< only valid when entropy coding == CABAC
   DataPartition       *partArr;      //!< array of partitions
@@ -759,7 +759,7 @@ typedef struct video_par
   unsigned int PicHeightInMbs;
   unsigned int PicSizeInMbs;
 
-  int no_output_of_prior_pics_flag;
+  //int no_output_of_prior_pics_flag;
 
   int last_has_mmco_5;
   int last_pic_bottom_field;
@@ -787,7 +787,7 @@ typedef struct video_par
   int recovery_point_found;
   int recovery_frame_cnt;
   int recovery_frame_num;
-  int recovery_poc;
+  //int recovery_poc;
 
   byte *buf;
   byte *ibuf;

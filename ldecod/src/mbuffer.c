@@ -34,122 +34,6 @@ static void gen_field_ref_ids        (VideoParameters *p_Vid, StorablePicture *p
 
 #define MAX_LIST_SIZE 33
 
-/*!
- ************************************************************************
- * \brief
- *    Returns the size of the dpb depending on level and picture size
- *
- *
- ************************************************************************
- */
-int getDpbSize(VideoParameters *p_Vid, seq_parameter_set_rbsp_t *active_sps)
-{
-  int pic_size_mb = (active_sps->pic_width_in_mbs_minus1 + 1) * (active_sps->pic_height_in_map_units_minus1 + 1) * (active_sps->frame_mbs_only_flag?1:2);
-
-  int size = 0;
-
-  switch (active_sps->level_idc)
-  {
-  case 0:
-    // if there is no level defined, we expect experimental usage and return a DPB size of 16
-    return 16;
-  case 9:
-    size = 396;
-    break;
-  case 10:
-    size = 396;
-    break;
-  case 11:
-    if (!is_FREXT_profile(active_sps->profile_idc) && (active_sps->constrained_set3_flag == 1))
-      size = 396;
-    else
-      size = 900;
-    break;
-  case 12:
-    size = 2376;
-    break;
-  case 13:
-    size = 2376;
-    break;
-  case 20:
-    size = 2376;
-    break;
-  case 21:
-    size = 4752;
-    break;
-  case 22:
-    size = 8100;
-    break;
-  case 30:
-    size = 8100;
-    break;
-  case 31:
-    size = 18000;
-    break;
-  case 32:
-    size = 20480;
-    break;
-  case 40:
-    size = 32768;
-    break;
-  case 41:
-    size = 32768;
-    break;
-  case 42:
-    size = 34816;
-    break;
-  case 50:
-    size = 110400;
-    break;
-  case 51:
-    size = 184320;
-    break;
-  case 52:
-    size = 184320;
-    break;
-  case 60:
-  case 61:
-  case 62:
-    size = 696320;
-    break;
-  default:
-    error ("undefined level", 500);
-    break;
-  }
-
-  size /= pic_size_mb;
-#if MVC_EXTENSION_ENABLE
-  if(p_Vid->profile_idc == MVC_HIGH || p_Vid->profile_idc == STEREO_HIGH)
-  {
-    int num_views = p_Vid->active_subset_sps->num_views_minus1+1;
-    size = imin(2*size, imax(1, RoundLog2(num_views))*16)/num_views;
-  }
-  else
-#endif
-  {
-    size = imin( size, 16);
-  }
-
-  if (active_sps->vui_parameters_present_flag && active_sps->vui_seq_parameters.bitstream_restriction_flag)
-  {
-    int size_vui;
-    if ((int)active_sps->vui_seq_parameters.max_dec_frame_buffering > size)
-    {
-      error ("max_dec_frame_buffering larger than MaxDpbSize", 500);
-    }
-    size_vui = imax (1, active_sps->vui_seq_parameters.max_dec_frame_buffering);
-#ifdef _DEBUG
-    if(size_vui < size)
-    {
-      printf("Warning: max_dec_frame_buffering(%d) is less than DPB size(%d) calculated from Profile/Level.\n", size_vui, size);
-    }
-#endif
-    size = size_vui;    
-  }
-
-  return size;
-}
-
 
 /*!
  ************************************************************************
@@ -299,6 +183,7 @@ StorablePicture* alloc_storable_picture(VideoParameters *p_Vid, PictureStructure
   s->top_poc = s->bottom_poc = s->poc = 0;
   s->seiHasTone_mapping = 0;
 
+#if 0
   if(!p_Vid->active_sps->frame_mbs_only_flag && structure != FRAME)
   {
     int i, j;
@@ -312,7 +197,7 @@ StorablePicture* alloc_storable_picture(VideoParameters *p_Vid, PictureStructure
       }
     }
   }
-
+#endif
   return s;
 }
 
@@ -412,6 +297,7 @@ void free_storable_picture(StorablePicture* p)
     if (p->seiHasTone_mapping)
       free(p->tone_mapping_lut);
 
+		#if 0
     {
       int i, j;
       for(j = 0; j < MAX_NUM_SLICES; j++)
@@ -426,6 +312,7 @@ void free_storable_picture(StorablePicture* p)
         }
       }
     }
+		#endif
     free(p);
     p = NULL;
   }

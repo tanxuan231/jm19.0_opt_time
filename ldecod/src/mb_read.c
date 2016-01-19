@@ -839,7 +839,7 @@ void skip_macroblock(Macroblock *currMB)
   if (zeroMotionAbove || zeroMotionLeft)
   {
     PicMotionParams **dec_mv_info = &dec_picture->mv_info[img_block_y];
-    StorablePicture *cur_pic = currSlice->listX[list_offset][0];
+    //StorablePicture *cur_pic = currSlice->listX[list_offset][0];
     PicMotionParams *mv_info = NULL;
     
     for(j = 0; j < BLOCK_SIZE; ++j)
@@ -847,7 +847,7 @@ void skip_macroblock(Macroblock *currMB)
       for(i = currMB->block_x; i < currMB->block_x + BLOCK_SIZE; ++i)
       {
         mv_info = &dec_mv_info[j][i];
-        mv_info->ref_pic[LIST_0] = cur_pic;
+        //mv_info->ref_pic[LIST_0] = cur_pic;
         mv_info->mv     [LIST_0] = zero_mv;
         mv_info->ref_idx[LIST_0] = 0;
       }
@@ -857,7 +857,7 @@ void skip_macroblock(Macroblock *currMB)
   {
     PicMotionParams **dec_mv_info = &dec_picture->mv_info[img_block_y];
     PicMotionParams *mv_info = NULL;
-    StorablePicture *cur_pic = currSlice->listX[list_offset][0];
+    //StorablePicture *cur_pic = currSlice->listX[list_offset][0];
     //currMB->GetMVPredictor (currMB, mb, &pred_mv, 0, dec_picture->mv_info, LIST_0, 0, 0, MB_BLOCK_SIZE, MB_BLOCK_SIZE);
 
     // Set first block line (position img_block_y)
@@ -866,7 +866,7 @@ void skip_macroblock(Macroblock *currMB)
       for(i = currMB->block_x; i < currMB->block_x + BLOCK_SIZE; ++i)
       {
         mv_info = &dec_mv_info[j][i];
-        mv_info->ref_pic[LIST_0] = cur_pic;
+        //mv_info->ref_pic[LIST_0] = cur_pic;
         mv_info->mv     [LIST_0] = pred_mv;
         mv_info->ref_idx[LIST_0] = 0;
       }

@@ -89,9 +89,9 @@ typedef struct storable_picture
 
   int         slice_type;
   int         idr_flag;
-  int         no_output_of_prior_pics_flag;
-  int         long_term_reference_flag;
-  int         adaptive_ref_pic_buffering_flag;
+  //int         no_output_of_prior_pics_flag;
+  //int         long_term_reference_flag;
+  //int         adaptive_ref_pic_buffering_flag;
 
   int         chroma_format_idc;
   int         frame_mbs_only_flag;
@@ -128,8 +128,8 @@ typedef struct storable_picture
   int no_ref;
   int iCodingType;
   //
-  char listXsize[MAX_NUM_SLICES][2];
-  struct storable_picture **listX[MAX_NUM_SLICES][2];
+  //char listXsize[MAX_NUM_SLICES][2];
+  //struct storable_picture **listX[MAX_NUM_SLICES][2];
   int         layer_id;
 } StorablePicture;
 
@@ -214,10 +214,6 @@ extern StorablePicture*  get_short_term_pic (Slice *currSlice, DecodedPictureBuf
 extern void             idr_memory_management(DecodedPictureBuffer *p_Dpb, StorablePicture* p);
 extern void             flush_dpbs(DecodedPictureBuffer **p_Dpb, int nLayers);
 extern int              GetMaxDecFrameBuffering(VideoParameters *p_Vid);
-extern void             append_interview_list(DecodedPictureBuffer *p_Dpb, 
-                                              PictureStructure currPicStructure, int list_idx, 
-                                              FrameStore **list, int *listXsize, int currPOC, 
-                                              int curr_view_id, int anchor_pic_flag);
 #endif
 
 extern void unmark_for_reference(FrameStore* fs);
@@ -242,7 +238,6 @@ extern void             free_ref_pic_list_reordering_buffer(Slice *currSlice);
 
 extern void             fill_frame_num_gap(VideoParameters *p_Vid, Slice *pSlice);
 
-extern void compute_colocated (Slice *currSlice, StorablePicture **listX[6]);
 
 
 extern int init_img_data(VideoParameters *p_Vid, ImageData *p_ImgData, seq_parameter_set_rbsp_t *sps);

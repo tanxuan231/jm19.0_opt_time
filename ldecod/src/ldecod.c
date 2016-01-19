@@ -334,7 +334,7 @@ static void init(VideoParameters *p_Vid)  //!< video parameters
 
   p_Vid->recovery_point = 0;
   p_Vid->recovery_point_found = 0;
-  p_Vid->recovery_poc = 0x7fffffff; /* set to a max value */
+  //p_Vid->recovery_poc = 0x7fffffff; /* set to a max value */
 
   p_Vid->idr_psnr_number = p_Inp->ref_offset;
   p_Vid->psnr_number=0;
@@ -765,6 +765,7 @@ Slice *malloc_slice(InputParameters *p_Inp, VideoParameters *p_Vid)
   {
     currSlice->ref_flag[i] = 1;
   }
+	#if 0
   for (i = 0; i < 6; i++)
   {
     currSlice->listX[i] = calloc(MAX_LIST_SIZE, sizeof (StorablePicture*)); // +1 for reordering
@@ -779,7 +780,7 @@ Slice *malloc_slice(InputParameters *p_Inp, VideoParameters *p_Vid)
     }
     currSlice->listXsize[j]=0;
   }
-
+	#endif
   return currSlice;
 }
 
@@ -820,6 +821,7 @@ static void free_slice(Slice *currSlice)
     delete_contexts_TextureInfo(currSlice->tex_ctx);
   }
 
+	#if 0
   for (i=0; i<6; i++)
   {
     if (currSlice->listX[i])
@@ -828,6 +830,7 @@ static void free_slice(Slice *currSlice)
       currSlice->listX[i] = NULL;
     }
   }
+	#endif
   while (currSlice->dec_ref_pic_marking_buffer)
   {
     DecRefPicMarking_t *tmp_drpm=currSlice->dec_ref_pic_marking_buffer;

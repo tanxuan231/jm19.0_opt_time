@@ -34,7 +34,6 @@
 // #define PRINT_PAN_SCAN_RECT            // uncomment to print pan-scan rectangle SEI info
 // #define PRINT_RECOVERY_POINT           // uncomment to print random access point SEI info
 // #define PRINT_FILLER_PAYLOAD_INFO      // uncomment to print filler payload SEI info
-// #define PRINT_DEC_REF_PIC_MARKING      // uncomment to print decoded picture buffer management repetition SEI info
 // #define PRINT_RESERVED_INFO            // uncomment to print reserved SEI info
 // #define PRINT_USER_DATA_UNREGISTERED_INFO          // uncomment to print unregistered user data SEI info
 // #define PRINT_USER_DATA_REGISTERED_ITU_T_T35_INFO  // uncomment to print ITU-T T.35 user data SEI info
@@ -981,27 +980,13 @@ void interpret_dec_ref_pic_marking_repetition_info( byte* payload, int size, Vid
     }
   }
 
-#ifdef PRINT_DEC_REF_PIC_MARKING
-  printf("Decoded Picture Buffer Management Repetition SEI message\n");
-  printf("original_idr_flag       = %d\n", original_idr_flag);
-  printf("original_frame_num      = %d\n", original_frame_num);
-  if ( active_sps->frame_mbs_only_flag )
-  {
-    printf("original_field_pic_flag = %d\n", original_field_pic_flag);
-    if ( original_field_pic_flag )
-    {
-      printf("original_bottom_field_flag = %d\n", original_bottom_field_flag);
-    }
-  }
-#endif
-
   // we need to save everything that is probably overwritten in dec_ref_pic_marking()
   old_drpm = pSlice->dec_ref_pic_marking_buffer;
   old_idr_flag = pSlice->idr_flag; //p_Vid->idr_flag;
 
-  old_no_output_of_prior_pics_flag = pSlice->no_output_of_prior_pics_flag; //p_Vid->no_output_of_prior_pics_flag;
-  old_long_term_reference_flag = pSlice->long_term_reference_flag;
-  old_adaptive_ref_pic_buffering_flag = pSlice->adaptive_ref_pic_buffering_flag;
+  //old_no_output_of_prior_pics_flag = pSlice->no_output_of_prior_pics_flag; //p_Vid->no_output_of_prior_pics_flag;
+  //old_long_term_reference_flag = pSlice->long_term_reference_flag;
+  //old_adaptive_ref_pic_buffering_flag = pSlice->adaptive_ref_pic_buffering_flag;
 
   // set new initial values
   //p_Vid->idr_flag = original_idr_flag;
@@ -1009,45 +994,6 @@ void interpret_dec_ref_pic_marking_repetition_info( byte* payload, int size, Vid
   pSlice->dec_ref_pic_marking_buffer = NULL;
 
   dec_ref_pic_marking(p_Vid, buf, pSlice);
-
-  // print out decoded values
-#ifdef PRINT_DEC_REF_PIC_MARKING
-  if (p_Vid->idr_flag)
-  {
-    printf("no_output_of_prior_pics_flag = %d\n", p_Vid->no_output_of_prior_pics_flag);
-    printf("long_term_reference_flag     = %d\n", p_Vid->long_term_reference_flag);
-  }
-  else
-  {
-    printf("adaptive_ref_pic_buffering_flag  = %d\n", p_Vid->adaptive_ref_pic_buffering_flag);
-    if (p_Vid->adaptive_ref_pic_buffering_flag)
-    {
-      tmp_drpm=p_Vid->dec_ref_pic_marking_buffer;
-      while (tmp_drpm != NULL)
-      {
-        printf("memory_management_control_operation  = %d\n", tmp_drpm->memory_management_control_operation);
-
-        if ((tmp_drpm->memory_management_control_operation==1)||(tmp_drpm->memory_management_control_operation==3))
-        {
-          printf("difference_of_pic_nums_minus1        = %d\n", tmp_drpm->difference_of_pic_nums_minus1);
-        }
-        if (tmp_drpm->memory_management_control_operation==2)
-        {
-          printf("long_term_pic_num                    = %d\n", tmp_drpm->long_term_pic_num);
-        }
-        if ((tmp_drpm->memory_management_control_operation==3)||(tmp_drpm->memory_management_control_operation==6))
-        {
-          printf("long_term_frame_idx                  = %d\n", tmp_drpm->long_term_frame_idx);
-        }
-        if (tmp_drpm->memory_management_control_operation==4)
-        {
-          printf("max_long_term_pic_idx_plus1          = %d\n", tmp_drpm->max_long_term_frame_idx_plus1);
-        }
-        tmp_drpm = tmp_drpm->Next;
-      }
-    }
-  }
-#endif
 
   while (pSlice->dec_ref_pic_marking_buffer)
   {
@@ -1060,15 +1006,12 @@ void interpret_dec_ref_pic_marking_repetition_info( byte* payload, int size, Vid
   // restore old values in p_Vid
   pSlice->dec_ref_pic_marking_buffer = old_drpm;
   pSlice->idr_flag = old_idr_flag;
-  pSlice->no_output_of_prior_pics_flag = old_no_output_of_prior_pics_flag;
-  p_Vid->no_output_of_prior_pics_flag = pSlice->no_output_of_prior_pics_flag;
-  pSlice->long_term_reference_flag = old_long_term_reference_flag;
-  pSlice->adaptive_ref_pic_buffering_flag = old_adaptive_ref_pic_buffering_flag;
+  //pSlice->no_output_of_prior_pics_flag = old_no_output_of_prior_pics_flag;
+  //p_Vid->no_output_of_prior_pics_flag = pSlice->no_output_of_prior_pics_flag;
+  //pSlice->long_term_reference_flag = old_long_term_reference_flag;
+  //pSlice->adaptive_ref_pic_buffering_flag = old_adaptive_ref_pic_buffering_flag;
 
   free (buf);
-#ifdef PRINT_DEC_REF_PIC_MARKING
-#undef PRINT_DEC_REF_PIC_MARKING
-#endif
 }
 
 /*!
