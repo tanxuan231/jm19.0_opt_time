@@ -45,20 +45,20 @@ typedef struct storable_picture
 {
   PictureStructure structure;
 
-  int         poc;
-  int         top_poc;
-  int         bottom_poc;
-  int         frame_poc;
+  //int         poc;
+  //int         top_poc;
+  //int         bottom_poc;
+  //int         frame_poc;
   unsigned int  frame_num;
   //unsigned int  recovery_frame;
 
   int         pic_num;
-  int         long_term_pic_num;
-  int         long_term_frame_idx;
+  //int         long_term_pic_num;
+  //int         long_term_frame_idx;
 
   byte        is_long_term;
   int         used_for_reference;
-  int         is_output;
+  //int         is_output;
   int         non_existing;
   int         separate_colour_plane_flag;
 
@@ -103,16 +103,16 @@ typedef struct storable_picture
   int         qp;
   int         chroma_qp_offset[2];
   //int         slice_qp_delta;
-  DecRefPicMarking_t *dec_ref_pic_marking_buffer;                    //!< stores the memory management control operations
+  //DecRefPicMarking_t *dec_ref_pic_marking_buffer;                    //!< stores the memory management control operations
 
   // picture error concealment
   //int         concealed_pic; //indicates if this is a concealed picture
   
   // variables for tone mapping
-  int         seiHasTone_mapping;
-  int         tone_mapping_model_id;
-  int         tonemapped_bit_depth;  
-  imgpel*     tone_mapping_lut;                //!< tone mapping look up table
+  //int         seiHasTone_mapping;
+  //int         tone_mapping_model_id;
+  //int         tonemapped_bit_depth;  
+  //imgpel*     tone_mapping_lut;                //!< tone mapping look up table
 
   int         proc_flag;
 #if (MVC_EXTENSION_ENABLE)
@@ -149,9 +149,9 @@ typedef struct frame_store
   //unsigned  recovery_frame;
 
   int       frame_num_wrap;
-  int       long_term_frame_idx;
-  int       is_output;
-  int       poc;
+  //int       long_term_frame_idx;
+  //int       is_output;
+  //int       poc;
 
   // picture error concealment
   int concealment_reference;
@@ -170,7 +170,7 @@ typedef struct frame_store
 
 extern FrameStore*       alloc_frame_store(void);
 extern void              free_frame_store (FrameStore* f);
-extern StorablePicture*  alloc_storable_picture(VideoParameters *p_Vid, PictureStructure type, int size_x, int size_y, int size_x_cr, int size_y_cr, int is_output);
+extern StorablePicture*  alloc_storable_picture(VideoParameters *p_Vid, PictureStructure type, int size_x, int size_y, int size_x_cr, int size_y_cr);
 extern void              free_storable_picture (StorablePicture* p);
 
 #if (MVC_EXTENSION_ENABLE)

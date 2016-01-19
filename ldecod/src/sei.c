@@ -944,8 +944,6 @@ void interpret_dec_ref_pic_marking_repetition_info( byte* payload, int size, Vid
   int original_idr_flag, original_frame_num;
   int original_field_pic_flag, original_bottom_field_flag;
 
-  DecRefPicMarking_t *tmp_drpm;
-  DecRefPicMarking_t *old_drpm;
   int old_idr_flag, old_no_output_of_prior_pics_flag, old_long_term_reference_flag , old_adaptive_ref_pic_buffering_flag;
 
   Bitstream* buf;
@@ -970,35 +968,12 @@ void interpret_dec_ref_pic_marking_repetition_info( byte* payload, int size, Vid
   }
 
   // we need to save everything that is probably overwritten in dec_ref_pic_marking()
-  old_drpm = pSlice->dec_ref_pic_marking_buffer;
   old_idr_flag = pSlice->idr_flag; //p_Vid->idr_flag;
 
-  //old_no_output_of_prior_pics_flag = pSlice->no_output_of_prior_pics_flag; //p_Vid->no_output_of_prior_pics_flag;
-  //old_long_term_reference_flag = pSlice->long_term_reference_flag;
-  //old_adaptive_ref_pic_buffering_flag = pSlice->adaptive_ref_pic_buffering_flag;
-
-  // set new initial values
-  //p_Vid->idr_flag = original_idr_flag;
   pSlice->idr_flag = original_idr_flag;
-  pSlice->dec_ref_pic_marking_buffer = NULL;
 
   dec_ref_pic_marking(p_Vid, buf, pSlice);
-
-  while (pSlice->dec_ref_pic_marking_buffer)
-  {
-    tmp_drpm=pSlice->dec_ref_pic_marking_buffer;
-
-    pSlice->dec_ref_pic_marking_buffer=tmp_drpm->Next;
-    free (tmp_drpm);
-  }
-
-  // restore old values in p_Vid
-  pSlice->dec_ref_pic_marking_buffer = old_drpm;
   pSlice->idr_flag = old_idr_flag;
-  //pSlice->no_output_of_prior_pics_flag = old_no_output_of_prior_pics_flag;
-  //p_Vid->no_output_of_prior_pics_flag = pSlice->no_output_of_prior_pics_flag;
-  //pSlice->long_term_reference_flag = old_long_term_reference_flag;
-  //pSlice->adaptive_ref_pic_buffering_flag = old_adaptive_ref_pic_buffering_flag;
 
   free (buf);
 }

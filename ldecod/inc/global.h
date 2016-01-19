@@ -181,15 +181,15 @@ typedef struct
  */
 
 /*! Buffer structure for decoded referenc picture marking commands */
-typedef struct DecRefPicMarking_s
-{
-  int memory_management_control_operation;
-  int difference_of_pic_nums_minus1;
-  int long_term_pic_num;
-  int long_term_frame_idx;
-  int max_long_term_frame_idx_plus1;
-  struct DecRefPicMarking_s *Next;
-} DecRefPicMarking_t;
+//typedef struct DecRefPicMarking_s
+//{
+  //int memory_management_control_operation;
+  //int difference_of_pic_nums_minus1;
+  //int long_term_pic_num;
+  //int long_term_frame_idx;
+  //int max_long_term_frame_idx_plus1;
+  //struct DecRefPicMarking_s *Next;
+//} DecRefPicMarking_t;
 
 //! cbp structure
 typedef struct cbp_s
@@ -451,7 +451,7 @@ typedef struct slice
   //int no_output_of_prior_pics_flag;
   //int long_term_reference_flag;
   //int adaptive_ref_pic_buffering_flag;
-  DecRefPicMarking_t *dec_ref_pic_marking_buffer;                    //!< stores the memory management control operations
+  //DecRefPicMarking_t *dec_ref_pic_marking_buffer;                    //!< stores the memory management control operations
 
   //char listXsize[6];
   //struct storable_picture **listX[6];
@@ -873,7 +873,7 @@ typedef struct video_par
   int bFrameInit;
   pic_parameter_set_rbsp_t *pNextPPS;
   //int last_dec_poc;
-  int last_dec_view_id;
+  //int last_dec_view_id;
   int last_dec_layer_id;
   int dpb_layer_id;
 

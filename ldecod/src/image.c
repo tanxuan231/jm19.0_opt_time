@@ -139,7 +139,7 @@ static void init_picture(VideoParameters *p_Vid, Slice *currSlice, InputParamete
     gettime (&(p_Vid->start_time));             // start time
   }
 
-  dec_picture = p_Vid->dec_picture = alloc_storable_picture (p_Vid, currSlice->structure, p_Vid->width, p_Vid->height, p_Vid->width_cr, p_Vid->height_cr, 1);
+  dec_picture = p_Vid->dec_picture = alloc_storable_picture (p_Vid, currSlice->structure, p_Vid->width, p_Vid->height, p_Vid->width_cr, p_Vid->height_cr);
   dec_picture->qp = currSlice->qp;
   //dec_picture->slice_qp_delta = currSlice->slice_qp_delta;
   dec_picture->chroma_qp_offset[0] = p_Vid->active_pps->chroma_qp_index_offset;
@@ -209,8 +209,8 @@ static void init_picture(VideoParameters *p_Vid, Slice *currSlice, InputParamete
   //dec_picture->long_term_reference_flag     = currSlice->long_term_reference_flag;
   //dec_picture->adaptive_ref_pic_buffering_flag = currSlice->adaptive_ref_pic_buffering_flag;
 
-  dec_picture->dec_ref_pic_marking_buffer = currSlice->dec_ref_pic_marking_buffer;
-  currSlice->dec_ref_pic_marking_buffer   = NULL;
+  //dec_picture->dec_ref_pic_marking_buffer = currSlice->dec_ref_pic_marking_buffer;
+  //currSlice->dec_ref_pic_marking_buffer   = NULL;
 
   dec_picture->mb_aff_frame_flag = currSlice->mb_aff_frame_flag;
   dec_picture->PicWidthInMbs     = p_Vid->PicWidthInMbs;
@@ -562,7 +562,7 @@ int decode_one_frame(DecoderParams *pDecoder)
   }
 
 #if MVC_EXTENSION_ENABLE
-  p_Vid->last_dec_view_id = p_Vid->dec_picture->view_id;
+  //p_Vid->last_dec_view_id = p_Vid->dec_picture->view_id;
 #endif
   //if(p_Vid->dec_picture->structure == FRAME)
     //p_Vid->last_dec_poc = p_Vid->dec_picture->frame_poc;
@@ -1072,7 +1072,7 @@ void exit_picture(VideoParameters *p_Vid, StorablePicture **dec_picture)
   InputParameters *p_Inp = p_Vid->p_Inp;
   SNRParameters   *snr   = p_Vid->snr;
   char yuv_types[4][6]= {"4:0:0","4:2:0","4:2:2","4:4:4"};
-  int structure, frame_poc, slice_type, refpic, qp, pic_num, chroma_format_idc, is_idr;
+  int structure, slice_type, refpic, qp, pic_num, chroma_format_idc, is_idr;
 
   int64 tmp_time;                   // time used by decoding the last frame
   char   yuvFormat[10];
@@ -1083,65 +1083,19 @@ void exit_picture(VideoParameters *p_Vid, StorablePicture **dec_picture)
     return;
   }
 
-#if 0
-  if(!p_Vid->iDeblockMode && (p_Vid->bDeblockEnable & (1<<(*dec_picture)->used_for_reference)))
-  {
-    //deblocking for frame or field
-    if( (p_Vid->separate_colour_plane_flag != 0) )
-    {
-      int nplane;
-      int colour_plane_id = p_Vid->ppSliceList[0]->colour_plane_id;
-      for( nplane=0; nplane<MAX_PLANE; ++nplane )
-      {
-        p_Vid->ppSliceList[0]->colour_plane_id = nplane;
-        change_plane_JV( p_Vid, nplane, NULL );
-        //DeblockPicture( p_Vid, *dec_picture );
-      }
-      p_Vid->ppSliceList[0]->colour_plane_id = colour_plane_id;
-      make_frame_picture_JV(p_Vid);
-    }
-    else
-    {
-      //DeblockPicture( p_Vid, *dec_picture );
-    }
-  }
-  else
-  {
-    if( (p_Vid->separate_colour_plane_flag != 0) )
-    {
-      make_frame_picture_JV(p_Vid);
-    }
-  }
-#endif
-
-  //if ((*dec_picture)->mb_aff_frame_flag)
-    //MbAffPostProc(p_Vid);
-
   if (p_Vid->structure == FRAME)         // buffer mgt. for frame mode
     frame_postprocessing(p_Vid);
   else
     field_postprocessing(p_Vid);   // reset all interlaced variables
-#if (MVC_EXTENSION_ENABLE)
-  //if((*dec_picture)->used_for_reference || ((*dec_picture)->inter_view_flag == 1))
-    //pad_dec_picture(p_Vid, *dec_picture);
-#else
-  //if((*dec_picture)->used_for_reference)
-    //pad_dec_picture(p_Vid, *dec_picture);
-#endif
+
   structure  = (*dec_picture)->structure;
   slice_type = (*dec_picture)->slice_type;
-  frame_poc  = (*dec_picture)->frame_poc;  
   refpic     = (*dec_picture)->used_for_reference;
   qp         = (*dec_picture)->qp;
   pic_num    = (*dec_picture)->pic_num;
   is_idr     = (*dec_picture)->idr_flag;
 
   chroma_format_idc = (*dec_picture)->chroma_format_idc;
-#if MVC_EXTENSION_ENABLE
-  //store_picture_in_dpb(p_Vid->p_Dpb_layer[(*dec_picture)->view_id], *dec_picture);
-#else
-  //store_picture_in_dpb(p_Vid->p_Dpb_layer[0], *dec_picture);
-#endif
 
   *dec_picture=NULL;
 
@@ -1202,17 +1156,7 @@ void exit_picture(VideoParameters *p_Vid, StorablePicture **dec_picture)
     tmp_time  = timenorm(tmp_time);
     sprintf(yuvFormat,"%s", yuv_types[chroma_format_idc]);
 
-    if (p_Inp->silent == FALSE)
-    {
-      SNRParameters   *snr = p_Vid->snr;
-      //if (p_Vid->p_ref != -1)
-        //fprintf(stdout,"%05d(%s%5d %5d %5d %8.4f %8.4f %8.4f  %s %7d\n",
-        //p_Vid->frame_no, p_Vid->cslice_type, frame_poc, pic_num, qp, snr->snr[0], snr->snr[1], snr->snr[2], yuvFormat, (int) tmp_time);
-      //else
-        fprintf(stdout,"%05d(%s%5d %5d %5d                             %s %7d\n",
-        p_Vid->frame_no, p_Vid->cslice_type, frame_poc, pic_num, qp, yuvFormat, (int)tmp_time);
-    }
-    else
+    if (p_Inp->silent == TRUE)
       fprintf(stdout,"Completed Decoding frame %05d.\r",snr->frame_ctr);
 
     //fflush(stdout);

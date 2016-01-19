@@ -350,7 +350,7 @@ static void init(VideoParameters *p_Vid)  //!< video parameters
 
   p_Vid->iPostProcess = 0;
   //p_Vid->bDeblockEnable = 0x3;
-  p_Vid->last_dec_view_id = -1;
+  //p_Vid->last_dec_view_id = -1;
   p_Vid->last_dec_layer_id = -1;
 
 #if ENABLE_DEC_STATS
@@ -790,11 +790,11 @@ static void free_slice(Slice *currSlice)
     }
   }
 	#endif
-  while (currSlice->dec_ref_pic_marking_buffer)
+  //while (currSlice->dec_ref_pic_marking_buffer)
   {
-    DecRefPicMarking_t *tmp_drpm=currSlice->dec_ref_pic_marking_buffer;
-    currSlice->dec_ref_pic_marking_buffer=tmp_drpm->Next;
-    free (tmp_drpm);
+    //DecRefPicMarking_t *tmp_drpm=currSlice->dec_ref_pic_marking_buffer;
+    //currSlice->dec_ref_pic_marking_buffer=tmp_drpm->Next;
+    //free (tmp_drpm);
   }
 
   free(currSlice);

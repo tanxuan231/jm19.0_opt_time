@@ -637,9 +637,10 @@ void dec_ref_pic_marking(VideoParameters *p_Vid, Bitstream *currStream, Slice *p
 {
   int val;
 
-  DecRefPicMarking_t *tmp_drpm,*tmp_drpm2;
+  //DecRefPicMarking_t *tmp_drpm,*tmp_drpm2;
 
   // free old buffer content
+#if 0  
   while (pSlice->dec_ref_pic_marking_buffer)
   {
     tmp_drpm=pSlice->dec_ref_pic_marking_buffer;
@@ -647,7 +648,7 @@ void dec_ref_pic_marking(VideoParameters *p_Vid, Bitstream *currStream, Slice *p
     pSlice->dec_ref_pic_marking_buffer=tmp_drpm->Next;
     free (tmp_drpm);
   }
-
+#endif
 #if (MVC_EXTENSION_ENABLE)
   if ( pSlice->idr_flag || (pSlice->svc_extension_flag == 0 && pSlice->NaluHeaderMVCExt.non_idr_flag == 0) )
 #else
@@ -668,39 +669,39 @@ void dec_ref_pic_marking(VideoParameters *p_Vid, Bitstream *currStream, Slice *p
       // read Memory Management Control Operation
       do
       {
-        tmp_drpm=(DecRefPicMarking_t*)calloc (1,sizeof (DecRefPicMarking_t));
-        tmp_drpm->Next=NULL;
+        //tmp_drpm=(DecRefPicMarking_t*)calloc (1,sizeof (DecRefPicMarking_t));
+        //tmp_drpm->Next=NULL;
 
-        val = tmp_drpm->memory_management_control_operation = read_ue_v("SH: memory_management_control_operation", currStream, &p_Dec->UsedBits);
+        val = read_ue_v("SH: memory_management_control_operation", currStream, &p_Dec->UsedBits);
 
         if ((val==1)||(val==3))
         {
-          tmp_drpm->difference_of_pic_nums_minus1 = read_ue_v("SH: difference_of_pic_nums_minus1", currStream, &p_Dec->UsedBits);
+          read_ue_v("SH: difference_of_pic_nums_minus1", currStream, &p_Dec->UsedBits);
         }
         if (val==2)
         {
-          tmp_drpm->long_term_pic_num = read_ue_v("SH: long_term_pic_num", currStream, &p_Dec->UsedBits);
+          read_ue_v("SH: long_term_pic_num", currStream, &p_Dec->UsedBits);
         }
 
         if ((val==3)||(val==6))
         {
-          tmp_drpm->long_term_frame_idx = read_ue_v("SH: long_term_frame_idx", currStream, &p_Dec->UsedBits);
+          read_ue_v("SH: long_term_frame_idx", currStream, &p_Dec->UsedBits);
         }
         if (val==4)
         {
-          tmp_drpm->max_long_term_frame_idx_plus1 = read_ue_v("SH: max_long_term_pic_idx_plus1", currStream, &p_Dec->UsedBits);
+          read_ue_v("SH: max_long_term_pic_idx_plus1", currStream, &p_Dec->UsedBits);
         }
 
         // add command
-        if (pSlice->dec_ref_pic_marking_buffer==NULL)
+        //if (pSlice->dec_ref_pic_marking_buffer==NULL)
         {
-          pSlice->dec_ref_pic_marking_buffer=tmp_drpm;
+          //pSlice->dec_ref_pic_marking_buffer=tmp_drpm;
         }
-        else
+        //else
         {
-          tmp_drpm2=pSlice->dec_ref_pic_marking_buffer;
-          while (tmp_drpm2->Next!=NULL) tmp_drpm2=tmp_drpm2->Next;
-          tmp_drpm2->Next=tmp_drpm;
+          //tmp_drpm2=pSlice->dec_ref_pic_marking_buffer;
+          //while (tmp_drpm2->Next!=NULL) tmp_drpm2=tmp_drpm2->Next;
+          //tmp_drpm2->Next=tmp_drpm;
         }
 
       }

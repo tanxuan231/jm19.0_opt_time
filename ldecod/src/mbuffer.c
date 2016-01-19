@@ -53,7 +53,7 @@ FrameStore* alloc_frame_store(void)
   f->is_long_term = 0;
   f->is_orig_reference = 0;
 
-  f->is_output = 0;
+  //f->is_output = 0;
 
   f->frame        = NULL;;
   f->top_field    = NULL;
@@ -91,7 +91,7 @@ void alloc_pic_motion(PicMotionParamsOld *motion, int size_y, int size_x)
  *    the allocated StorablePicture structure
  ************************************************************************
  */
-StorablePicture* alloc_storable_picture(VideoParameters *p_Vid, PictureStructure structure, int size_x, int size_y, int size_x_cr, int size_y_cr, int is_output)
+StorablePicture* alloc_storable_picture(VideoParameters *p_Vid, PictureStructure structure, int size_x, int size_y, int size_x_cr, int size_y_cr)
 {
   seq_parameter_set_rbsp_t *active_sps = p_Vid->active_sps;  
 
@@ -145,12 +145,12 @@ StorablePicture* alloc_storable_picture(VideoParameters *p_Vid, PictureStructure
 
   s->pic_num   = 0;
   s->frame_num = 0;
-  s->long_term_frame_idx = 0;
-  s->long_term_pic_num   = 0;
+  //s->long_term_frame_idx = 0;
+  //s->long_term_pic_num   = 0;
   s->used_for_reference  = 0;
   s->is_long_term        = 0;
   s->non_existing        = 0;
-  s->is_output           = 0;
+  //s->is_output           = 0;
   s->max_slice_id        = 0;
 #if (MVC_EXTENSION_ENABLE)
   s->view_id = -1;
@@ -171,13 +171,13 @@ StorablePicture* alloc_storable_picture(VideoParameters *p_Vid, PictureStructure
   s->bottom_field = p_Vid->no_reference_picture;
   s->frame        = p_Vid->no_reference_picture;
 
-  s->dec_ref_pic_marking_buffer = NULL;
+  //s->dec_ref_pic_marking_buffer = NULL;
 
   s->coded_frame  = 0;
   s->mb_aff_frame_flag  = 0;
 
-  s->top_poc = s->bottom_poc = s->poc = 0;
-  s->seiHasTone_mapping = 0;
+  //s->top_poc = s->bottom_poc = s->poc = 0;
+  //s->seiHasTone_mapping = 0;
 
 #if 0
   if(!p_Vid->active_sps->frame_mbs_only_flag && structure != FRAME)
@@ -290,8 +290,8 @@ void free_storable_picture(StorablePicture* p)
     }
 
 
-    if (p->seiHasTone_mapping)
-      free(p->tone_mapping_lut);
+    //if (p->seiHasTone_mapping)
+      //free(p->tone_mapping_lut);
 
 		#if 0
     {

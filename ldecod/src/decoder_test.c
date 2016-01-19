@@ -20,8 +20,6 @@
 #include "h264decoder.h"
 #include "configfile.h"
 
-#define DECOUTPUT_TEST      0	//could move
-
 #define PRINT_OUTPUT_POC    0
 #define BITSTREAM_FILENAME  "test.264"
 //#define DECRECON_FILENAME   "test_dec.yuv"
@@ -168,18 +166,7 @@ int main(int argc, char **argv)
 	gettimeofday( &start, NULL );
 	
   int iRet;
-  //DecodedPicList *pDecPicList;
-  int hFileDecOutput0=-1, hFileDecOutput1=-1;
-  int iFramesOutput=0, iFramesDecoded=0;
   InputParameters InputParams;
-
-#if DECOUTPUT_TEST
-  hFileDecOutput0 = open(DECOUTPUT_VIEW0_FILENAME, OPENFLAGS_WRITE, OPEN_PERMISSIONS);
-  fprintf(stdout, "Decoder output view0: %s\n", DECOUTPUT_VIEW0_FILENAME);
-  hFileDecOutput1 = open(DECOUTPUT_VIEW1_FILENAME, OPENFLAGS_WRITE, OPEN_PERMISSIONS);
-  fprintf(stdout, "Decoder output view1: %s\n", DECOUTPUT_VIEW1_FILENAME);
-#endif
-
   init_time();
 
   //get input parameters;
@@ -201,16 +188,14 @@ int main(int argc, char **argv)
     iRet = DecodeOneFrame();
     if(iRet==DEC_EOS || iRet==DEC_SUCCEED)
     {
-      //process the decoded picture, output or display;
-      //iFramesOutput += WriteOneFrame(pDecPicList, hFileDecOutput0, hFileDecOutput1, 0);
-      //iFramesDecoded++;
+
     }
     else
     {
       //error handling;
       fprintf(stderr, "Error in decoding process: 0x%x\n", iRet);
     }
-  }while((iRet == DEC_SUCCEED) && ((p_Dec->p_Inp->iDecFrmNum==0) || (iFramesDecoded<p_Dec->p_Inp->iDecFrmNum)));
+  }while((iRet == DEC_SUCCEED) && ((p_Dec->p_Inp->iDecFrmNum==0) /*|| (iFramesDecoded<p_Dec->p_Inp->iDecFrmNum)*/));
 
 	gettimeofday( &end1, NULL );
 	time_us1 = 1000000 * ( end1.tv_sec - start.tv_sec ) + end1.tv_usec - start.tv_usec;
@@ -223,20 +208,8 @@ int main(int argc, char **argv)
 
 	close_KeyFile();
   iRet = FinitDecoder();
-  //iFramesOutput += WriteOneFrame(pDecPicList, hFileDecOutput0, hFileDecOutput1 , 1);
   iRet = CloseDecoder();
 
-  //quit;
-  if(hFileDecOutput0>=0)
-  {
-    close(hFileDecOutput0);
-  }
-  if(hFileDecOutput1>=0)
-  {
-    close(hFileDecOutput1);
-  }	
-
-  printf("%d frames are decoded.\n", iFramesDecoded);
 	//print_KeyUnit();
 	
 	gettimeofday( &end2, NULL );
