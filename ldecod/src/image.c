@@ -48,9 +48,6 @@
 #include "context_ini.h"
 #include "cabac.h"
 #include "vlc.h"
-
-#include "mbuffer_common.h"
-#include "mbuffer_mvc.h"
 #include "fast_memory.h"
 
 extern int testEndian(void);
@@ -643,12 +640,12 @@ static void init_picture_decoding(VideoParameters *p_Vid)
   {
    //idr_memory_management(p_Vid->p_Dpb_layer[pSlice->layer_id], p_Vid->dec_picture);
   }
-  update_ref_list(p_Vid->p_Dpb_layer[pSlice->view_id]);
-  update_ltref_list(p_Vid->p_Dpb_layer[pSlice->view_id]);
-  update_pic_num(pSlice);
+  //update_ref_list(p_Vid->p_Dpb_layer[pSlice->view_id]);
+  //update_ltref_list(p_Vid->p_Dpb_layer[pSlice->view_id]);
+  //update_pic_num(pSlice);
   i = pSlice->view_id;
 #else
-  update_pic_num(pSlice);
+  //update_pic_num(pSlice);
   i = 0;
 #endif
   //init_Deblock(p_Vid, pSlice->mb_aff_frame_flag);
@@ -671,7 +668,7 @@ void init_slice(VideoParameters *p_Vid, Slice *currSlice)
   p_Vid->active_sps = currSlice->active_sps;
   p_Vid->active_pps = currSlice->active_pps;
 
-  currSlice->init_lists (currSlice);
+  //currSlice->init_lists (currSlice);
 
 #if (MVC_EXTENSION_ENABLE)
   //if (currSlice->svc_extension_flag == 0 || currSlice->svc_extension_flag == 1)
@@ -695,7 +692,7 @@ void init_slice(VideoParameters *p_Vid, Slice *currSlice)
 
   if (currSlice->structure==FRAME)
   {
-    init_mbaff_lists(p_Vid, currSlice);
+    //init_mbaff_lists(p_Vid, currSlice);
   }
   //p_Vid->recovery_point = 0;
 

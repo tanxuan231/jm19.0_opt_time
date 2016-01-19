@@ -560,7 +560,7 @@ typedef struct slice
   void (*read_motion_info_from_NAL)    (Macroblock *currMB);
   void (*read_one_macroblock      )    (Macroblock *currMB);
   void (*interpret_mb_mode        )    (Macroblock *currMB);
-  void (*init_lists               )    (struct slice *currSlice);
+  //void (*init_lists               )    (struct slice *currSlice);
 
   //void (*intra_pred_chroma        )    (Macroblock *currMB);
   //int  (*intra_pred_4x4)               (Macroblock *currMB, ColorPlane pl, int ioff, int joff,int i4,int j4);

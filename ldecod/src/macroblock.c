@@ -26,7 +26,6 @@
 
 #include "global.h"
 #include "mbuffer.h"
-#include "mbuffer_mvc.h"
 #include "elements.h"
 //#include "errorconcealment.h"
 #include "macroblock.h"
@@ -1057,9 +1056,9 @@ void setup_slice_methods(Slice *currSlice)
     //currSlice->decode_one_component      = decode_one_component_p_slice;
     //currSlice->update_direct_mv_info     = NULL;
 #if (MVC_EXTENSION_ENABLE)
-    currSlice->init_lists                = currSlice->view_id ? init_lists_p_slice_mvc : init_lists_p_slice;
+    //currSlice->init_lists                = currSlice->view_id ? init_lists_p_slice_mvc : init_lists_p_slice;
 #else
-    currSlice->init_lists                = init_lists_p_slice;
+    //currSlice->init_lists                = init_lists_p_slice;
 #endif
     break;
   case SP_SLICE:
@@ -1068,9 +1067,9 @@ void setup_slice_methods(Slice *currSlice)
     //currSlice->decode_one_component      = decode_one_component_sp_slice;
     //currSlice->update_direct_mv_info     = NULL;
 #if (MVC_EXTENSION_ENABLE)
-    currSlice->init_lists                = currSlice->view_id ? init_lists_p_slice_mvc : init_lists_p_slice;
+    //currSlice->init_lists                = currSlice->view_id ? init_lists_p_slice_mvc : init_lists_p_slice;
 #else
-    currSlice->init_lists                = init_lists_p_slice;
+    //currSlice->init_lists                = init_lists_p_slice;
 #endif
     break;
   case B_SLICE:
@@ -1079,9 +1078,9 @@ void setup_slice_methods(Slice *currSlice)
     //currSlice->decode_one_component      = decode_one_component_b_slice;
     //update_direct_types(currSlice);
 #if (MVC_EXTENSION_ENABLE)
-    currSlice->init_lists                = currSlice->view_id ? init_lists_b_slice_mvc : init_lists_b_slice;
+    //currSlice->init_lists                = currSlice->view_id ? init_lists_b_slice_mvc : init_lists_b_slice;
 #else
-    currSlice->init_lists                = init_lists_b_slice;
+    //currSlice->init_lists                = init_lists_b_slice;
 #endif
     break;
   case I_SLICE: 
@@ -1090,9 +1089,9 @@ void setup_slice_methods(Slice *currSlice)
     //currSlice->decode_one_component      = decode_one_component_i_slice;
     //currSlice->update_direct_mv_info     = NULL;
 #if (MVC_EXTENSION_ENABLE)
-    currSlice->init_lists                = currSlice->view_id ? init_lists_i_slice_mvc : init_lists_i_slice;
+    //currSlice->init_lists                = currSlice->view_id ? init_lists_i_slice_mvc : init_lists_i_slice;
 #else
-    currSlice->init_lists                = init_lists_i_slice;
+    //currSlice->init_lists                = init_lists_i_slice;
 #endif
     break;
   case SI_SLICE: 
@@ -1101,9 +1100,9 @@ void setup_slice_methods(Slice *currSlice)
     //currSlice->decode_one_component      = decode_one_component_i_slice;
     //currSlice->update_direct_mv_info     = NULL;
 #if (MVC_EXTENSION_ENABLE)
-    currSlice->init_lists                = currSlice->view_id ? init_lists_i_slice_mvc : init_lists_i_slice;
+    //currSlice->init_lists                = currSlice->view_id ? init_lists_i_slice_mvc : init_lists_i_slice;
 #else
-    currSlice->init_lists                = init_lists_i_slice;
+    //currSlice->init_lists                = init_lists_i_slice;
 #endif
     break;
   default:
