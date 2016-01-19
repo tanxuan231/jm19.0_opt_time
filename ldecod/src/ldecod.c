@@ -106,13 +106,6 @@ void error_KeyGen(char *text, int code)
   fprintf(stderr, "%s\n", text);
   exit(code);
 }
-
-
-static void reset_dpb( VideoParameters *p_Vid, DecodedPictureBuffer *p_Dpb )
-{
-  p_Dpb->p_Vid = p_Vid;
-  //p_Dpb->init_done = 0;
-}
 /*!
  ***********************************************************************
  * \brief
@@ -136,16 +129,16 @@ static void alloc_video_params( VideoParameters **p_Vid)
   // Allocate new dpb buffer
   for (i = 0; i < MAX_NUM_DPB_LAYERS; i++)
   {
-    if (((*p_Vid)->p_Dpb_layer[i] =  (DecodedPictureBuffer*)calloc(1, sizeof(DecodedPictureBuffer)))==NULL) 
-      no_mem_exit("alloc_video_params: p_Vid->p_Dpb_layer[i]");
-    (*p_Vid)->p_Dpb_layer[i]->layer_id = i;
-    reset_dpb(*p_Vid, (*p_Vid)->p_Dpb_layer[i]);
+    //if (((*p_Vid)->p_Dpb_layer[i] =  (DecodedPictureBuffer*)calloc(1, sizeof(DecodedPictureBuffer)))==NULL) 
+      //no_mem_exit("alloc_video_params: p_Vid->p_Dpb_layer[i]");
+    //(*p_Vid)->p_Dpb_layer[i]->layer_id = i;
+    //reset_dpb(*p_Vid, (*p_Vid)->p_Dpb_layer[i]);
     if(((*p_Vid)->p_EncodePar[i] = (CodingParameters *)calloc(1, sizeof(CodingParameters))) == NULL)
       no_mem_exit("alloc_video_params:p_Vid->p_EncodePar[i]");
     ((*p_Vid)->p_EncodePar[i])->layer_id = i;
-    if(((*p_Vid)->p_LayerPar[i] = (LayerParameters *)calloc(1, sizeof(LayerParameters))) == NULL)
-      no_mem_exit("alloc_video_params:p_Vid->p_LayerPar[i]");
-    ((*p_Vid)->p_LayerPar[i])->layer_id = i;
+    //if(((*p_Vid)->p_LayerPar[i] = (LayerParameters *)calloc(1, sizeof(LayerParameters))) == NULL)
+      //no_mem_exit("alloc_video_params:p_Vid->p_LayerPar[i]");
+    //((*p_Vid)->p_LayerPar[i])->layer_id = i;
   }
   (*p_Vid)->global_init_done[0] = (*p_Vid)->global_init_done[1] = 0;
 
@@ -223,20 +216,20 @@ static void free_img( VideoParameters *p_Vid)
     // Free new dpb layers
     for (i = 0; i < MAX_NUM_DPB_LAYERS; i++)
     {
-      if (p_Vid->p_Dpb_layer[i] != NULL)
+      //if (p_Vid->p_Dpb_layer[i] != NULL)
       {
-        free (p_Vid->p_Dpb_layer[i]);
-        p_Vid->p_Dpb_layer[i] = NULL;
+        //free (p_Vid->p_Dpb_layer[i]);
+        //p_Vid->p_Dpb_layer[i] = NULL;
       }
       if(p_Vid->p_EncodePar[i])
       {
         free(p_Vid->p_EncodePar[i]);
         p_Vid->p_EncodePar[i] = NULL;
       }
-      if(p_Vid->p_LayerPar[i])
+      //if(p_Vid->p_LayerPar[i])
       {
-        free(p_Vid->p_LayerPar[i]);
-        p_Vid->p_LayerPar[i] = NULL;
+        //free(p_Vid->p_LayerPar[i]);
+        //p_Vid->p_LayerPar[i] = NULL;
       }
     }    
     if (p_Vid->snr != NULL)
@@ -359,9 +352,9 @@ static void init(VideoParameters *p_Vid)  //!< video parameters
 
 
 #if (MVC_EXTENSION_ENABLE)
-  p_Vid->last_pic_width_in_mbs_minus1 = 0;
-  p_Vid->last_pic_height_in_map_units_minus1 = 0;
-  p_Vid->last_max_dec_frame_buffering = 0;
+  //p_Vid->last_pic_width_in_mbs_minus1 = 0;
+  //p_Vid->last_pic_height_in_map_units_minus1 = 0;
+  //p_Vid->last_max_dec_frame_buffering = 0;
 #endif
 
   p_Vid->newframe = 0;

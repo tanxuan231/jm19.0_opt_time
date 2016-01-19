@@ -847,14 +847,14 @@ void reset_format_info(seq_parameter_set_rbsp_t *sps, VideoParameters *p_Vid, Fr
   }
 }
 
-static void setup_layer_info(VideoParameters *p_Vid, seq_parameter_set_rbsp_t *sps, LayerParameters *p_Lps)
-{
-  int layer_id = p_Lps->layer_id;
-  p_Lps->p_Vid = p_Vid;
-  p_Lps->p_Cps = p_Vid->p_EncodePar[layer_id];
-  p_Lps->p_SPS = sps;
-  p_Lps->p_Dpb = p_Vid->p_Dpb_layer[layer_id];
-}
+//static void setup_layer_info(VideoParameters *p_Vid, seq_parameter_set_rbsp_t *sps, LayerParameters *p_Lps)
+//{
+  //int layer_id = p_Lps->layer_id;
+  //p_Lps->p_Vid = p_Vid;
+  //p_Lps->p_Cps = p_Vid->p_EncodePar[layer_id];
+  //p_Lps->p_SPS = sps;
+  //p_Lps->p_Dpb = p_Vid->p_Dpb_layer[layer_id];
+//}
 
 static void set_coding_par(seq_parameter_set_rbsp_t *sps, CodingParameters *cps)
 {
@@ -1016,12 +1016,12 @@ void activate_sps (VideoParameters *p_Vid, seq_parameter_set_rbsp_t *sps)
     if(p_Vid->dpb_layer_id==0 && is_BL_profile(sps->profile_idc) /*&& !p_Vid->p_Dpb_layer[0]->init_done*/)
     {
       set_coding_par(sps, p_Vid->p_EncodePar[0]);
-      setup_layer_info( p_Vid, sps, p_Vid->p_LayerPar[0]);
+      //setup_layer_info( p_Vid, sps, p_Vid->p_LayerPar[0]);
     }
     else if(p_Vid->dpb_layer_id==1 && is_EL_profile(sps->profile_idc) /*&& !p_Vid->p_Dpb_layer[1]->init_done*/)
     {
       set_coding_par(sps, p_Vid->p_EncodePar[1]);
-      setup_layer_info(p_Vid, sps, p_Vid->p_LayerPar[1]);
+      //setup_layer_info(p_Vid, sps, p_Vid->p_LayerPar[1]);
     }
 
 //to be removed in future;
@@ -1067,9 +1067,9 @@ void activate_sps (VideoParameters *p_Vid, seq_parameter_set_rbsp_t *sps)
     }
     //p_Vid->p_Dpb_layer[0]->num_ref_frames = p_Vid->active_sps->num_ref_frames;
     //p_Vid->p_Dpb_layer[1]->num_ref_frames = p_Vid->active_sps->num_ref_frames;
-    p_Vid->last_pic_width_in_mbs_minus1 = p_Vid->active_sps->pic_width_in_mbs_minus1;  
-    p_Vid->last_pic_height_in_map_units_minus1 = p_Vid->active_sps->pic_height_in_map_units_minus1;
-    p_Vid->last_max_dec_frame_buffering = GetMaxDecFrameBuffering(p_Vid);
+    //p_Vid->last_pic_width_in_mbs_minus1 = p_Vid->active_sps->pic_width_in_mbs_minus1;  
+    //p_Vid->last_pic_height_in_map_units_minus1 = p_Vid->active_sps->pic_height_in_map_units_minus1;
+    GetMaxDecFrameBuffering(p_Vid);
     p_Vid->last_profile_idc = p_Vid->active_sps->profile_idc;
 
 #else

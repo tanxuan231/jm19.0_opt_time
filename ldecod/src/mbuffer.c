@@ -28,10 +28,6 @@
 #include "memalloc.h"
 #include "fast_memory.h"
 
-static void insert_picture_in_dpb    (VideoParameters *p_Vid, FrameStore* fs, StorablePicture* p);
-static int output_one_frame_from_dpb (DecodedPictureBuffer *p_Dpb);
-static void gen_field_ref_ids        (VideoParameters *p_Vid, StorablePicture *p);
-
 #define MAX_LIST_SIZE 33
 
 

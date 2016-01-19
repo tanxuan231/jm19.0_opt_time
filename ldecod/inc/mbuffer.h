@@ -168,79 +168,13 @@ typedef struct frame_store
   int       layer_id;
 } FrameStore;
 
-
-//! Decoded Picture Buffer
-typedef struct decoded_picture_buffer
-{
-  VideoParameters *p_Vid;
-  InputParameters *p_Inp;
-  //FrameStore  **fs;
-  //FrameStore  **fs_ref;
-  //FrameStore  **fs_ltref;
-  //FrameStore  **fs_ilref; // inter-layer reference (for multi-layered codecs)
-  unsigned      size;
-  unsigned      used_size;
-  unsigned      ref_frames_in_buffer;
-  unsigned      ltref_frames_in_buffer;
-  int           last_output_poc;
-#if (MVC_EXTENSION_ENABLE)
-  int           last_output_view_id;
-#endif
-  int           max_long_term_pic_idx;  
-
-
-  //int           init_done;
-  int           num_ref_frames;
-
-  FrameStore   *last_picture;
-  unsigned     used_size_il;
-  int          layer_id;
-
-  //DPB related function;
-
-} DecodedPictureBuffer;
-
-
-extern void              init_dpb(VideoParameters *p_Vid, DecodedPictureBuffer *p_Dpb, int type);
-extern void              re_init_dpb(VideoParameters *p_Vid, DecodedPictureBuffer *p_Dpb, int type);
-extern void              free_dpb(DecodedPictureBuffer *p_Dpb);
 extern FrameStore*       alloc_frame_store(void);
 extern void              free_frame_store (FrameStore* f);
 extern StorablePicture*  alloc_storable_picture(VideoParameters *p_Vid, PictureStructure type, int size_x, int size_y, int size_x_cr, int size_y_cr, int is_output);
 extern void              free_storable_picture (StorablePicture* p);
-extern StorablePicture*  get_short_term_pic (Slice *currSlice, DecodedPictureBuffer *p_Dpb, int picNum);
 
 #if (MVC_EXTENSION_ENABLE)
-extern void             idr_memory_management(DecodedPictureBuffer *p_Dpb, StorablePicture* p);
-extern void             flush_dpbs(DecodedPictureBuffer **p_Dpb, int nLayers);
 extern int              GetMaxDecFrameBuffering(VideoParameters *p_Vid);
 #endif
-
-extern void unmark_for_reference(FrameStore* fs);
-extern void unmark_for_long_term_reference(FrameStore* fs);
-extern void remove_frame_from_dpb(DecodedPictureBuffer *p_Dpb, int pos);
-
-extern void             flush_dpb(DecodedPictureBuffer *p_Dpb);
-extern void             init_lists_p_slice (Slice *currSlice);
-extern void             init_lists_b_slice (Slice *currSlice);
-extern void             init_lists_i_slice (Slice *currSlice);
-extern void             update_pic_num     (Slice *currSlice);
-
-extern void             dpb_split_field      (VideoParameters *p_Vid, FrameStore *fs);
-extern void             dpb_combine_field    (VideoParameters *p_Vid, FrameStore *fs);
-extern void             dpb_combine_field_yuv(VideoParameters *p_Vid, FrameStore *fs);
-
-extern void             reorder_ref_pic_list(Slice *currSlice, int cur_list);
-
-extern void             init_mbaff_lists     (VideoParameters *p_Vid, Slice *currSlice);
-extern void             alloc_ref_pic_list_reordering_buffer(Slice *currSlice);
-extern void             free_ref_pic_list_reordering_buffer(Slice *currSlice);
-
-extern void             fill_frame_num_gap(VideoParameters *p_Vid, Slice *pSlice);
-
-
-extern void process_picture_in_dpb_s(VideoParameters *p_Vid, StorablePicture *p_pic);
-extern StorablePicture * clone_storable_picture( VideoParameters *p_Vid, StorablePicture *p_pic );
-extern void store_proc_picture_in_dpb(DecodedPictureBuffer *p_Dpb, StorablePicture* p);
 #endif
 

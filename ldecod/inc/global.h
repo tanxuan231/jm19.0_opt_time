@@ -367,7 +367,7 @@ typedef struct slice
   int svc_extension_flag;
 
   // dpb pointer
-  struct decoded_picture_buffer *p_Dpb;
+  //struct decoded_picture_buffer *p_Dpb;
 
   //slice property;
   int idr_flag;
@@ -376,9 +376,9 @@ typedef struct slice
   int Transform8x8Mode;
   Boolean chroma444_not_separate;              //!< indicates chroma 4:4:4 coding with separate_colour_plane_flag equal to zero
 
-  int toppoc;      //poc for this top field
-  int bottompoc;   //poc of bottom field of frame
-  int framepoc;    //poc of this frame
+  //int toppoc;      //poc for this top field
+  //int bottompoc;   //poc of bottom field of frame
+  //int framepoc;    //poc of this frame
 
   //the following is for slice header syntax elements of poc
   // for poc mode 0.
@@ -396,7 +396,7 @@ typedef struct slice
 
   // for POC mode 1:
   unsigned int AbsFrameNum;
-  int ThisPOC;
+  //int ThisPOC;
   //signed int ExpectedPicOrderCnt, PicOrderCntCycleCnt, FrameNumInPicOrderCntCycle;
   //unsigned int PreviousFrameNum, FrameNumOffset;
   //int ExpectedDeltaPerPicOrderCntCycle;
@@ -665,14 +665,14 @@ typedef struct coding_par
   //int *qp_rem_matrix;
 }CodingParameters;
 
-typedef struct layer_par
-{
-  int layer_id;
-  struct video_par *p_Vid;
-  CodingParameters *p_Cps;
-  seq_parameter_set_rbsp_t *p_SPS;
-  struct decoded_picture_buffer *p_Dpb;
-}LayerParameters;
+//typedef struct layer_par
+//{
+  //int layer_id;
+  //struct video_par *p_Vid;
+  //CodingParameters *p_Cps;
+  //seq_parameter_set_rbsp_t *p_SPS;
+  //struct decoded_picture_buffer *p_Dpb;
+//}//LayerParameters;
 
 // video parameters
 typedef struct video_par
@@ -682,17 +682,17 @@ typedef struct video_par
   seq_parameter_set_rbsp_t *active_sps;
   seq_parameter_set_rbsp_t SeqParSet[MAXSPS];
   pic_parameter_set_rbsp_t PicParSet[MAXPPS];
-  struct decoded_picture_buffer *p_Dpb_layer[MAX_NUM_DPB_LAYERS];
+  //struct decoded_picture_buffer *p_Dpb_layer[MAX_NUM_DPB_LAYERS];
   CodingParameters *p_EncodePar[MAX_NUM_DPB_LAYERS];
-  LayerParameters *p_LayerPar[MAX_NUM_DPB_LAYERS];
+  //LayerParameters *p_LayerPar[MAX_NUM_DPB_LAYERS];
 
 #if (MVC_EXTENSION_ENABLE)
   subset_seq_parameter_set_rbsp_t *active_subset_sps;
   //int svc_extension_flag;
   subset_seq_parameter_set_rbsp_t SubsetSeqParSet[MAXSPS];
-  int last_pic_width_in_mbs_minus1;
-  int last_pic_height_in_map_units_minus1;
-  int last_max_dec_frame_buffering;
+  //int last_pic_width_in_mbs_minus1;
+  //int last_pic_height_in_map_units_minus1;
+  //int last_max_dec_frame_buffering;
   int last_profile_idc;
 #endif
 
@@ -750,7 +750,7 @@ typedef struct video_par
   signed int ExpectedPicOrderCnt, PicOrderCntCycleCnt, FrameNumInPicOrderCntCycle;
   unsigned int PreviousFrameNum, FrameNumOffset;
   int ExpectedDeltaPerPicOrderCntCycle;
-  int ThisPOC;
+  //int ThisPOC;
   int PreviousFrameNumOffset;
   // /////////////////////////
 
