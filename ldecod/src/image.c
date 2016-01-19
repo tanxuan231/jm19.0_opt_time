@@ -129,11 +129,11 @@ static void init_picture(VideoParameters *p_Vid, Slice *currSlice, InputParamete
   //set buffers;
   setup_buffers(p_Vid, currSlice->layer_id);
 
-  if (p_Vid->recovery_point)
-    p_Vid->recovery_frame_num = (currSlice->frame_num + p_Vid->recovery_frame_cnt) % p_Vid->max_frame_num;
+  //if (p_Vid->recovery_point)
+    //p_Vid->recovery_frame_num = (currSlice->frame_num + p_Vid->recovery_frame_cnt) % p_Vid->max_frame_num;
 
-  if (currSlice->idr_flag)
-    p_Vid->recovery_frame_num = currSlice->frame_num;
+  //if (currSlice->idr_flag)
+    //p_Vid->recovery_frame_num = currSlice->frame_num;
 
   if(currSlice->nal_reference_idc)
   {
@@ -283,7 +283,7 @@ static void init_picture(VideoParameters *p_Vid, Slice *currSlice, InputParamete
   dec_picture->pic_num   = currSlice->frame_num;
   dec_picture->frame_num = currSlice->frame_num;
 
-  dec_picture->recovery_frame = (unsigned int) ((int) currSlice->frame_num == p_Vid->recovery_frame_num);
+  //dec_picture->recovery_frame = (unsigned int) ((int) currSlice->frame_num == p_Vid->recovery_frame_num);
 
   dec_picture->coded_frame = (currSlice->structure==FRAME);
 
@@ -299,26 +299,6 @@ static void init_picture(VideoParameters *p_Vid, Slice *currSlice, InputParamete
     dec_picture->frame_crop_top_offset    = active_sps->frame_crop_top_offset;
     dec_picture->frame_crop_bottom_offset = active_sps->frame_crop_bottom_offset;
   }
-
-#if (ENABLE_OUTPUT_TONEMAPPING)
-  // store the necessary tone mapping sei into StorablePicture structure
-  if (p_Vid->seiToneMapping->seiHasTone_mapping)
-  {
-    int coded_data_bit_max = (1 << p_Vid->seiToneMapping->coded_data_bit_depth);
-    dec_picture->seiHasTone_mapping    = 1;
-    dec_picture->tone_mapping_model_id = p_Vid->seiToneMapping->model_id;
-    dec_picture->tonemapped_bit_depth  = p_Vid->seiToneMapping->sei_bit_depth;
-    dec_picture->tone_mapping_lut      = malloc(coded_data_bit_max * sizeof(int));
-    if (NULL == dec_picture->tone_mapping_lut)
-    {
-      no_mem_exit("init_picture: tone_mapping_lut");
-    }
-    memcpy(dec_picture->tone_mapping_lut, p_Vid->seiToneMapping->lut, sizeof(imgpel) * coded_data_bit_max);
-    update_tone_mapping_sei(p_Vid->seiToneMapping);
-  }
-  else
-    dec_picture->seiHasTone_mapping = 0;
-#endif
 
   //if( (p_Vid->separate_colour_plane_flag != 0) )
   {
@@ -470,14 +450,14 @@ void init_slice(VideoParameters *p_Vid, Slice *currSlice)
   //p_Vid->recovery_point = 0;
 
   // update reference flags and set current p_Vid->ref_flag
-  if(!(currSlice->redundant_pic_cnt != 0 && p_Vid->previous_frame_num == currSlice->frame_num))
+  //if(!(currSlice->redundant_pic_cnt != 0 && p_Vid->previous_frame_num == currSlice->frame_num))
   {
-    for(i=16;i>0;i--)
+    //for(i=16;i>0;i--)
     {
-      currSlice->ref_flag[i] = currSlice->ref_flag[i-1];
+      //currSlice->ref_flag[i] = currSlice->ref_flag[i-1];
     }
   }
-  currSlice->ref_flag[0] = currSlice->redundant_pic_cnt==0 ? p_Vid->Is_primary_correct : p_Vid->Is_redundant_correct;
+  //currSlice->ref_flag[0] = currSlice->redundant_pic_cnt==0 ? p_Vid->Is_primary_correct : p_Vid->Is_redundant_correct;
   //p_Vid->previous_frame_num = currSlice->frame_num; //p_Vid->frame_num;
 
   if((currSlice->active_sps->chroma_format_idc==0)||(currSlice->active_sps->chroma_format_idc==3))
@@ -604,7 +584,7 @@ int decode_one_frame(DecoderParams *pDecoder)
     // If primary and redundant are received and primary is correct, discard the redundant
     // else, primary slice will be replaced with redundant slice.
     if(currSlice->frame_num == p_Vid->previous_frame_num && currSlice->redundant_pic_cnt !=0
-      && p_Vid->Is_primary_correct !=0 && current_header != EOS)
+      /*&& p_Vid->Is_primary_correct !=0*/ && current_header != EOS)
     {
       continue;
     }
@@ -685,12 +665,12 @@ int decode_one_frame(DecoderParams *pDecoder)
 #if MVC_EXTENSION_ENABLE
   p_Vid->last_dec_view_id = p_Vid->dec_picture->view_id;
 #endif
-  if(p_Vid->dec_picture->structure == FRAME)
-    p_Vid->last_dec_poc = p_Vid->dec_picture->frame_poc;
-  else if(p_Vid->dec_picture->structure == TOP_FIELD)
-    p_Vid->last_dec_poc = p_Vid->dec_picture->top_poc;
-  else if(p_Vid->dec_picture->structure == BOTTOM_FIELD)
-    p_Vid->last_dec_poc = p_Vid->dec_picture->bottom_poc;
+  //if(p_Vid->dec_picture->structure == FRAME)
+    //p_Vid->last_dec_poc = p_Vid->dec_picture->frame_poc;
+  //else if(p_Vid->dec_picture->structure == TOP_FIELD)
+    //p_Vid->last_dec_poc = p_Vid->dec_picture->top_poc;
+  //else if(p_Vid->dec_picture->structure == BOTTOM_FIELD)
+    //p_Vid->last_dec_poc = p_Vid->dec_picture->bottom_poc;
   exit_picture(p_Vid, &p_Vid->dec_picture);
   p_Vid->previous_frame_num = ppSliceList[0]->frame_num;
   return (iRet);
@@ -818,7 +798,8 @@ process_nalu:
     case NALU_TYPE_SLICE:
     case NALU_TYPE_IDR:
 
-      if (p_Vid->recovery_point || nalu->nal_unit_type == NALU_TYPE_IDR)
+			#if 0
+      if (/*p_Vid->recovery_point ||*/ nalu->nal_unit_type == NALU_TYPE_IDR)
       {
         if (p_Vid->recovery_point_found == 0)
         {
@@ -835,6 +816,7 @@ process_nalu:
 
       if (p_Vid->recovery_point_found == 0)
         break;
+			#endif
 
       currSlice->idr_flag = (nalu->nal_unit_type == NALU_TYPE_IDR);
       currSlice->nal_reference_idc = nalu->nal_reference_idc;
@@ -927,9 +909,9 @@ process_nalu:
       //assign_quant_params (currSlice);        
 
       // if primary slice is replaced with redundant slice, set the correct image type
-      if(currSlice->redundant_pic_cnt && p_Vid->Is_primary_correct==0 && p_Vid->Is_redundant_correct)
+      //if(currSlice->redundant_pic_cnt && p_Vid->Is_primary_correct==0 && p_Vid->Is_redundant_correct)
       {
-        p_Vid->dec_picture->slice_type = p_Vid->type;
+        //p_Vid->dec_picture->slice_type = p_Vid->type;
       }
 
       if(is_new_picture(p_Vid->dec_picture, currSlice, p_Vid->old_slice))
@@ -963,12 +945,12 @@ process_nalu:
       }
       // printf ("read_new_slice: returning %s\n", current_header == SOP?"SOP":"SOS");
       //FreeNALU(nalu);
-      p_Vid->recovery_point = 0;
+      //p_Vid->recovery_point = 0;
       return current_header;
       break;
     case NALU_TYPE_DPA:
-      if (p_Vid->recovery_point_found == 0)
-        break;
+      //if (p_Vid->recovery_point_found == 0)
+        //break;
 
       // read DP_A
       currSlice->dpB_NotPresent =1; 
@@ -1651,24 +1633,6 @@ void copy_dec_picture_JV( VideoParameters *p_Vid, StorablePicture *dst, Storable
   dst->frame_crop_top_offset    = src->frame_crop_top_offset;
   dst->frame_crop_bottom_offset = src->frame_crop_bottom_offset;
 
-#if (ENABLE_OUTPUT_TONEMAPPING)
-  // store the necessary tone mapping sei into StorablePicture structure
-  dst->seiHasTone_mapping = src->seiHasTone_mapping;
-
-  dst->seiHasTone_mapping    = src->seiHasTone_mapping;
-  dst->tone_mapping_model_id = src->tone_mapping_model_id;
-  dst->tonemapped_bit_depth  = src->tonemapped_bit_depth;
-  if( src->tone_mapping_lut )
-  {
-    int coded_data_bit_max = (1 << p_Vid->seiToneMapping->coded_data_bit_depth);
-    dst->tone_mapping_lut      = malloc(sizeof(int) * coded_data_bit_max);
-    if (NULL == dst->tone_mapping_lut)
-    {
-      no_mem_exit("copy_dec_picture_JV: tone_mapping_lut");
-    }
-    memcpy(dst->tone_mapping_lut, src->tone_mapping_lut, sizeof(imgpel) * coded_data_bit_max);
-  }
-#endif
 #endif
 }
 

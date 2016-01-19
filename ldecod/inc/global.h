@@ -37,10 +37,8 @@
 #include "ifunctions.h"
 #include "parsetcommon.h"
 #include "types.h"
-#include "io_image.h"
 #include "frame.h"
 #include "distortion.h"
-#include "io_video.h"
 
 typedef struct bit_stream_dec Bitstream;
 
@@ -544,7 +542,7 @@ typedef struct slice
   // for signalling to the neighbour logic that this is a deblocker call
   //byte mixedModeEdgeFlag;
   int max_mb_vmv_r;                          //!< maximum vertical motion vector range in luma quarter pixel units for the current level_idc
-  int ref_flag[17];                //!< 0: i-th previous frame is incorrect
+  //int ref_flag[17];                //!< 0: i-th previous frame is incorrect
 
   //int erc_mvperMB;
   Macroblock *mb_data;
@@ -783,32 +781,32 @@ typedef struct video_par
 
   Boolean first_sps;
   // random access point decoding
-  int recovery_point;
-  int recovery_point_found;
-  int recovery_frame_cnt;
-  int recovery_frame_num;
+  //int recovery_point;
+  //int recovery_point_found;
+  //int recovery_frame_cnt;
+  //int recovery_frame_num;
   //int recovery_poc;
 
   byte *buf;
   byte *ibuf;
 
-  ImageData imgData;           //!< Image data to be encoded (dummy variable for now)
-  ImageData imgData0;          //!< base layer input
-  ImageData imgData1;          //!< temp buffer for left de-muxed view
-  ImageData imgData2;          //!< temp buffer for right de-muxed view
+  //ImageData imgData;           //!< Image data to be encoded (dummy variable for now)
+  //ImageData imgData0;          //!< base layer input
+  //ImageData imgData1;          //!< temp buffer for left de-muxed view
+  //ImageData imgData2;          //!< temp buffer for right de-muxed view
 
   // Data needed for 3:2 pulldown or temporal interleaving
-  ImageData imgData32;           //!< Image data to be encoded
-  ImageData imgData4;
-  ImageData imgData5;
-  ImageData imgData6;
+  //ImageData imgData32;           //!< Image data to be encoded
+  //ImageData imgData4;
+  //ImageData imgData5;
+  //ImageData imgData6;
 
 
   // Redundant slices. Should be moved to another structure and allocated only if extended profile
   unsigned int previous_frame_num; //!< frame number of previous slice
   //!< non-zero: i-th previous frame is correct
-  int Is_primary_correct;          //!< if primary frame is correct, 0: incorrect
-  int Is_redundant_correct;        //!< if redundant frame is correct, 0:incorrect
+  //int Is_primary_correct;          //!< if primary frame is correct, 0: incorrect
+  //int Is_redundant_correct;        //!< if redundant frame is correct, 0:incorrect
 
   // Time 
   int64 tot_time;
@@ -870,11 +868,7 @@ typedef struct video_par
   int *MapUnitToSliceGroupMap;
   int  NumberOfSliceGroups;    // the number of slice groups -1 (0 == scan order, 7 == maximum)
 
-#if (ENABLE_OUTPUT_TONEMAPPING)
-  struct tone_mapping_struct_s *seiToneMapping;
-#endif
-
-  void (*buf2img)          (imgpel** imgX, unsigned char* buf, int size_x, int size_y, int o_size_x, int o_size_y, int symbol_size_in_bytes, int bitshift);
+  //void (*buf2img)          (imgpel** imgX, unsigned char* buf, int size_x, int size_y, int o_size_x, int o_size_y, int symbol_size_in_bytes, int bitshift);
   void (*getNeighbour)     (Macroblock *currMB, int xN, int yN, int mb_size[2], PixelPos *pix);
   void (*get_mb_block_pos) (BlockPos *PicPos, int mb_addr, short *x, short *y);
   //void (*GetStrengthVer)   (Macroblock *MbQ, int edge, int mvlimit, struct storable_picture *p);
@@ -885,7 +879,7 @@ typedef struct video_par
   //void (*EdgeLoopChromaHor)(imgpel** Img, byte *Strength, Macroblock *MbQ, int edge, int uv, struct storable_picture *p);
   void (*img2buf)          (imgpel** imgX, unsigned char* buf, int size_x, int size_y, int symbol_size_in_bytes, int crop_left, int crop_right, int crop_top, int crop_bottom, int iOutStride);
 
-  ImageData tempData3;
+  //ImageData tempData3;
   DecodedPicList *pDecOuputPic;
   //int iDeblockMode;  //0: deblock in picture, 1: deblock in slice;
   struct nalu_t *nalu;
@@ -898,7 +892,7 @@ typedef struct video_par
   int iPostProcess;
   int bFrameInit;
   pic_parameter_set_rbsp_t *pNextPPS;
-  int last_dec_poc;
+  //int last_dec_poc;
   int last_dec_view_id;
   int last_dec_layer_id;
   int dpb_layer_id;
@@ -988,9 +982,9 @@ typedef struct inp_par
 
   int  ProcessInput;
   int  enable_32_pulldown;
-  VideoDataFile input_file1;          //!< Input video file1
-  VideoDataFile input_file2;          //!< Input video file2
-  VideoDataFile input_file3;          //!< Input video file3
+  //VideoDataFile input_file1;          //!< Input video file1
+  //VideoDataFile input_file2;          //!< Input video file2
+  //VideoDataFile input_file3;          //!< Input video file3
 #if (MVC_EXTENSION_ENABLE)
   int  DecodeAllLayers;
 #endif

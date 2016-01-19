@@ -56,7 +56,6 @@
 #include "parset.h"
 #include "sei.h"
 #include "nalu.h"
-#include "img_io.h"
 #include "rtp.h"
 #include "h264decoder.h"
 #include "dec_statistics.h"
@@ -150,11 +149,6 @@ static void alloc_video_params( VideoParameters **p_Vid)
   }
   (*p_Vid)->global_init_done[0] = (*p_Vid)->global_init_done[1] = 0;
 
-#if (ENABLE_OUTPUT_TONEMAPPING)  
-  if (((*p_Vid)->seiToneMapping =  (ToneMappingSEI*)calloc(1, sizeof(ToneMappingSEI)))==NULL) 
-    no_mem_exit("alloc_video_params: (*p_Vid)->seiToneMapping");  
-#endif
-
   if(((*p_Vid)->ppSliceList = (Slice **) calloc(MAX_NUM_DECSLICES, sizeof(Slice *))) == NULL)
   {
     no_mem_exit("alloc_video_params: p_Vid->ppSliceList");
@@ -225,13 +219,6 @@ static void free_img( VideoParameters *p_Vid)
     {
       free_annex_b (&p_Vid->annex_b);
     }
-#if (ENABLE_OUTPUT_TONEMAPPING)  
-    if (p_Vid->seiToneMapping != NULL)
-    {
-      free (p_Vid->seiToneMapping);
-      p_Vid->seiToneMapping = NULL;
-    }
-#endif
 
     // Free new dpb layers
     for (i = 0; i < MAX_NUM_DPB_LAYERS; i++)
@@ -332,8 +319,8 @@ static void init(VideoParameters *p_Vid)  //!< video parameters
   //p_Vid->imgY_ref  = NULL;
   //p_Vid->imgUV_ref = NULL;
 
-  p_Vid->recovery_point = 0;
-  p_Vid->recovery_point_found = 0;
+  //p_Vid->recovery_point = 0;
+  //p_Vid->recovery_point_found = 0;
   //p_Vid->recovery_poc = 0x7fffffff; /* set to a max value */
 
   p_Vid->idr_psnr_number = p_Inp->ref_offset;
@@ -370,10 +357,6 @@ static void init(VideoParameters *p_Vid)  //!< video parameters
   //p_Vid->pending_output_state = FRAME;
   //p_Vid->recovery_flag = 0;
 
-
-#if (ENABLE_OUTPUT_TONEMAPPING)
-  init_tone_mapping_sei(p_Vid->seiToneMapping);
-#endif
 
 #if (MVC_EXTENSION_ENABLE)
   p_Vid->last_pic_width_in_mbs_minus1 = 0;
@@ -761,9 +744,9 @@ Slice *malloc_slice(InputParameters *p_Inp, VideoParameters *p_Vid)
   currSlice->anchor_pic_flag = 0;
 #endif
   // reference flag initialization
-  for(i=0;i<17;++i)
+  //for(i=0;i<17;++i)
   {
-    currSlice->ref_flag[i] = 1;
+    //currSlice->ref_flag[i] = 1;
   }
 	#if 0
   for (i = 0; i < 6; i++)

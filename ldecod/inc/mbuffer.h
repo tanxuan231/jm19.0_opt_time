@@ -50,7 +50,7 @@ typedef struct storable_picture
   int         bottom_poc;
   int         frame_poc;
   unsigned int  frame_num;
-  unsigned int  recovery_frame;
+  //unsigned int  recovery_frame;
 
   int         pic_num;
   int         long_term_pic_num;
@@ -146,7 +146,7 @@ typedef struct frame_store
   int       is_non_existent;
 
   unsigned  frame_num;
-  unsigned  recovery_frame;
+  //unsigned  recovery_frame;
 
   int       frame_num_wrap;
   int       long_term_frame_idx;
@@ -239,9 +239,6 @@ extern void             free_ref_pic_list_reordering_buffer(Slice *currSlice);
 extern void             fill_frame_num_gap(VideoParameters *p_Vid, Slice *pSlice);
 
 
-
-extern int init_img_data(VideoParameters *p_Vid, ImageData *p_ImgData, seq_parameter_set_rbsp_t *sps);
-extern void free_img_data(VideoParameters *p_Vid, ImageData *p_ImgData);
 extern void pad_dec_picture(VideoParameters *p_Vid, StorablePicture *dec_picture);
 extern void pad_buf(imgpel *pImgBuf, int iWidth, int iHeight, int iStride, int iPadX, int iPadY);
 extern void process_picture_in_dpb_s(VideoParameters *p_Vid, StorablePicture *p_pic);
