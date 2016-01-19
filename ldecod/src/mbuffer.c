@@ -115,23 +115,23 @@ StorablePicture* alloc_storable_picture(VideoParameters *p_Vid, PictureStructure
   }
 
   s->PicSizeInMbs = (size_x*size_y)/256;
-  s->imgUV = NULL;
+  //s->imgUV = NULL;
 
-  get_mem2Dpel_pad (&(s->imgY), size_y, size_x, p_Vid->iLumaPadY, p_Vid->iLumaPadX);
-  s->iLumaStride = size_x+2*p_Vid->iLumaPadX;
-  s->iLumaExpandedHeight = size_y+2*p_Vid->iLumaPadY;
+  //get_mem2Dpel_pad (&(s->imgY), size_y, size_x, p_Vid->iLumaPadY, p_Vid->iLumaPadX);
+  //s->iLumaStride = size_x+2*p_Vid->iLumaPadX;
+  //s->iLumaExpandedHeight = size_y+2*p_Vid->iLumaPadY;
 
-  if (active_sps->chroma_format_idc != YUV400)
+  //if (active_sps->chroma_format_idc != YUV400)
   {
-    get_mem3Dpel_pad(&(s->imgUV), 2, size_y_cr, size_x_cr, p_Vid->iChromaPadY, p_Vid->iChromaPadX);
+    //get_mem3Dpel_pad(&(s->imgUV), 2, size_y_cr, size_x_cr, p_Vid->iChromaPadY, p_Vid->iChromaPadX);
   }
 
-  s->iChromaStride =size_x_cr + 2*p_Vid->iChromaPadX;
-  s->iChromaExpandedHeight = size_y_cr + 2*p_Vid->iChromaPadY;
-  s->iLumaPadY   = p_Vid->iLumaPadY;
-  s->iLumaPadX   = p_Vid->iLumaPadX;
-  s->iChromaPadY = p_Vid->iChromaPadY;
-  s->iChromaPadX = p_Vid->iChromaPadX;
+  //s->iChromaStride =size_x_cr + 2*p_Vid->iChromaPadX;
+  //s->iChromaExpandedHeight = size_y_cr + 2*p_Vid->iChromaPadY;
+  //s->iLumaPadY   = p_Vid->iLumaPadY;
+  //s->iLumaPadX   = p_Vid->iLumaPadX;
+  //s->iChromaPadY = p_Vid->iChromaPadY;
+  //s->iChromaPadX = p_Vid->iChromaPadX;
 
   s->separate_colour_plane_flag = p_Vid->separate_colour_plane_flag;
 
@@ -281,16 +281,16 @@ void free_storable_picture(StorablePicture* p)
       }
     }
 
-    if (p->imgY)
+    //if (p->imgY)
     {
-      free_mem2Dpel_pad(p->imgY, p->iLumaPadY, p->iLumaPadX);
-      p->imgY = NULL;
+      //free_mem2Dpel_pad(p->imgY, p->iLumaPadY, p->iLumaPadX);
+      //p->imgY = NULL;
     }
 
-    if (p->imgUV)
+    //if (p->imgUV)
     {
-      free_mem3Dpel_pad(p->imgUV, 2, p->iChromaPadY, p->iChromaPadX);
-      p->imgUV=NULL;
+      //free_mem3Dpel_pad(p->imgUV, 2, p->iChromaPadY, p->iChromaPadX);
+      //p->imgUV=NULL;
     }
 
 

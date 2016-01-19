@@ -561,38 +561,6 @@ static void init_macroblock(Macroblock *currMB)
   set_read_comp_coeff_cavlc(currMB);
 }
 
-static void concealIPCMcoeffs(Macroblock *currMB)
-{
-  Slice *currSlice = currMB->p_Slice;
-  VideoParameters *p_Vid = currMB->p_Vid;
-  StorablePicture *dec_picture = currSlice->dec_picture;
-  int i, j, k;
-
-  for(i=0;i<MB_BLOCK_SIZE;++i)
-  {
-    for(j=0;j<MB_BLOCK_SIZE;++j)
-    {
-      currSlice->cof[0][i][j] = p_Vid->dc_pred_value_comp[0];
-      //currSlice->fcf[0][i][j] = p_Vid->dc_pred_value_comp[0];
-    }
-  }
-
-  if ((dec_picture->chroma_format_idc != YUV400) && (p_Vid->separate_colour_plane_flag == 0))
-  {
-    for (k = 0; k < 2; ++k)
-    {
-      for(i=0;i<p_Vid->mb_cr_size_y;++i)
-      {
-        for(j=0;j<p_Vid->mb_cr_size_x;++j)
-        {
-          currSlice->cof[k][i][j] = p_Vid->dc_pred_value_comp[k];
-          //currSlice->fcf[k][i][j] = p_Vid->dc_pred_value_comp[k];
-        }
-      }
-    }
-  }
-}
-
 /*!
  ************************************************************************
  * \brief
@@ -674,7 +642,7 @@ static void read_IPCM_coeffs_from_NAL(Slice *currSlice, struct datapartition_dec
       for(j=0;j<MB_BLOCK_SIZE;++j)
       {
         readSyntaxElement_FLC(&currSE, dP->bitstream);
-        currSlice->cof[0][i][j] = currSE.value1;
+        //currSlice->cof[0][i][j] = currSE.value1;
         //currSlice->fcf[0][i][j] = currSE.value1;
       }
     }
@@ -687,7 +655,7 @@ static void read_IPCM_coeffs_from_NAL(Slice *currSlice, struct datapartition_dec
         for(j=0;j<p_Vid->mb_cr_size_x;++j)
         {
           readSyntaxElement_FLC(&currSE, dP->bitstream);
-          currSlice->cof[1][i][j] = currSE.value1;
+          //currSlice->cof[1][i][j] = currSE.value1;
           //currSlice->fcf[1][i][j] = currSE.value1;
         }
       }
@@ -697,7 +665,7 @@ static void read_IPCM_coeffs_from_NAL(Slice *currSlice, struct datapartition_dec
         for(j=0;j<p_Vid->mb_cr_size_x;++j)
         {
           readSyntaxElement_FLC(&currSE, dP->bitstream);
-          currSlice->cof[2][i][j] = currSE.value1;
+          //currSlice->cof[2][i][j] = currSE.value1;
           //currSlice->fcf[2][i][j] = currSE.value1;
         }
       }
@@ -1075,7 +1043,7 @@ static void read_i_pcm_macroblock(Macroblock *currMB, const byte *partMap)
   // same category as MBTYPE
   if ( currSlice->dp_mode && currSlice->dpB_NotPresent )
   {
-    concealIPCMcoeffs(currMB);
+    //concealIPCMcoeffs(currMB);
   }
   else
   {
@@ -2155,7 +2123,7 @@ static void read_one_macroblock_b_slice_cabac(Macroblock *currMB)
 
     if (currSlice->cod_counter >= 0)
     {
-      currSlice->is_reset_coeff = TRUE;
+      //currSlice->is_reset_coeff = TRUE;
       currMB->cbp = 0;
       currSlice->cod_counter = -1;
     }

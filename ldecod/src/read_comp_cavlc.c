@@ -1438,7 +1438,7 @@ static void read_CBP_and_coeffs_from_NAL_CAVLC_420(Macroblock *currMB)
     {
       uv = ll>>1;          
       //===================== CHROMA DC YUV420 ======================
-      memset(currSlice->cofu, 0, 4 *sizeof(int));
+      //memset(currSlice->cofu, 0, 4 *sizeof(int));
       currSlice->read_coeff_4x4_CAVLC(currMB, CHROMA_DC, 0, 0, levarr, runarr, &numcoeff);        
     }     
   }

@@ -425,9 +425,9 @@ typedef struct slice
 
   int                 ei_flag;       //!< 0 if the partArr[0] contains valid information
   int                 qp;
-  int                 slice_qp_delta;
-  int                 qs;
-  int                 slice_qs_delta;
+  //int                 slice_qp_delta;
+  //int                 qs;
+  //int                 slice_qs_delta;
   int                 slice_type;    //!< slice type
   int                 model_number;  //!< cabac model number
   unsigned int        frame_num;   //frame_num for this frame
@@ -487,15 +487,15 @@ typedef struct slice
   int                 dpB_NotPresent;    //!< non-zero, if data partition B is lost
   int                 dpC_NotPresent;    //!< non-zero, if data partition C is lost
 
-  Boolean is_reset_coeff;
-  Boolean is_reset_coeff_cr;
-  imgpel  ***mb_pred;
-  imgpel  ***mb_rec;
-  int     ***mb_rres;
-  int     ***cof;
-  int     ***fcf;
+  //Boolean is_reset_coeff;
+  //Boolean is_reset_coeff_cr;
+  //imgpel  ***mb_pred;
+  //imgpel  ***mb_rec;
+  //int     ***mb_rres;
+  //int     ***cof;
+  //int     ***fcf;
 
-  int cofu[16];
+  //int cofu[16];
 
   //imgpel **tmp_block_l0;
   //imgpel **tmp_block_l1;  
@@ -633,10 +633,10 @@ typedef struct coding_par
   unsigned int PicHeightInMapUnits;
   unsigned int FrameHeightInMbs;
   unsigned int FrameSizeInMbs;
-  int iLumaPadX;
-  int iLumaPadY;
-  int iChromaPadX;
-  int iChromaPadY;
+  //int iLumaPadX;
+  //int iLumaPadY;
+  //int iChromaPadX;
+  //int iChromaPadY;
 
   int subpel_x;
   int subpel_y;
@@ -883,10 +883,10 @@ typedef struct video_par
   DecodedPicList *pDecOuputPic;
   //int iDeblockMode;  //0: deblock in picture, 1: deblock in slice;
   struct nalu_t *nalu;
-  int iLumaPadX;
-  int iLumaPadY;
-  int iChromaPadX;
-  int iChromaPadY;
+  //int iLumaPadX;
+  //int iLumaPadY;
+  //int iChromaPadX;
+  //int iChromaPadY;
   //control;
   //int bDeblockEnable;
   int iPostProcess;

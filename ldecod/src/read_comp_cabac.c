@@ -566,7 +566,7 @@ static void read_CBP_and_coeffs_from_NAL_CABAC_420(Macroblock *currMB)
     for (ll = 0; ll < 3; ll += 2)
     {
       //===================== CHROMA DC YUV420 ======================
-      memset(currSlice->cofu, 0, 4 *sizeof(int));
+      //memset(currSlice->cofu, 0, 4 *sizeof(int));
       //coef_ctr=-1;
 
       level = 1;

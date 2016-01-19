@@ -2422,7 +2422,7 @@ void readIPCM_CABAC(Slice *currSlice, struct datapartition_dec *dP)
 #if TRACE
       tracebits2("pcm_byte luma", bitdepth, val);
 #endif
-      currSlice->cof[0][i][j] = val;
+      //currSlice->cof[0][i][j] = val;
 
       bitoffset += bitdepth;
     }
@@ -2442,7 +2442,7 @@ void readIPCM_CABAC(Slice *currSlice, struct datapartition_dec *dP)
 #if TRACE
           tracebits2("pcm_byte chroma", bitdepth, val);
 #endif
-          currSlice->cof[uv][i][j] = val;
+          //currSlice->cof[uv][i][j] = val;
 
           bitoffset += bitdepth;
         }

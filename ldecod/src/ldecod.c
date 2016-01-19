@@ -367,10 +367,10 @@ static void init(VideoParameters *p_Vid)  //!< video parameters
   p_Vid->newframe = 0;
   p_Vid->previous_frame_num = 0;
 
-  p_Vid->iLumaPadX = MCBUF_LUMA_PAD_X;
-  p_Vid->iLumaPadY = MCBUF_LUMA_PAD_Y;
-  p_Vid->iChromaPadX = MCBUF_CHROMA_PAD_X;
-  p_Vid->iChromaPadY = MCBUF_CHROMA_PAD_Y;
+  //p_Vid->iLumaPadX = MCBUF_LUMA_PAD_X;
+  //p_Vid->iLumaPadY = MCBUF_LUMA_PAD_Y;
+  //p_Vid->iChromaPadX = MCBUF_CHROMA_PAD_X;
+  //p_Vid->iChromaPadY = MCBUF_CHROMA_PAD_Y;
 
   p_Vid->iPostProcess = 0;
   //p_Vid->bDeblockEnable = 0x3;
@@ -732,10 +732,10 @@ Slice *malloc_slice(InputParameters *p_Inp, VideoParameters *p_Vid)
   memory_size += get_mem3Dint(&(currSlice->wp_offset), 6, MAX_REFERENCE_PICTURES, 3);
   memory_size += get_mem4Dint(&(currSlice->wbp_weight), 6, MAX_REFERENCE_PICTURES, MAX_REFERENCE_PICTURES, 3);
 
-  memory_size += get_mem3Dpel(&(currSlice->mb_pred), MAX_PLANE, MB_BLOCK_SIZE, MB_BLOCK_SIZE);
-  memory_size += get_mem3Dpel(&(currSlice->mb_rec ), MAX_PLANE, MB_BLOCK_SIZE, MB_BLOCK_SIZE);
-  memory_size += get_mem3Dint(&(currSlice->mb_rres), MAX_PLANE, MB_BLOCK_SIZE, MB_BLOCK_SIZE);
-  memory_size += get_mem3Dint(&(currSlice->cof    ), MAX_PLANE, MB_BLOCK_SIZE, MB_BLOCK_SIZE);
+  //memory_size += get_mem3Dpel(&(currSlice->mb_pred), MAX_PLANE, MB_BLOCK_SIZE, MB_BLOCK_SIZE);
+  //memory_size += get_mem3Dpel(&(currSlice->mb_rec ), MAX_PLANE, MB_BLOCK_SIZE, MB_BLOCK_SIZE);
+  //memory_size += get_mem3Dint(&(currSlice->mb_rres), MAX_PLANE, MB_BLOCK_SIZE, MB_BLOCK_SIZE);
+  //memory_size += get_mem3Dint(&(currSlice->cof    ), MAX_PLANE, MB_BLOCK_SIZE, MB_BLOCK_SIZE);
   //  memory_size += get_mem3Dint(&(currSlice->fcf    ), MAX_PLANE, MB_BLOCK_SIZE, MB_BLOCK_SIZE);
   //allocate_pred_mem(currSlice);
 #if (MVC_EXTENSION_ENABLE)
@@ -782,13 +782,13 @@ static void free_slice(Slice *currSlice)
 {
   int i;
 
-  if (currSlice->slice_type != I_SLICE && currSlice->slice_type != SI_SLICE)
+  //if (currSlice->slice_type != I_SLICE && currSlice->slice_type != SI_SLICE)
   //free_ref_pic_list_reordering_buffer(currSlice);
   //free_pred_mem(currSlice);
-  free_mem3Dint(currSlice->cof    );
-  free_mem3Dint(currSlice->mb_rres);
-  free_mem3Dpel(currSlice->mb_rec );
-  free_mem3Dpel(currSlice->mb_pred);
+  //free_mem3Dint(currSlice->cof    );
+  //free_mem3Dint(currSlice->mb_rres);
+  //free_mem3Dpel(currSlice->mb_rec );
+  //free_mem3Dpel(currSlice->mb_pred);
 
   free_mem2Dwp (currSlice->wp_params );
   free_mem3Dint(currSlice->wp_weight );
@@ -1418,10 +1418,10 @@ void set_global_coding_par(VideoParameters *p_Vid, CodingParameters *cps)
 
     p_Vid->width = cps->width;
     p_Vid->height = cps->height;
-    p_Vid->iLumaPadX = MCBUF_LUMA_PAD_X;
-    p_Vid->iLumaPadY = MCBUF_LUMA_PAD_Y;
-    p_Vid->iChromaPadX = MCBUF_CHROMA_PAD_X;
-    p_Vid->iChromaPadY = MCBUF_CHROMA_PAD_Y;
+    //p_Vid->iLumaPadX = MCBUF_LUMA_PAD_X;
+    //p_Vid->iLumaPadY = MCBUF_LUMA_PAD_Y;
+    //p_Vid->iChromaPadX = MCBUF_CHROMA_PAD_X;
+    //p_Vid->iChromaPadY = MCBUF_CHROMA_PAD_Y;
     if (p_Vid->yuv_format == YUV420)
     {
       p_Vid->width_cr  = (p_Vid->width  >> 1);
@@ -1431,15 +1431,15 @@ void set_global_coding_par(VideoParameters *p_Vid, CodingParameters *cps)
     {
       p_Vid->width_cr  = (p_Vid->width >> 1);
       p_Vid->height_cr = p_Vid->height;
-      p_Vid->iChromaPadY = MCBUF_CHROMA_PAD_Y*2;
+      //p_Vid->iChromaPadY = MCBUF_CHROMA_PAD_Y*2;
     }
     else if (p_Vid->yuv_format == YUV444)
     {
       //YUV444
       p_Vid->width_cr = p_Vid->width;
       p_Vid->height_cr = p_Vid->height;
-      p_Vid->iChromaPadX = p_Vid->iLumaPadX;
-      p_Vid->iChromaPadY = p_Vid->iLumaPadY;
+      //p_Vid->iChromaPadX = p_Vid->iLumaPadX;
+      //p_Vid->iChromaPadY = p_Vid->iLumaPadY;
     }
 
     init_frext(p_Vid);

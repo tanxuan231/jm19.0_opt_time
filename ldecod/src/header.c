@@ -267,7 +267,7 @@ int RestOfSliceHeader(Slice *currSlice)
     currSlice->model_number = 0;
   }
 
-  currSlice->slice_qp_delta = val = read_se_v("SH: slice_qp_delta", currStream, &p_Dec->UsedBits);
+  val = read_se_v("SH: slice_qp_delta", currStream, &p_Dec->UsedBits);
   //currSlice->qp = p_Vid->qp = 26 + p_Vid->active_pps->pic_init_qp_minus26 + val;
   currSlice->qp = 26 + p_Vid->active_pps->pic_init_qp_minus26 + val;
 
@@ -280,10 +280,10 @@ int RestOfSliceHeader(Slice *currSlice)
     {
       currSlice->sp_switch = read_u_1 ("SH: sp_for_switch_flag", currStream, &p_Dec->UsedBits);
     }
-    currSlice->slice_qs_delta = val = read_se_v("SH: slice_qs_delta", currStream, &p_Dec->UsedBits);
-    currSlice->qs = 26 + p_Vid->active_pps->pic_init_qs_minus26 + val;    
-    if ((currSlice->qs < 0) || (currSlice->qs > 51))
-      error ("slice_qs_delta makes slice_qs_y out of range", 500);
+    val = read_se_v("SH: slice_qs_delta", currStream, &p_Dec->UsedBits);
+    //currSlice->qs = 26 + p_Vid->active_pps->pic_init_qs_minus26 + val;    
+    //if ((currSlice->qs < 0) || (currSlice->qs > 51))
+      //error ("slice_qs_delta makes slice_qs_y out of range", 500);
   }
 
 #if DPF_PARAM_DISP

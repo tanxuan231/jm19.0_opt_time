@@ -8,7 +8,7 @@
 
 #include "global.h"
 
-#define MAX_BUFFER_LEN 1024*1024*50	//20MB
+#define MAX_BUFFER_LEN 1024*1024*120	//20MB
 
 #define KEY_BIT_LEN_1 8
 #define KEY_BIT_LEN_3 3

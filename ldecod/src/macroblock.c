@@ -724,19 +724,19 @@ void start_macroblock(Slice *currSlice, Macroblock **currMB)
   fast_memset((*currMB)->s_cbp, 0, 3 * sizeof(CBPStructure));
 
   // initialize currSlice->mb_rres
-  if (currSlice->is_reset_coeff == FALSE)
+  //if (currSlice->is_reset_coeff == FALSE)
   {
-    fast_memset_zero( currSlice->mb_rres[0][0], MB_PIXELS * sizeof(int));
-    fast_memset_zero( currSlice->mb_rres[1][0], p_Vid->mb_cr_size * sizeof(int));
-    fast_memset_zero( currSlice->mb_rres[2][0], p_Vid->mb_cr_size * sizeof(int));
-    if (currSlice->is_reset_coeff_cr == FALSE)
+    //fast_memset_zero( currSlice->mb_rres[0][0], MB_PIXELS * sizeof(int));
+    //fast_memset_zero( currSlice->mb_rres[1][0], p_Vid->mb_cr_size * sizeof(int));
+    //fast_memset_zero( currSlice->mb_rres[2][0], p_Vid->mb_cr_size * sizeof(int));
+    //if (currSlice->is_reset_coeff_cr == FALSE)
     {
-      fast_memset_zero( currSlice->cof[0][0], 3 * MB_PIXELS * sizeof(int));
-      currSlice->is_reset_coeff_cr = TRUE;
+      //fast_memset_zero( currSlice->cof[0][0], 3 * MB_PIXELS * sizeof(int));
+      //currSlice->is_reset_coeff_cr = TRUE;
     }
-    else
+    //else
     {
-      fast_memset_zero( currSlice->cof[0][0], MB_PIXELS * sizeof(int));
+      //fast_memset_zero( currSlice->cof[0][0], MB_PIXELS * sizeof(int));
     }
     //fast_memset_zero( currSlice->cof[0][0], MB_PIXELS * sizeof(int));
     //fast_memset_zero( currSlice->cof[1][0], p_Vid->mb_cr_size * sizeof(int));
@@ -746,7 +746,7 @@ void start_macroblock(Slice *currSlice, Macroblock **currMB)
     //fast_memset(currSlice->fcf[1][0], 0, MB_PIXELS * sizeof(int));
     //fast_memset(currSlice->fcf[2][0], 0, MB_PIXELS * sizeof(int));
 
-    currSlice->is_reset_coeff = TRUE;
+    //currSlice->is_reset_coeff = TRUE;
   }
 
   // store filtering parameters for this MB

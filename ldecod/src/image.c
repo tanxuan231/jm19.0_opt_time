@@ -163,10 +163,10 @@ static void init_picture(VideoParameters *p_Vid, Slice *currSlice, InputParamete
   dec_picture->bottom_poc=currSlice->bottompoc;
   dec_picture->frame_poc=currSlice->framepoc;
   dec_picture->qp = currSlice->qp;
-  dec_picture->slice_qp_delta = currSlice->slice_qp_delta;
+  //dec_picture->slice_qp_delta = currSlice->slice_qp_delta;
   dec_picture->chroma_qp_offset[0] = p_Vid->active_pps->chroma_qp_index_offset;
   dec_picture->chroma_qp_offset[1] = p_Vid->active_pps->second_chroma_qp_index_offset;
-  dec_picture->iCodingType = currSlice->structure==FRAME? (currSlice->mb_aff_frame_flag? FRAME_MB_PAIR_CODING:FRAME_CODING): FIELD_CODING; //currSlice->slice_type;
+  //dec_picture->iCodingType = currSlice->structure==FRAME? (currSlice->mb_aff_frame_flag? FRAME_MB_PAIR_CODING:FRAME_CODING): FIELD_CODING; //currSlice->slice_type;
   dec_picture->layer_id = currSlice->layer_id;
 #if (MVC_EXTENSION_ENABLE)
   dec_picture->view_id         = currSlice->view_id;
@@ -324,36 +324,6 @@ static void update_mbaff_macroblock_data(imgpel **cur_img, imgpel (*temp)[16], i
   {
     memcpy((*cur_img++ + x0), *temp_evn++, width * sizeof(imgpel));
     memcpy((*cur_img++ + x0), *temp_odd++, width * sizeof(imgpel));
-  }
-}
-
-static void MbAffPostProc(VideoParameters *p_Vid)
-{
-
-  imgpel temp_buffer[32][16];
-
-  StorablePicture *dec_picture = p_Vid->dec_picture;
-  imgpel ** imgY  = dec_picture->imgY;
-  imgpel ***imgUV = dec_picture->imgUV;
-
-  short i, x0, y0;
-
-  for (i=0; i<(int)dec_picture->PicSizeInMbs; i+=2)
-  {
-    if (dec_picture->motion.mb_field[i])
-    {
-      get_mb_pos(p_Vid, i, p_Vid->mb_size[IS_LUMA], &x0, &y0);
-      update_mbaff_macroblock_data(imgY + y0, temp_buffer, x0, MB_BLOCK_SIZE, MB_BLOCK_SIZE);
-
-      if (dec_picture->chroma_format_idc != YUV400)
-      {
-        x0 = (short) ((x0 * p_Vid->mb_cr_size_x) >> 4);
-        y0 = (short) ((y0 * p_Vid->mb_cr_size_y) >> 4);
-
-        update_mbaff_macroblock_data(imgUV[0] + y0, temp_buffer, x0, p_Vid->mb_cr_size_x, p_Vid->mb_cr_size_y);
-        update_mbaff_macroblock_data(imgUV[1] + y0, temp_buffer, x0, p_Vid->mb_cr_size_x, p_Vid->mb_cr_size_y);
-      }
-    }
   }
 }
 
@@ -572,8 +542,8 @@ int decode_one_frame(DecoderParams *pDecoder)
     currSlice->num_dec_mb = 0;
     currSlice->coeff_ctr = -1;
     currSlice->pos       =  0;
-    currSlice->is_reset_coeff = FALSE;
-    currSlice->is_reset_coeff_cr = FALSE;
+    //currSlice->is_reset_coeff = FALSE;
+    //currSlice->is_reset_coeff_cr = FALSE;
 
     current_header = read_new_slice(currSlice);
     //init;
@@ -1181,84 +1151,6 @@ process_nalu:
     }
   }
 }
-
-void pad_buf(imgpel *pImgBuf, int iWidth, int iHeight, int iStride, int iPadX, int iPadY)
-{
-  int j;
-  imgpel *pLine0 = pImgBuf - iPadX, *pLine;
-#if (IMGTYPE==0)
-  int pad_width = iPadX + iWidth;
-  fast_memset(pImgBuf - iPadX, *pImgBuf, iPadX * sizeof(imgpel));
-  fast_memset(pImgBuf + iWidth, *(pImgBuf + iWidth - 1), iPadX * sizeof(imgpel));
-
-  pLine = pLine0 - iPadY * iStride;
-  
-  for(j = -iPadY; j < 0; j++)
-  {
-    fast_memcpy(pLine, pLine0, iStride * sizeof(imgpel));
-    pLine += iStride;
-  }
-
-  for(j = 1; j < iHeight; j++)
-  {
-    pLine += iStride;
-    fast_memset(pLine, *(pLine + iPadX), iPadX * sizeof(imgpel));
-    fast_memset(pLine + pad_width, *(pLine + pad_width - 1), iPadX * sizeof(imgpel));
-  }
-
-  pLine0 = pLine + iStride;
-    
-  for(j = iHeight; j < iHeight + iPadY; j++)
-  {
-    fast_memcpy(pLine0,  pLine, iStride * sizeof(imgpel));
-    pLine0 += iStride;
-  }
-#else
-  int i;
-  for(i=-iPadX; i<0; i++)
-    pImgBuf[i] = *pImgBuf;
-  for(i=0; i<iPadX; i++)
-    pImgBuf[i+iWidth] = *(pImgBuf+iWidth-1);
-
-  for(j=-iPadY; j<0; j++)
-    memcpy(pLine0+j*iStride, pLine0, iStride*sizeof(imgpel));
-  for(j=1; j<iHeight; j++)
-  {
-    pLine = pLine0 + j*iStride;
-    for(i=0; i<iPadX; i++)
-      pLine[i] = pLine[iPadX];
-    pLine += iPadX+iWidth-1;
-    for(i=1; i<iPadX+1; i++)
-      pLine[i] = *pLine;
-  }
-  pLine = pLine0 + (iHeight-1)*iStride;
-  for(j=iHeight; j<iHeight+iPadY; j++)
-    memcpy(pLine0+j*iStride,  pLine, iStride*sizeof(imgpel));
-#endif
-}
-
-void pad_dec_picture(VideoParameters *p_Vid, StorablePicture *dec_picture)
-{
-  int iPadX = p_Vid->iLumaPadX;
-  int iPadY = p_Vid->iLumaPadY;
-  int iWidth = dec_picture->size_x;
-  int iHeight = dec_picture->size_y;
-  int iStride = dec_picture->iLumaStride;
-
-  pad_buf(*dec_picture->imgY, iWidth, iHeight, iStride, iPadX, iPadY);
-
-  if(dec_picture->chroma_format_idc != YUV400) 
-  {
-    iPadX = p_Vid->iChromaPadX;
-    iPadY = p_Vid->iChromaPadY;
-    iWidth = dec_picture->size_x_cr;
-    iHeight = dec_picture->size_y_cr;
-    iStride = dec_picture->iChromaStride;
-    pad_buf(*dec_picture->imgUV[0], iWidth, iHeight, iStride, iPadX, iPadY);
-    pad_buf(*dec_picture->imgUV[1], iWidth, iHeight, iStride, iPadX, iPadY);
-  }
-}
-
 
 /*!
  ************************************************************************

@@ -70,12 +70,12 @@ typedef struct storable_picture
   int         mb_aff_frame_flag;
   unsigned    PicWidthInMbs;
   unsigned    PicSizeInMbs;
-  int         iLumaPadY, iLumaPadX;
-  int         iChromaPadY, iChromaPadX;
+  //int         iLumaPadY, iLumaPadX;
+  //int         iChromaPadY, iChromaPadX;
 
 
-  imgpel **     imgY;         //!< Y picture component
-  imgpel ***    imgUV;        //!< U and V picture components
+  //imgpel **     imgY;         //!< Y picture component
+  //imgpel ***    imgUV;        //!< U and V picture components
 
   struct pic_motion_params **mv_info;          //!< Motion info
   struct pic_motion_params **JVmv_info[MAX_PLANE];          //!< Motion info
@@ -102,11 +102,11 @@ typedef struct storable_picture
   int         frame_crop_bottom_offset;
   int         qp;
   int         chroma_qp_offset[2];
-  int         slice_qp_delta;
+  //int         slice_qp_delta;
   DecRefPicMarking_t *dec_ref_pic_marking_buffer;                    //!< stores the memory management control operations
 
   // picture error concealment
-  int         concealed_pic; //indicates if this is a concealed picture
+  //int         concealed_pic; //indicates if this is a concealed picture
   
   // variables for tone mapping
   int         seiHasTone_mapping;
@@ -120,13 +120,13 @@ typedef struct storable_picture
   int         inter_view_flag;
   int         anchor_pic_flag;
 #endif
-  int         iLumaStride;
-  int         iChromaStride;
-  int         iLumaExpandedHeight;
-  int         iChromaExpandedHeight;
-  imgpel **cur_imgY; // for more efficient get_block_luma
-  int no_ref;
-  int iCodingType;
+  //int         iLumaStride;
+  //int         iChromaStride;
+  //int         iLumaExpandedHeight;
+  //int         iChromaExpandedHeight;
+  //imgpel **cur_imgY; // for more efficient get_block_luma
+  //int no_ref;
+  //int iCodingType;
   //
   //char listXsize[MAX_NUM_SLICES][2];
   //struct storable_picture **listX[MAX_NUM_SLICES][2];
@@ -239,8 +239,6 @@ extern void             free_ref_pic_list_reordering_buffer(Slice *currSlice);
 extern void             fill_frame_num_gap(VideoParameters *p_Vid, Slice *pSlice);
 
 
-extern void pad_dec_picture(VideoParameters *p_Vid, StorablePicture *dec_picture);
-extern void pad_buf(imgpel *pImgBuf, int iWidth, int iHeight, int iStride, int iPadX, int iPadY);
 extern void process_picture_in_dpb_s(VideoParameters *p_Vid, StorablePicture *p_pic);
 extern StorablePicture * clone_storable_picture( VideoParameters *p_Vid, StorablePicture *p_pic );
 extern void store_proc_picture_in_dpb(DecodedPictureBuffer *p_Dpb, StorablePicture* p);

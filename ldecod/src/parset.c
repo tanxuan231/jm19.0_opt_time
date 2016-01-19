@@ -910,10 +910,10 @@ static void set_coding_par(seq_parameter_set_rbsp_t *sps, CodingParameters *cps)
   cps->width = cps->PicWidthInMbs * MB_BLOCK_SIZE;
   cps->height = cps->FrameHeightInMbs * MB_BLOCK_SIZE;  
 
-  cps->iLumaPadX = MCBUF_LUMA_PAD_X;
-  cps->iLumaPadY = MCBUF_LUMA_PAD_Y;
-  cps->iChromaPadX = MCBUF_CHROMA_PAD_X;
-  cps->iChromaPadY = MCBUF_CHROMA_PAD_Y;
+  //cps->iLumaPadX = MCBUF_LUMA_PAD_X;
+  //cps->iLumaPadY = MCBUF_LUMA_PAD_Y;
+  //cps->iChromaPadX = MCBUF_CHROMA_PAD_X;
+  //cps->iChromaPadY = MCBUF_CHROMA_PAD_Y;
   if (sps->chroma_format_idc == YUV420)
   {
     cps->width_cr  = (cps->width  >> 1);
@@ -923,15 +923,15 @@ static void set_coding_par(seq_parameter_set_rbsp_t *sps, CodingParameters *cps)
   {
     cps->width_cr  = (cps->width >> 1);
     cps->height_cr = cps->height;
-    cps->iChromaPadY = MCBUF_CHROMA_PAD_Y*2;
+    //cps->iChromaPadY = MCBUF_CHROMA_PAD_Y*2;
   }
   else if (sps->chroma_format_idc == YUV444)
   {
     //YUV444
     cps->width_cr = cps->width;
     cps->height_cr = cps->height;
-    cps->iChromaPadX = cps->iLumaPadX;
-    cps->iChromaPadY = cps->iLumaPadY;
+    //cps->iChromaPadX = cps->iLumaPadX;
+    //cps->iChromaPadY = cps->iLumaPadY;
   }
   //pel bitdepth init
   cps->bitdepth_luma_qp_scale   = 6 * (cps->bitdepth_luma - 8);
