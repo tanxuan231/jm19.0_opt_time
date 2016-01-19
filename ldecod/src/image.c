@@ -100,63 +100,6 @@ static void setup_buffers(VideoParameters *p_Vid, int layer_id)
   }
 }
 
-#if MVC_EXTENSION_ENABLE
-static void init_mvc_picture(Slice *currSlice)
-{
-  int i;
-  VideoParameters *p_Vid = currSlice->p_Vid;
-  DecodedPictureBuffer *p_Dpb = p_Vid->p_Dpb_layer[0];
-
-  StorablePicture *p_pic = NULL;
-
-  // find BL reconstructed picture
-  if (currSlice->structure  == FRAME)
-  {
-    for (i = 0; i < (int)p_Dpb->used_size/*size*/; i++)
-    {
-      FrameStore *fs = p_Dpb->fs[i];
-      if ((fs->frame->view_id == 0) && (fs->frame->frame_poc == currSlice->framepoc))
-      {
-        p_pic = fs->frame;
-        break;
-      }
-    }
-  }
-  else if (currSlice->structure  == TOP_FIELD)
-  {
-    for (i = 0; i < (int)p_Dpb->used_size/*size*/; i++)
-    {
-      FrameStore *fs = p_Dpb->fs[i];
-      if ((fs->top_field->view_id == 0) && (fs->top_field->top_poc == currSlice->toppoc))
-      {
-        p_pic = fs->top_field;
-        break;
-      }
-    }
-  }
-  else
-  {
-    for (i = 0; i < (int)p_Dpb->used_size/*size*/; i++)
-    {
-      FrameStore *fs = p_Dpb->fs[i];
-      if ((fs->bottom_field->view_id == 0) && (fs->bottom_field->bottom_poc == currSlice->bottompoc))
-      {
-        p_pic = fs->bottom_field;
-        break;
-      }
-    }
-  }
-  if(!p_pic)
-  {
-    p_Vid->bFrameInit = 0;
-  }
-  else
-  {
-    //process_picture_in_dpb_s(p_Vid, p_pic);
-    //store_proc_picture_in_dpb (currSlice->p_Dpb, clone_storable_picture(p_Vid, p_pic));
-  }
-}
-#endif
 
 /*!
  ************************************************************************
@@ -192,46 +135,6 @@ static void init_picture(VideoParameters *p_Vid, Slice *currSlice, InputParamete
   if (currSlice->idr_flag)
     p_Vid->recovery_frame_num = currSlice->frame_num;
 
-  if (p_Vid->recovery_point == 0 &&
-    currSlice->frame_num != p_Vid->pre_frame_num &&
-    currSlice->frame_num != (p_Vid->pre_frame_num + 1) % p_Vid->max_frame_num)
-  {
-#if 0		
-    if (active_sps->gaps_in_frame_num_value_allowed_flag == 0)
-    {
-      // picture error concealment
-      if(p_Inp->conceal_mode !=0)
-      {
-        if((currSlice->frame_num) < ((p_Vid->pre_frame_num + 1) % p_Vid->max_frame_num))
-        {
-          /* Conceal lost IDR frames and any frames immediately
-             following the IDR. Use frame copy for these since
-             lists cannot be formed correctly for motion copy*/
-          p_Vid->conceal_mode = 1;
-          p_Vid->IDR_concealment_flag = 1;
-          conceal_lost_frames(p_Dpb, currSlice);
-          //reset to original concealment mode for future drops
-          p_Vid->conceal_mode = p_Inp->conceal_mode;
-        }
-        else
-        {
-          //reset to original concealment mode for future drops
-          p_Vid->conceal_mode = p_Inp->conceal_mode;
-
-          p_Vid->IDR_concealment_flag = 0;
-          conceal_lost_frames(p_Dpb, currSlice);
-        }
-      }
-      else
-      {   /* Advanced Error Concealment would be called here to combat unintentional loss of pictures. */
-        error("An unintentional loss of pictures occurs! Exit\n", 100);
-      }
-    }
-#endif		
-    //if(p_Vid->conceal_mode == 0)
-      //fill_frame_num_gap(p_Vid, currSlice);
-  }
-
   if(currSlice->nal_reference_idc)
   {
     p_Vid->pre_frame_num = currSlice->frame_num;
@@ -240,7 +143,7 @@ static void init_picture(VideoParameters *p_Vid, Slice *currSlice, InputParamete
   //p_Vid->num_dec_mb = 0;
 
   //calculate POC
-  decode_poc(p_Vid, currSlice);
+  //decode_poc(p_Vid, currSlice);
 
   if (p_Vid->recovery_frame_num == (int) currSlice->frame_num && p_Vid->recovery_poc == 0x7fffffff)
     p_Vid->recovery_poc = currSlice->framepoc;
@@ -271,8 +174,8 @@ static void init_picture(VideoParameters *p_Vid, Slice *currSlice, InputParamete
   dec_picture->anchor_pic_flag = currSlice->anchor_pic_flag;
   if (dec_picture->view_id == 1)
   {
-    if((p_Vid->profile_idc == MVC_HIGH) || (p_Vid->profile_idc == STEREO_HIGH))
-      init_mvc_picture(currSlice);
+    //if((p_Vid->profile_idc == MVC_HIGH) || (p_Vid->profile_idc == STEREO_HIGH))
+      //init_mvc_picture(currSlice);
   }
 #endif
 

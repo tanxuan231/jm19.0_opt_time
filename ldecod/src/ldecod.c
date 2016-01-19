@@ -112,7 +112,7 @@ void error_KeyGen(char *text, int code)
 static void reset_dpb( VideoParameters *p_Vid, DecodedPictureBuffer *p_Dpb )
 {
   p_Dpb->p_Vid = p_Vid;
-  p_Dpb->init_done = 0;
+  //p_Dpb->init_done = 0;
 }
 /*!
  ***********************************************************************
@@ -1057,8 +1057,8 @@ void free_global_buffers(VideoParameters *p_Vid)
     p_Vid->dec_picture = NULL;
   }
 #if MVC_EXTENSION_ENABLE
-  if(p_Vid->active_subset_sps && p_Vid->active_subset_sps->sps.Valid && (p_Vid->active_subset_sps->sps.profile_idc==MVC_HIGH||p_Vid->active_subset_sps->sps.profile_idc == STEREO_HIGH))
-    free_img_data( p_Vid, &(p_Vid->tempData3) );
+  //if(p_Vid->active_subset_sps && p_Vid->active_subset_sps->sps.Valid && (p_Vid->active_subset_sps->sps.profile_idc==MVC_HIGH||p_Vid->active_subset_sps->sps.profile_idc == STEREO_HIGH))
+    //free_img_data( p_Vid, &(p_Vid->tempData3) );
 #endif
 }
 
@@ -1347,8 +1347,8 @@ int CloseDecoder()
   }
 #endif
 
-  for(i=0; i<MAX_NUM_DPB_LAYERS; i++)
-   free_dpb(pDecoder->p_Vid->p_Dpb_layer[i]);
+  //for(i=0; i<MAX_NUM_DPB_LAYERS; i++)
+   //free_dpb(pDecoder->p_Vid->p_Dpb_layer[i]);
 
 
   //uninit_out_buffer(pDecoder->p_Vid);

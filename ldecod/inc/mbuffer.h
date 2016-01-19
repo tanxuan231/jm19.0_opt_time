@@ -174,10 +174,10 @@ typedef struct decoded_picture_buffer
 {
   VideoParameters *p_Vid;
   InputParameters *p_Inp;
-  FrameStore  **fs;
-  FrameStore  **fs_ref;
-  FrameStore  **fs_ltref;
-  FrameStore  **fs_ilref; // inter-layer reference (for multi-layered codecs)
+  //FrameStore  **fs;
+  //FrameStore  **fs_ref;
+  //FrameStore  **fs_ltref;
+  //FrameStore  **fs_ilref; // inter-layer reference (for multi-layered codecs)
   unsigned      size;
   unsigned      used_size;
   unsigned      ref_frames_in_buffer;
@@ -189,7 +189,7 @@ typedef struct decoded_picture_buffer
   int           max_long_term_pic_idx;  
 
 
-  int           init_done;
+  //int           init_done;
   int           num_ref_frames;
 
   FrameStore   *last_picture;

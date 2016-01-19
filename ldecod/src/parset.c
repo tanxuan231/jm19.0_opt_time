@@ -1013,12 +1013,12 @@ void activate_sps (VideoParameters *p_Vid, seq_parameter_set_rbsp_t *sps)
     }
     p_Vid->active_sps = sps;
 
-    if(p_Vid->dpb_layer_id==0 && is_BL_profile(sps->profile_idc) && !p_Vid->p_Dpb_layer[0]->init_done)
+    if(p_Vid->dpb_layer_id==0 && is_BL_profile(sps->profile_idc) /*&& !p_Vid->p_Dpb_layer[0]->init_done*/)
     {
       set_coding_par(sps, p_Vid->p_EncodePar[0]);
       setup_layer_info( p_Vid, sps, p_Vid->p_LayerPar[0]);
     }
-    else if(p_Vid->dpb_layer_id==1 && is_EL_profile(sps->profile_idc) && !p_Vid->p_Dpb_layer[1]->init_done)
+    else if(p_Vid->dpb_layer_id==1 && is_EL_profile(sps->profile_idc) /*&& !p_Vid->p_Dpb_layer[1]->init_done*/)
     {
       set_coding_par(sps, p_Vid->p_EncodePar[1]);
       setup_layer_info(p_Vid, sps, p_Vid->p_LayerPar[1]);
@@ -1033,7 +1033,7 @@ void activate_sps (VideoParameters *p_Vid, seq_parameter_set_rbsp_t *sps)
     if (/*p_Vid->last_pic_width_in_mbs_minus1 != p_Vid->active_sps->pic_width_in_mbs_minus1
         || p_Vid->last_pic_height_in_map_units_minus1 != p_Vid->active_sps->pic_height_in_map_units_minus1
         || p_Vid->last_max_dec_frame_buffering != GetMaxDecFrameBuffering(p_Vid)
-        || */(p_Vid->last_profile_idc != p_Vid->active_sps->profile_idc && is_BL_profile(p_Vid->active_sps->profile_idc) && !p_Vid->p_Dpb_layer[0]->init_done /*&& is_BL_profile(p_Vid->last_profile_idc)*/))
+        || */(p_Vid->last_profile_idc != p_Vid->active_sps->profile_idc && is_BL_profile(p_Vid->active_sps->profile_idc) /*&& !p_Vid->p_Dpb_layer[0]->init_done *//*&& is_BL_profile(p_Vid->last_profile_idc)*/))
     {
       //init_frext(p_Vid);
       init_global_buffers(p_Vid, 0);
@@ -1043,25 +1043,25 @@ void activate_sps (VideoParameters *p_Vid, seq_parameter_set_rbsp_t *sps)
         //flush_dpb(p_Vid->p_Dpb_layer[0]);
         //flush_dpb(p_Vid->p_Dpb_layer[1]);
       }
-      init_dpb(p_Vid, p_Vid->p_Dpb_layer[0], 1);
+      //init_dpb(p_Vid, p_Vid->p_Dpb_layer[0], 1);
     }
     else if(p_Vid->last_profile_idc != p_Vid->active_sps->profile_idc && (
             is_MVC_profile(p_Vid->last_profile_idc) || is_MVC_profile(p_Vid->active_sps->profile_idc)
-            )&& (!p_Vid->p_Dpb_layer[1]->init_done))
+            ) /*&& (!p_Vid->p_Dpb_layer[1]->init_done)*/)
     {
-      assert(p_Vid->p_Dpb_layer[0]->init_done);
+      //assert(p_Vid->p_Dpb_layer[0]->init_done);
       //init_frext(p_Vid);
-      if(p_Vid->p_Dpb_layer[0]->init_done)
-      {
-        free_dpb(p_Vid->p_Dpb_layer[0]);
-        init_dpb(p_Vid, p_Vid->p_Dpb_layer[0], 1);
-      }
+      //if(p_Vid->p_Dpb_layer[0]->init_done)
+      //{
+        //free_dpb(p_Vid->p_Dpb_layer[0]);
+        //init_dpb(p_Vid, p_Vid->p_Dpb_layer[0], 1);
+      //}
       init_global_buffers(p_Vid, 1);
       // for now lets re_init both buffers. Later, we should only re_init appropriate one
       // Note that we seem to be doing this for every frame which seems not good.
       //re_init_dpb(p_Vid, p_Vid->p_Dpb_layer[1], 2);
 #if MVC_EXTENSION_ENABLE
-      init_dpb(p_Vid, p_Vid->p_Dpb_layer[1], 2);
+      //init_dpb(p_Vid, p_Vid->p_Dpb_layer[1], 2);
 #endif
       //p_Vid->last_profile_idc = p_Vid->active_sps->profile_idc;
     }
@@ -1080,7 +1080,7 @@ void activate_sps (VideoParameters *p_Vid, seq_parameter_set_rbsp_t *sps)
     {
       //flush_dpb(p_Vid->p_Dpb_layer[0]);
     }
-    init_dpb(p_Vid, p_Vid->p_Dpb_layer[0], 0);
+    //init_dpb(p_Vid, p_Vid->p_Dpb_layer[0], 0);
     // for now lets init both buffers. Later, we should only re_init appropriate one
     //init_dpb(p_Vid, p_Vid->p_Dpb_layer[0], 1);
     // obviously this is not needed her but just adding it for completeness
