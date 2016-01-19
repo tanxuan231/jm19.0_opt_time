@@ -18,7 +18,6 @@
 #include "macroblock.h"
 #include "cabac.h"
 #include "vlc.h"
-#include "transform.h"
 
 #if TRACE
 #define TRACE_STRING(s) strncpy(currSE.tracestring, s, TRACESTRING_SIZE)
