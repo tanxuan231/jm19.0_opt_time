@@ -150,7 +150,7 @@ static void alloc_video_params( VideoParameters **p_Vid)
   //(*p_Vid)->currentSlice = NULL;
   (*p_Vid)->pNextSlice = NULL;
   (*p_Vid)->nalu = AllocNALU(MAX_CODED_FRAME_SIZE);
-  (*p_Vid)->pDecOuputPic = (DecodedPicList *)calloc(1, sizeof(DecodedPicList));
+  //(*p_Vid)->pDecOuputPic = (DecodedPicList *)calloc(1, sizeof(DecodedPicList));
   (*p_Vid)->pNextPPS = AllocPPS();
   (*p_Vid)->first_sps = TRUE;
 }
@@ -262,7 +262,7 @@ static void free_img( VideoParameters *p_Vid)
       p_Vid->nalu=NULL;
     }
     //free memory;
-    FreeDecPicList(p_Vid->pDecOuputPic);
+    //FreeDecPicList(p_Vid->pDecOuputPic);
     if(p_Vid->pNextPPS)
     {
       FreePPS(p_Vid->pNextPPS);
@@ -277,23 +277,6 @@ static void free_img( VideoParameters *p_Vid)
 
     free (p_Vid);
     p_Vid = NULL;
-  }
-}
-
-void FreeDecPicList(DecodedPicList *pDecPicList)
-{
-  while(pDecPicList)
-  {
-    DecodedPicList *pPicNext = pDecPicList->pNext;
-    if(pDecPicList->pY)
-    {
-      free(pDecPicList->pY);
-      pDecPicList->pY = NULL;
-      pDecPicList->pU = NULL;
-      pDecPicList->pV = NULL;
-    }
-    free(pDecPicList);
-    pDecPicList = pPicNext;
   }
 }
 
@@ -1049,6 +1032,7 @@ void report_stats_on_error(void)
 
 void ClearDecPicList(VideoParameters *p_Vid)
 {
+#if 0	
   DecodedPicList *pPic = p_Vid->pDecOuputPic, *pPrior = NULL;
   //find the head first;
   while(pPic && !pPic->bValid)
@@ -1068,35 +1052,7 @@ void ClearDecPicList(VideoParameters *p_Vid)
     p_Vid->pDecOuputPic = pPic;
     pPrior->pNext = NULL;
   }
-}
-
-DecodedPicList *get_one_avail_dec_pic_from_list(DecodedPicList *pDecPicList, int b3D, int view_id)
-{
-  DecodedPicList *pPic = pDecPicList, *pPrior = NULL;
-  if(b3D)
-  {
-    while(pPic && (pPic->bValid &(1<<view_id)))
-    {
-      pPrior = pPic;
-      pPic = pPic->pNext;
-    }
-  }
-  else
-  {
-    while(pPic && (pPic->bValid))
-    {
-      pPrior = pPic;
-      pPic = pPic->pNext;
-    }
-  }
-
-  if(!pPic)
-  {
-    pPic = (DecodedPicList *)calloc(1, sizeof(*pPic));
-    pPrior->pNext = pPic;
-  }
-
-  return pPic;
+#endif
 }
 /************************************
 Interface: OpenDecoder
@@ -1119,9 +1075,9 @@ int OpenDecoder(InputParameters *p_Inp)
   pDecoder = p_Dec;
   //Configure (pDecoder->p_Vid, pDecoder->p_Inp, argc, argv);
   memcpy(pDecoder->p_Inp, p_Inp, sizeof(InputParameters));
-  pDecoder->p_Vid->conceal_mode = p_Inp->conceal_mode;
-  pDecoder->p_Vid->ref_poc_gap = p_Inp->ref_poc_gap;
-  pDecoder->p_Vid->poc_gap = p_Inp->poc_gap;
+  //pDecoder->p_Vid->conceal_mode = p_Inp->conceal_mode;
+  //pDecoder->p_Vid->ref_poc_gap = p_Inp->ref_poc_gap;
+  //pDecoder->p_Vid->poc_gap = p_Inp->poc_gap;
 #if TRACE
   if ((pDecoder->p_trace = fopen(TRACEFILE,"w"))==0)             // append new statistic at the end
   {
@@ -1224,7 +1180,7 @@ Return:
        1: Finished decoding;
        others: Error Code;
 ************************************/
-int DecodeOneFrame(DecodedPicList **ppDecPicList)
+int DecodeOneFrame(/*DecodedPicList **ppDecPicList*/)
 {
   int iRet;
   DecoderParams *pDecoder = p_Dec;
@@ -1243,11 +1199,11 @@ int DecodeOneFrame(DecodedPicList **ppDecPicList)
     iRet |= DEC_ERRMASK;
   }
 
-  *ppDecPicList = pDecoder->p_Vid->pDecOuputPic;
+  //*ppDecPicList = pDecoder->p_Vid->pDecOuputPic;
   return iRet;
 }
 
-int FinitDecoder(DecodedPicList **ppDecPicList)
+int FinitDecoder(/*DecodedPicList **ppDecPicList*/)
 {
   DecoderParams *pDecoder = p_Dec;
   if(!pDecoder)
@@ -1268,7 +1224,7 @@ int FinitDecoder(DecodedPicList **ppDecPicList)
   }
   pDecoder->p_Vid->newframe = 0;
   pDecoder->p_Vid->previous_frame_num = 0;
-  *ppDecPicList = pDecoder->p_Vid->pDecOuputPic;
+  //*ppDecPicList = pDecoder->p_Vid->pDecOuputPic;
   return DEC_GEN_NOERR;
 }
 

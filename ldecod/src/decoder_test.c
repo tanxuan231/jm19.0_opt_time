@@ -57,143 +57,6 @@ static void Configure(InputParameters *p_Inp, int ac, char *av[])
   
 }
 
-/*********************************************************
-if bOutputAllFrames is 1, then output all valid frames to file onetime; 
-else output the first valid frame and move the buffer to the end of list;
-*********************************************************/
-static int WriteOneFrame(DecodedPicList *pDecPic, int hFileOutput0, int hFileOutput1, int bOutputAllFrames)
-{
-  int iOutputFrame=0;
-  DecodedPicList *pPic = pDecPic;
-
-  if(pPic && (((pPic->iYUVStorageFormat==2) && pPic->bValid==3) || ((pPic->iYUVStorageFormat!=2) && pPic->bValid==1)) )
-  {
-    int i, iWidth, iHeight, iStride, iWidthUV, iHeightUV, iStrideUV;
-    byte *pbBuf;    
-    int hFileOutput;
-    int res;
-
-    iWidth = pPic->iWidth*((pPic->iBitDepth+7)>>3);
-    iHeight = pPic->iHeight;
-    iStride = pPic->iYBufStride;
-    if(pPic->iYUVFormat != YUV444)
-      iWidthUV = pPic->iWidth>>1;
-    else
-      iWidthUV = pPic->iWidth;
-    if(pPic->iYUVFormat == YUV420)
-      iHeightUV = pPic->iHeight>>1;
-    else
-      iHeightUV = pPic->iHeight;
-    iWidthUV *= ((pPic->iBitDepth+7)>>3);
-    iStrideUV = pPic->iUVBufStride;
-    
-    do
-    {
-      if(pPic->iYUVStorageFormat==2)
-        hFileOutput = (pPic->iViewId&0xffff)? hFileOutput1 : hFileOutput0;
-      else
-        hFileOutput = hFileOutput0;
-      if(hFileOutput >=0)
-      {
-        //Y;
-        pbBuf = pPic->pY;
-        for(i=0; i<iHeight; i++)
-        {
-          res = write(hFileOutput, pbBuf+i*iStride, iWidth);
-          if (-1==res)
-          {
-            error ("error writing to output file.", 600);
-          }
-        }
-
-        if(pPic->iYUVFormat != YUV400)
-        {
-         //U;
-         pbBuf = pPic->pU;
-         for(i=0; i<iHeightUV; i++)
-         {
-           res = write(hFileOutput, pbBuf+i*iStrideUV, iWidthUV);
-           if (-1==res)
-           {
-             error ("error writing to output file.", 600);
-           }
-}
-         //V;
-         pbBuf = pPic->pV;
-         for(i=0; i<iHeightUV; i++)
-         {
-           res = write(hFileOutput, pbBuf+i*iStrideUV, iWidthUV);
-           if (-1==res)
-           {
-             error ("error writing to output file.", 600);
-           }
-         }
-        }
-
-        iOutputFrame++;
-      }
-
-      if (pPic->iYUVStorageFormat == 2)
-      {
-        hFileOutput = ((pPic->iViewId>>16)&0xffff)? hFileOutput1 : hFileOutput0;
-        if(hFileOutput>=0)
-        {
-          int iPicSize =iHeight*iStride;
-          //Y;
-          pbBuf = pPic->pY+iPicSize;
-          for(i=0; i<iHeight; i++)
-          {
-            res = write(hFileOutput, pbBuf+i*iStride, iWidth);
-            if (-1==res)
-            {
-              error ("error writing to output file.", 600);
-            }
-          }
-
-          if(pPic->iYUVFormat != YUV400)
-          {
-           iPicSize = iHeightUV*iStrideUV;
-           //U;
-           pbBuf = pPic->pU+iPicSize;
-           for(i=0; i<iHeightUV; i++)
-           {
-             res = write(hFileOutput, pbBuf+i*iStrideUV, iWidthUV);
-             if (-1==res)
-             {
-               error ("error writing to output file.", 600);
-             }
-           }
-           //V;
-           pbBuf = pPic->pV+iPicSize;
-           for(i=0; i<iHeightUV; i++)
-           {
-             res = write(hFileOutput, pbBuf+i*iStrideUV, iWidthUV);
-             if (-1==res)
-             {
-               error ("error writing to output file.", 600);
-             }
-           }
-          }
-
-          iOutputFrame++;
-        }
-      }
-
-#if PRINT_OUTPUT_POC
-      fprintf(stdout, "\nOutput frame: %d/%d\n", pPic->iPOC, pPic->iViewId);
-#endif
-      pPic->bValid = 0;
-      pPic = pPic->pNext;
-    }while(pPic != NULL && pPic->bValid && bOutputAllFrames);
-  }
-#if PRINT_OUTPUT_POC
-  else
-    fprintf(stdout, "\nNone frame output\n");
-#endif
-
-  return iOutputFrame;
-}
-
 void get_KeyFileName(char* path, char* filename)
 {
 	int len = strlen(path);
@@ -305,7 +168,7 @@ int main(int argc, char **argv)
 	gettimeofday( &start, NULL );
 	
   int iRet;
-  DecodedPicList *pDecPicList;
+  //DecodedPicList *pDecPicList;
   int hFileDecOutput0=-1, hFileDecOutput1=-1;
   int iFramesOutput=0, iFramesDecoded=0;
   InputParameters InputParams;
@@ -335,7 +198,7 @@ int main(int argc, char **argv)
   //decoding;
   do
   {
-    iRet = DecodeOneFrame(&pDecPicList);
+    iRet = DecodeOneFrame();
     if(iRet==DEC_EOS || iRet==DEC_SUCCEED)
     {
       //process the decoded picture, output or display;
@@ -359,7 +222,7 @@ int main(int argc, char **argv)
 		Encrypt(g_pKeyUnitBuffer, g_KeyUnitIdx);
 
 	close_KeyFile();
-  iRet = FinitDecoder(&pDecPicList);
+  iRet = FinitDecoder();
   //iFramesOutput += WriteOneFrame(pDecPicList, hFileDecOutput0, hFileDecOutput1 , 1);
   iRet = CloseDecoder();
 

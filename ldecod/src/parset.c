@@ -847,15 +847,6 @@ void reset_format_info(seq_parameter_set_rbsp_t *sps, VideoParameters *p_Vid, Fr
   }
 }
 
-//static void setup_layer_info(VideoParameters *p_Vid, seq_parameter_set_rbsp_t *sps, LayerParameters *p_Lps)
-//{
-  //int layer_id = p_Lps->layer_id;
-  //p_Lps->p_Vid = p_Vid;
-  //p_Lps->p_Cps = p_Vid->p_EncodePar[layer_id];
-  //p_Lps->p_SPS = sps;
-  //p_Lps->p_Dpb = p_Vid->p_Dpb_layer[layer_id];
-//}
-
 static void set_coding_par(seq_parameter_set_rbsp_t *sps, CodingParameters *cps)
 {
   // maximum vertical motion vector range in luma quarter pixel units

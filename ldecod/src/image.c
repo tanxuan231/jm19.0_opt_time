@@ -602,27 +602,6 @@ int64 compute_SSE(imgpel **imgRef, imgpel **imgSrc, int xRef, int xSrc, int ySiz
 /*!
  ************************************************************************
  * \brief
- *    Calculate the value of frame_no
- ************************************************************************
-*/
-void calculate_frame_no(VideoParameters *p_Vid, StorablePicture *p)
-{
-  InputParameters *p_Inp = p_Vid->p_Inp;
-  // calculate frame number
-  int  psnrPOC = p_Vid->active_sps->mb_adaptive_frame_field_flag ? p->poc /(p_Inp->poc_scale) : p->poc/(p_Inp->poc_scale);
-  
-  if (psnrPOC==0)// && p_Vid->psnr_number)
-  {
-    p_Vid->idr_psnr_number = p_Vid->g_nFrame * p_Vid->ref_poc_gap/(p_Inp->poc_scale);
-  }
-  p_Vid->psnr_number = imax(p_Vid->psnr_number, p_Vid->idr_psnr_number+psnrPOC);
-
-  p_Vid->frame_no = p_Vid->idr_psnr_number + psnrPOC;
-}
-
-/*!
- ************************************************************************
- * \brief
  *    Reads new slice from bit_stream_dec
  ************************************************************************
  */
