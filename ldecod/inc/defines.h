@@ -30,6 +30,9 @@
 #endif
 
 #define H264_KEY_CREATE 0
+#define MAX_THREAD_DO_KEY_UNIT_CNT 2000//1000000 //每个线程处理的最大key unit个数
+#define MAX_THREAD_NUM  50	//最大线程个数
+
 
 #define JM                  "19 (FRExt)"
 #define VERSION             "19.0"

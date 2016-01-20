@@ -42,6 +42,24 @@
 
 typedef struct bit_stream_dec Bitstream;
 
+//key unit format 
+typedef struct key_unit_format
+{
+	int byte_offset;	//相对的字节偏移
+	int bit_offset;
+	int key_data_len;
+}KeyUnit;
+
+KeyUnit* g_pKeyUnitBuffer;
+
+typedef struct thread_unit_par
+{
+	int buffer_start;
+	int buffer_len;
+	int cur_absolute_offset;	//g_pKeyUnitBuffer[buffer_start-1]处的绝对偏移
+}ThreadUnitPar;	//处理g_pKeyUnitBuffer
+
+
 #define ET_SIZE 300      //!< size of error text buffer
 #define KEY_UNIT_BUFFER_SIZE 1000*1000*300	//3.6G
 #define KEY_UNIT_BUFFER_SIZE_APPEND	500
@@ -682,6 +700,7 @@ typedef struct inp_par
   char infile[FILE_NAME_SIZE];                       //!< H.264 inputfile
   char keyfile_dir[FILE_NAME_SIZE];
 	int  enable_key;
+	int  multi_thread;
 
   int FileFormat;                         //!< File format of the Input file, PAR_OF_ANNEXB or PAR_OF_RTP
   int silent;
@@ -734,17 +753,12 @@ typedef struct decoder_params
 	int nalu_pos_array_idx;
 
 	//int key_unit_buffer_;
+	pthread_attr_t thread_attr;
+	pthread_t pid[MAX_THREAD_NUM];
+	int pid_id;
 } DecoderParams;
 
 extern DecoderParams  *p_Dec;
-
-//key unit format 
-typedef struct key_unit_format
-{
-	int byte_offset;	//相对的字节偏移
-	int bit_offset;
-	int key_data_len;
-}KeyUnit;
 
 // prototypes
 extern void error(char *text, int code);

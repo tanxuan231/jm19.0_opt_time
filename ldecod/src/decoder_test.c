@@ -14,6 +14,7 @@
 #include "contributors.h"
 
 #include <sys/stat.h>
+#include <pthread.h> 
 
 //#include "global.h"
 #include "win32.h"
@@ -99,13 +100,6 @@ void open_KeyFile()
 	}
 }
 
-void close_KeyFile()
-{
-	if(p_Dec->p_Inp->enable_key && p_Dec->p_KeyFile)
-		fclose(p_Dec->p_KeyFile);
-}
-
-KeyUnit* g_pKeyUnitBuffer;
 int g_KeyUnitIdx = 0;
 int g_KeyUnitBufferSize = 0;
 
@@ -136,7 +130,8 @@ void init_GenKeyPar()
 {
 	if(!p_Dec->p_Inp->enable_key)
 		return;
-	
+
+	open_KeyFile();	
 	p_Dec->nalu_pos_array = calloc(NALU_NUM_IN_BITSTREAM,sizeof(int));
 	if(!p_Dec->nalu_pos_array)
 	{
@@ -151,14 +146,41 @@ void init_GenKeyPar()
 		exit(1);
 	}
 	g_KeyUnitBufferSize = KEY_UNIT_BUFFER_SIZE;
+
+	/*********use multi thread********/
+	if(p_Dec->p_Inp->multi_thread == 1)
+	{
+		int ret;
+			
+		ret = pthread_attr_init(&p_Dec->thread_attr);
+		if (ret != 0)
+		{
+			printf("ptread_atrr_init error!\n");
+			exit(1);
+		}
+	}
 }
+
+void deinit_GenKeyPar()
+{
+	if(!p_Dec->p_Inp->enable_key)
+		return;
+	
+	free(p_Dec->nalu_pos_array);		
+	free(g_pKeyUnitBuffer);
+
+	if(p_Dec->p_KeyFile)
+		fclose(p_Dec->p_KeyFile);
+}	
+extern int g_ThreadParCurPos;
+extern int g_KeyUnitBufferLen;
 /*!
  ***********************************************************************
  * \brief
  *    main function for JM decoder
  ***********************************************************************
  */
-extern int Encrypt(KeyUnit *pKeyUnit,int UnitNum); 
+extern int Encrypt(int UnitNum); 
 int main(int argc, char **argv)
 {
 	struct timeval start, end1, end2;
@@ -179,7 +201,6 @@ int main(int argc, char **argv)
     return -1; //failed;
   }
 
-	open_KeyFile();	
 	init_GenKeyPar();
 	
   //decoding;
@@ -203,18 +224,67 @@ int main(int argc, char **argv)
 
 	//encrypt the H.264 file
 	printf("key unit count: %d\n",g_KeyUnitIdx);
-	if(p_Dec->p_Inp->enable_key && g_pKeyUnitBuffer && g_KeyUnitIdx > 0)
-		Encrypt(g_pKeyUnitBuffer, g_KeyUnitIdx);
 
-	close_KeyFile();
-  iRet = FinitDecoder();
-  iRet = CloseDecoder();
+	int ret;
+	void* status;
+	pthread_attr_t attr;
 
-	//print_KeyUnit();
+	/*********use multi thread********/
+	if(p_Dec->p_Inp->multi_thread == 1)
+	{
+		pthread_attr_t attr;
+						
+		ret = pthread_attr_destroy(&p_Dec->thread_attr);
+		if (ret != 0)
+		{
+			printf("pthread_attr_destroy error: %s\n",strerror(ret));
+		}
+	}
+
+	ThreadUnitPar* par = NULL;
+	par = (ThreadUnitPar*)malloc(sizeof(ThreadUnitPar));
+	if(!par)
+	{
+		printf("malloc failed!\n");
+		exit(1);
+	}
+	memset(par,0,sizeof(ThreadUnitPar));
+	
+	if(p_Dec->p_Inp->multi_thread)  
+	{
+		//deal with the rest KU buffer data
+		if(g_KeyUnitBufferLen <= MAX_THREAD_DO_KEY_UNIT_CNT)
+		{
+			par->buffer_start = g_KeyUnitIdx - g_KeyUnitBufferLen;
+			par->buffer_len = g_KeyUnitBufferLen;
+			par->cur_absolute_offset = g_ThreadParCurPos;
+			Encrypt(par);
+		}
+
+		int i;
+		for(i = 0; i < p_Dec->pid_id; ++i)
+		{
+			pthread_join(p_Dec->pid[i], &status);
+		}
+	}
+	else
+	{		
+		par->buffer_start = 0;
+		par->buffer_len = g_KeyUnitIdx;
+		par->cur_absolute_offset = 0;
+		Encrypt(par);
+	}
 	
 	gettimeofday( &end2, NULL );
 	time_us2 = 1000000 * ( end2.tv_sec - end1.tv_sec ) + end2.tv_usec - end1.tv_usec;
 	printf("run time1: %ld us\n",time_us2);
+
+	//print_KeyUnit();
+
+	deinit_GenKeyPar();
+  iRet = FinitDecoder();
+  iRet = CloseDecoder();	
+	
 	printf("run time(all): %ld us\n", time_us1+time_us2);
   return 0;
 }

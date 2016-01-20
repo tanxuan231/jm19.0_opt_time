@@ -30,6 +30,7 @@ Mapping Map[] = {
     {"InputFile",                &cfgparams.infile,                       1,   0.0,                       0,  0.0,              0.0,             FILE_NAME_SIZE, },
 		{"KeyFileDir", 							 &cfgparams.keyfile_dir, 									1,	 0.0, 											0,	0.0,							0.0,						 FILE_NAME_SIZE, },			
 		{"EnableKey",                &cfgparams.enable_key,                   0,   1.0,                       1,  0.0,              1.0,                             },			
+		{"MultiThread",              &cfgparams.multi_thread,                 0,   1.0,                       1,  0.0,              1.0,                             },						
     {"FileFormat",               &cfgparams.FileFormat,                   0,   0.0,                       1,  0.0,              1.0,                             },
     {"DisplayDecParams",         &cfgparams.bDisplayDecParams,            0,   1.0,                       1,  0.0,              1.0,                             },
     {"Silent",                   &cfgparams.silent,                       0,   0.0,                       1,  0.0,              1.0,                             },

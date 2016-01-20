@@ -212,13 +212,13 @@ int Generate_Key_Get_Changed_ByteNum(int BitLength,int BitOffset,int *ChangedByt
 	return 0;
 }
 
-int Encrypt(KeyUnit *pKeyUnit,int UnitNum)
+void Encrypt(int UnitNum)
 {
 	int i=0;
 
 	for(i=0;i<UnitNum;i++)
 	{
-		Generate_Key(pKeyUnit[i].byte_offset,pKeyUnit[i].bit_offset,pKeyUnit[i].key_data_len,0);	
+		Generate_Key(g_pKeyUnitBuffer[i].byte_offset,g_pKeyUnitBuffer[i].bit_offset,g_pKeyUnitBuffer[i].key_data_len,0);	
 	}
 	if(i == UnitNum)
 		Generate_Key(0,0,0,1);

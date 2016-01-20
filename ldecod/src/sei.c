@@ -1580,10 +1580,10 @@ void interpret_picture_timing_info( byte* payload, int size, VideoParameters *p_
 {
   seq_parameter_set_rbsp_t *active_sps = p_Vid->active_sps;
 
-  int cpb_removal_delay, dpb_output_delay, pic_struct_present_flag, pic_struct;
+  int pic_struct_present_flag, pic_struct;
   int clock_timestamp_flag;
-  int ct_type, nuit_field_based_flag, counting_type, full_timestamp_flag, discontinuity_flag, cnt_dropped_flag, nframes;
-  int seconds_value, minutes_value, hours_value, seconds_flag, minutes_flag, hours_flag, time_offset;
+  int full_timestamp_flag;
+  int seconds_flag, minutes_flag, hours_flag;
   int NumClockTs = 0;
   int i;
 
@@ -1606,11 +1606,6 @@ void interpret_picture_timing_info( byte* payload, int size, VideoParameters *p_
   buf->frame_bitoffset = 0;
 
   p_Dec->UsedBits = 0;
-
-
-#ifdef PRINT_PICTURE_TIMING_INFO
-  printf("Picture timing SEI message\n");
-#endif
 
   // CpbDpbDelaysPresentFlag can also be set "by some means not specified in this Recommendation | International Standard"
   CpbDpbDelaysPresentFlag =  (Boolean) (active_sps->vui_parameters_present_flag
@@ -1636,12 +1631,8 @@ void interpret_picture_timing_info( byte* payload, int size, VideoParameters *p_
     if ((active_sps->vui_seq_parameters.nal_hrd_parameters_present_flag)||
       (active_sps->vui_seq_parameters.vcl_hrd_parameters_present_flag))
     {
-      cpb_removal_delay = read_u_v(cpb_removal_len, "SEI: cpb_removal_delay" , buf, &p_Dec->UsedBits);
-      dpb_output_delay  = read_u_v(dpb_output_len,  "SEI: dpb_output_delay"  , buf, &p_Dec->UsedBits);
-#ifdef PRINT_PICTURE_TIMING_INFO
-      printf("cpb_removal_delay = %d\n",cpb_removal_delay);
-      printf("dpb_output_delay  = %d\n",dpb_output_delay);
-#endif
+      read_u_v(cpb_removal_len, "SEI: cpb_removal_delay" , buf, &p_Dec->UsedBits);
+      read_u_v(dpb_output_len,  "SEI: dpb_output_delay"  , buf, &p_Dec->UsedBits);
     }
   }
 
@@ -1657,9 +1648,6 @@ void interpret_picture_timing_info( byte* payload, int size, VideoParameters *p_
   if (pic_struct_present_flag)
   {
     pic_struct = read_u_v(4, "SEI: pic_struct" , buf, &p_Dec->UsedBits);
-#ifdef PRINT_PICTURE_TIMING_INFO
-    printf("pic_struct = %d\n",pic_struct);
-#endif
     switch (pic_struct)
     {
     case 0:
@@ -1683,66 +1671,36 @@ void interpret_picture_timing_info( byte* payload, int size, VideoParameters *p_
     for (i=0; i<NumClockTs; i++)
     {
       clock_timestamp_flag = read_u_1("SEI: clock_timestamp_flag"  , buf, &p_Dec->UsedBits);
-#ifdef PRINT_PICTURE_TIMING_INFO
-      printf("clock_timestamp_flag = %d\n",clock_timestamp_flag);
-#endif
       if (clock_timestamp_flag)
       {
-        ct_type               = read_u_v(2, "SEI: ct_type"               , buf, &p_Dec->UsedBits);
-        nuit_field_based_flag = read_u_1(   "SEI: nuit_field_based_flag" , buf, &p_Dec->UsedBits);
-        counting_type         = read_u_v(5, "SEI: counting_type"         , buf, &p_Dec->UsedBits);
+        read_u_v(2, "SEI: ct_type"               , buf, &p_Dec->UsedBits);
+        read_u_1(   "SEI: nuit_field_based_flag" , buf, &p_Dec->UsedBits);
+        read_u_v(5, "SEI: counting_type"         , buf, &p_Dec->UsedBits);
         full_timestamp_flag   = read_u_1(   "SEI: full_timestamp_flag"   , buf, &p_Dec->UsedBits);
-        discontinuity_flag    = read_u_1(   "SEI: discontinuity_flag"    , buf, &p_Dec->UsedBits);
-        cnt_dropped_flag      = read_u_1(   "SEI: cnt_dropped_flag"      , buf, &p_Dec->UsedBits);
-        nframes               = read_u_v(8, "SEI: nframes"               , buf, &p_Dec->UsedBits);
+        read_u_1(   "SEI: discontinuity_flag"    , buf, &p_Dec->UsedBits);
+        read_u_1(   "SEI: cnt_dropped_flag"      , buf, &p_Dec->UsedBits);
+        read_u_v(8, "SEI: nframes"               , buf, &p_Dec->UsedBits);
 
-#ifdef PRINT_PICTURE_TIMING_INFO
-        printf("ct_type               = %d\n",ct_type);
-        printf("nuit_field_based_flag = %d\n",nuit_field_based_flag);
-        printf("full_timestamp_flag   = %d\n",full_timestamp_flag);
-        printf("discontinuity_flag    = %d\n",discontinuity_flag);
-        printf("cnt_dropped_flag      = %d\n",cnt_dropped_flag);
-        printf("nframes               = %d\n",nframes);
-#endif
         if (full_timestamp_flag)
         {
-          seconds_value         = read_u_v(6, "SEI: seconds_value"   , buf, &p_Dec->UsedBits);
-          minutes_value         = read_u_v(6, "SEI: minutes_value"   , buf, &p_Dec->UsedBits);
-          hours_value           = read_u_v(5, "SEI: hours_value"     , buf, &p_Dec->UsedBits);
-#ifdef PRINT_PICTURE_TIMING_INFO
-          printf("seconds_value = %d\n",seconds_value);
-          printf("minutes_value = %d\n",minutes_value);
-          printf("hours_value   = %d\n",hours_value);
-#endif
+          read_u_v(6, "SEI: seconds_value"   , buf, &p_Dec->UsedBits);
+          read_u_v(6, "SEI: minutes_value"   , buf, &p_Dec->UsedBits);
+          read_u_v(5, "SEI: hours_value"     , buf, &p_Dec->UsedBits);
         }
         else
         {
           seconds_flag          = read_u_1(   "SEI: seconds_flag" , buf, &p_Dec->UsedBits);
-#ifdef PRINT_PICTURE_TIMING_INFO
-          printf("seconds_flag = %d\n",seconds_flag);
-#endif
           if (seconds_flag)
           {
-            seconds_value         = read_u_v(6, "SEI: seconds_value"   , buf, &p_Dec->UsedBits);
+            read_u_v(6, "SEI: seconds_value"   , buf, &p_Dec->UsedBits);
             minutes_flag          = read_u_1(   "SEI: minutes_flag" , buf, &p_Dec->UsedBits);
-#ifdef PRINT_PICTURE_TIMING_INFO
-            printf("seconds_value = %d\n",seconds_value);
-            printf("minutes_flag  = %d\n",minutes_flag);
-#endif
             if(minutes_flag)
             {
-              minutes_value         = read_u_v(6, "SEI: minutes_value"   , buf, &p_Dec->UsedBits);
+              read_u_v(6, "SEI: minutes_value"   , buf, &p_Dec->UsedBits);
               hours_flag            = read_u_1(   "SEI: hours_flag" , buf, &p_Dec->UsedBits);
-#ifdef PRINT_PICTURE_TIMING_INFO
-              printf("minutes_value = %d\n",minutes_value);
-              printf("hours_flag    = %d\n",hours_flag);
-#endif
               if(hours_flag)
               {
-                hours_value           = read_u_v(5, "SEI: hours_value"     , buf, &p_Dec->UsedBits);
-#ifdef PRINT_PICTURE_TIMING_INFO
-                printf("hours_value   = %d\n",hours_value);
-#endif
+                read_u_v(5, "SEI: hours_value"     , buf, &p_Dec->UsedBits);
               }
             }
           }
@@ -1756,21 +1714,13 @@ void interpret_picture_timing_info( byte* payload, int size, VideoParameters *p_
           else
             time_offset_length = 24;
           if (time_offset_length)
-            time_offset = read_i_v(time_offset_length, "SEI: time_offset"   , buf, &p_Dec->UsedBits);
-          else
-            time_offset = 0;
-#ifdef PRINT_PICTURE_TIMING_INFO
-          printf("time_offset   = %d\n",time_offset);
-#endif
+            read_i_v(time_offset_length, "SEI: time_offset"   , buf, &p_Dec->UsedBits);
         }
       }
     }
   }
 
   free (buf);
-#ifdef PRINT_PICTURE_TIMING_INFO
-#undef PRINT_PICTURE_TIMING_INFO
-#endif
 }
 
 /*!

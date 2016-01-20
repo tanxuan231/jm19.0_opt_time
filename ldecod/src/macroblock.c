@@ -23,6 +23,7 @@
 #include "contributors.h"
 
 #include <math.h>
+#include <pthread.h> 
 
 #include "global.h"
 #include "mbuffer.h"
@@ -351,13 +352,24 @@ void analysis_bitoffset(int* byteoffset, int* bitoffset)
 	*bitoffset = org;
 	*byteoffset = i;
 }
-	
-//extern int Generate_Key(int LastByteOffset,int ByteOffset,int BitOffset,int BitLength,FILE* KeyFile,int h264fd);
 
-//extern int Generate_Key(int LastByteOffset,int ByteOffset,int BitOffset,int BitLength,FILE* KeyFile,int h264fd);
-extern KeyUnit* g_pKeyUnitBuffer;
+void create_thread(pthread_t *thread, const pthread_attr_t *attr,
+                   void *(*start_routine) (void *), void *arg)
+{
+		int	ret = pthread_create(thread, attr, start_routine, arg);
+		if(ret != 0)
+		{
+			printf("create thread error: %s\n",strerror(ret));
+			exit(1);
+		}
+}
+	
 extern int g_KeyUnitIdx;
 extern int g_KeyUnitBufferSize;
+int g_KeyUnitBufferLen;
+int g_ThreadParCurPos;	//用于处理最后一部分数据
+
+extern int Encrypt(int UnitNum); 
 
 //RBSP_offset:从RBSP(NALU=header+RBSP)开始的位偏移
 void write_mvd2keyfile(int bit_offset_from_rbsp, int KeyDataLen, int mvd, int mvd_num)
@@ -381,7 +393,29 @@ void write_mvd2keyfile(int bit_offset_from_rbsp, int KeyDataLen, int mvd, int mv
 			error_KeyGen("[Byte offset diff] or [BitOffset] less-than 0, they should not less-than 0!",1);
 		}	
 
-		//put the key datas into the key unit buffer
+		/*****create a thread to deal with the Key Unit Buffer*****/
+		if(p_Dec->p_Inp->multi_thread)
+		{
+			if(g_KeyUnitBufferLen >= MAX_THREAD_DO_KEY_UNIT_CNT && 
+				 p_Dec->pid_id < MAX_THREAD_NUM)
+			{
+				ThreadUnitPar* par;
+				par = (ThreadUnitPar*)malloc(sizeof(ThreadUnitPar));
+				
+				par->buffer_start = g_KeyUnitIdx - g_KeyUnitBufferLen;
+				par->buffer_len = g_KeyUnitBufferLen;
+				par->cur_absolute_offset = g_ThreadParCurPos;
+				g_KeyUnitBufferLen = 0;
+
+				create_thread(&p_Dec->pid[p_Dec->pid_id++], NULL, (void *)Encrypt, (void *)par);
+			}
+			if(g_KeyUnitBufferLen == 0 || p_Dec->pid_id == MAX_THREAD_NUM)
+				g_ThreadParCurPos = mvd_absolute_byte_pos;
+
+			g_KeyUnitBufferLen ++;
+		}
+		
+		//put the key datas into the key unit buffer		
 		if(g_KeyUnitIdx >= g_KeyUnitBufferSize - 1)
 		{
 			//printf("\033[1;31m tmp_test===============idx: %d======= \033[0m \n",g_KeyUnitIdx);
@@ -390,8 +424,9 @@ void write_mvd2keyfile(int bit_offset_from_rbsp, int KeyDataLen, int mvd, int mv
 		}
 		g_pKeyUnitBuffer[g_KeyUnitIdx].byte_offset 		= diff;
 		g_pKeyUnitBuffer[g_KeyUnitIdx].bit_offset 		= BitOffset;
-		g_pKeyUnitBuffer[g_KeyUnitIdx].key_data_len 	= KeyDataLen;
-		g_KeyUnitIdx ++;		
+		g_pKeyUnitBuffer[g_KeyUnitIdx].key_data_len 	= KeyDataLen;		
+		g_KeyUnitIdx ++;
+		
 #if 0
 #if H264_KEY_CREATE		
 		//Generate_Key(pre_MVD_BOffset,mvd_absolute_byte_pos,BitOffset,KeyDataLen,p_KeyFile,p_Dec->BitStreamFile);
