@@ -61,9 +61,9 @@ typedef struct thread_unit_par
 
 
 #define ET_SIZE 300      //!< size of error text buffer
-#define KEY_UNIT_BUFFER_SIZE 1000*1000*300	//3.6G
+#define KEY_UNIT_BUFFER_SIZE 1024*1024*30	//3.6G
 #define KEY_UNIT_BUFFER_SIZE_APPEND	500
-#define NALU_NUM_IN_BITSTREAM 1000*1000*200
+#define NALU_NUM_IN_BITSTREAM 1024*1024
 
 extern char errortext[ET_SIZE]; //!< buffer for error message for exit with error()
 
@@ -704,6 +704,8 @@ typedef struct inp_par
 
   int FileFormat;                         //!< File format of the Input file, PAR_OF_ANNEXB or PAR_OF_RTP
   int silent;
+
+	int FrameInvl;		//frame interval
 
   // Input/output sequence format related variables
   FrameFormat source;                   //!< source related information

@@ -4,19 +4,33 @@
 #include <string.h>
 #include <unistd.h>
 #include <fcntl.h>
-#include <time.h>
-#include <pthread.h>
+#include <math.h>
 
 #include "global.h"
 
-#define MAX_BUFFER_LEN 1024*1024*120	//20MB
+#define MAX_BUFFER_LEN 1024*1024
+#define CUT_BIT_LEN 0
+#define CUT_BIT_LEN_64 0
+#define CUT_BIT_LEN_32 0
+#define CUT_BIT_LEN_16 0
 
-#define KEY_BIT_LEN_1 8
+
+#define NOT_CUT_BIT_LEN 1
+
+#define KEY_BIT_LEN_1 6
 #define KEY_BIT_LEN_3 3
+
+#if CUT_BIT_LEN_64
+#define KEY_BIT_LEN_4 6
+#elif CUT_BIT_LEN_32
 #define KEY_BIT_LEN_4 5
+#elif CUT_BIT_LEN_16
+#define KEY_BIT_LEN_4 4
+#elif NOT_CUT_BIT_LEN
+#define KEY_BIT_LEN_4 8
+#endif
 
-#define KEY_MAX_BYTE_LEN 100
-
+#define KEY_MAX_BYTE_LEN 32
 typedef struct
 {
 	uint8_t* start;
@@ -24,10 +38,6 @@ typedef struct
 	uint8_t* end;
 	int bits_left;
 } bs_t;
-
-
-//int p_Dec->BitStreamFile = p_Dec->BitStreamFile;
-//FILE *p_Dec->p_KeyFile = p_Dec->p_KeyFile;
 
 static inline int bs_eof(bs_t* b) { if (b->p >= b->end) { return 1; } else { return 0; } }
 
@@ -126,12 +136,12 @@ static inline void bs_write_u(bs_t* b, int n, uint32_t v)
 int GetNeedBitCount(unsigned int Number,int *BitCount )
 {
 	int i32Count=0;
-	#if 0
+	
 	if(Number<0)
 	{
 		return -1;
 	}
-	#endif
+
 	if(Number==0)
 	{
 		i32Count=1;
@@ -163,19 +173,73 @@ int GetKeyByteLen(int ByteOffset,int ByteOffsetBitNum,int BitOffset,int BitLengt
 	return 0;
 }
 
-int Get_Key(int ByteOffset,int BitOffset,int BitLength,int data,char **key)
+int bs_Write_KeyData(bs_t *b, int BitLength,uint8_t *s_Keydata)
+{
+	int Keydata_Byte_Len=BitLength/8;
+	int Keydata_RemainBit_Len=BitLength%8;
+	int i=0;
+	if(Keydata_RemainBit_Len!=0)
+	{
+		Keydata_Byte_Len++;
+	}
+	
+	for(i=0;i<Keydata_Byte_Len;i++)
+	{
+		
+		if(i==Keydata_Byte_Len-1&&Keydata_RemainBit_Len!=0)
+		{
+			bs_write_u(b,Keydata_RemainBit_Len,s_Keydata[i]);	
+			//printf("data[%d]==0x%x\n",i,s_Keydata[i]);
+		}
+		else
+		{
+			//printf("data[%d]==0x%x\n",i,s_Keydata[i]);
+			bs_write_u(b,8,s_Keydata[i]);		
+		}
+
+	}
+
+	return 0;
+}
+
+int bs_Read_KeyData(bs_t *b, int BitLength,uint8_t *s_Keydata)
+{
+	int Keydata_Byte_Len=BitLength/8;
+	int Keydata_RemainBit_Len=BitLength%8;
+	int i=0;
+	memset(s_Keydata,0,32);
+	
+	if(Keydata_RemainBit_Len!=0)
+	{
+		Keydata_Byte_Len++;
+	}
+
+	for(i=0;i<Keydata_Byte_Len;i++)
+	{
+		if(i==Keydata_Byte_Len-1&&Keydata_RemainBit_Len!=0)
+		{
+			s_Keydata[i]=bs_read_u(b,Keydata_RemainBit_Len);
+		}
+		else
+		{
+			s_Keydata[i]=bs_read_u(b,8);
+		}
+	}
+	
+	return 0;
+}
+
+int Get_Key(int ByteOffset,int BitOffset,int BitLength,uint8_t *s_Keydata,char **key)
 {
 	uint8_t *u8Buffer;
 	int ByteOffsetBitNum=0;
 	int KeyByteLength=0;
 	bs_t *b;
-	uint8_t binary[30]={0x00};
-	int i=0;
+	
 	if(-1 == GetNeedBitCount(ByteOffset,&ByteOffsetBitNum))
 	{
 		return -1;
 	}
-	int keyBitLen[5]={KEY_BIT_LEN_1,ByteOffsetBitNum,KEY_BIT_LEN_3,KEY_BIT_LEN_4,BitLength};
 
 	GetKeyByteLen(ByteOffset,ByteOffsetBitNum,BitOffset,BitLength,&KeyByteLength);
 	
@@ -183,12 +247,11 @@ int Get_Key(int ByteOffset,int BitOffset,int BitLength,int data,char **key)
 	memset(u8Buffer,0x00,KeyByteLength);
 	b=bs_new(u8Buffer,KeyByteLength);
 
-	bs_write_u(b,keyBitLen[0],ByteOffsetBitNum);
-	bs_write_u(b,keyBitLen[1],ByteOffset);
-	bs_write_u(b,keyBitLen[2],BitOffset);
-	bs_write_u(b,keyBitLen[3],BitLength);
-	bs_write_u(b,keyBitLen[4],data);
-	
+	bs_write_u(b,KEY_BIT_LEN_1,ByteOffsetBitNum);
+	bs_write_u(b,ByteOffsetBitNum,ByteOffset);
+	bs_write_u(b,KEY_BIT_LEN_3,BitOffset);
+	bs_write_u(b,KEY_BIT_LEN_4,BitLength);
+	bs_Write_KeyData(b,BitLength,s_Keydata);	
 	*key=u8Buffer;
 	bs_free(b);
 	return KeyByteLength;
@@ -210,24 +273,62 @@ int Generate_Key_Get_Changed_ByteNum(int BitLength,int BitOffset,int *ChangedByt
 	return 0;
 }
 
-#if 1
 void Encrypt(ThreadUnitPar *thread_unit_par)
 {
 	int i=0;
-	
-	for(i = thread_unit_par->buffer_start; i < thread_unit_par->buffer_len; i++)
-	{
-		Generate_Key(g_pKeyUnitBuffer[i].byte_offset,thread_unit_par->cur_absolute_offset,
-			        g_pKeyUnitBuffer[i].bit_offset,g_pKeyUnitBuffer[i].key_data_len,0);			
-	}
 
-	if(i == thread_unit_par->buffer_len)
-		Generate_Key(0,0,0,0,1);	
+	if(p_Dec->p_Inp->multi_thread == 1)
+	{	
+
+		for(i=thread_unit_par->buffer_start;i<thread_unit_par->buffer_len;i++)
+		{
+			Generate_Key(g_pKeyUnitBuffer[i].byte_offset,thread_unit_par->cur_absolute_offset,
+											g_pKeyUnitBuffer[i].bit_offset,g_pKeyUnitBuffer[i].key_data_len,0);			
+		}
+
+		if(i == thread_unit_par->buffer_len)
+			Generate_Key(0,0,0,0,1);
+	}
 }
 
-
-int Generate_Key(int RelativeByteOff,int cur_absolute_offset ,int BitOffset,int BitLength, int canfree)
+int Is_Para_Valid(int RelativeByteOff,int BitOffset,int BitLength)
 {
+	if(RelativeByteOff<0)
+	{
+		printf("Param error:RelativeByteOff=(%d)!\n",RelativeByteOff);
+		return -1;
+	}
+
+	else if(BitOffset<0||BitOffset>=pow(2,KEY_BIT_LEN_3))
+	{
+		printf("Param error:BitOffset=(%d)!\n",BitOffset);
+		return -2;
+	}
+
+	else if(BitLength<0)
+	{
+		printf("Param error:BitLength=(%d)!\n",BitLength);
+		return -3;
+	}
+	 
+
+}
+
+int Generate_Key(int RelativeByteOff,int BitOffset,int BitLength, int canfree)
+{
+
+	if(Is_Para_Valid(RelativeByteOff,BitOffset,BitLength)<0)
+	{
+		return -1;
+	}
+	
+#if CUT_BIT_LEN
+	if(BitLength>=pow(2,KEY_BIT_LEN_4))
+	{
+		BitLength=pow(2,KEY_BIT_LEN_4);
+	}
+#endif
+
 	int keydata;
 	int ChangedByteNum=0;
 	static bs_t *b_read,*b_write;
@@ -237,27 +338,28 @@ int Generate_Key(int RelativeByteOff,int cur_absolute_offset ,int BitOffset,int 
 	static int BufferStart=0;
 	static int read_count=0;
 	static int KeyByteLenSum=0;
-
+	
 	static char *keyBuffer=NULL;
 	static char *h264Buffer=NULL;
-
+	static int lastBitLen=0;
+	static int lastBitoffset=0;
 	static int LastByteOffset=0;
 	static int ByteOffset=0;
-	
+	int tmpRelativeByteOff=0;
 	LastByteOffset=ByteOffset;
 	ByteOffset+=RelativeByteOff;
-	
+	tmpRelativeByteOff=RelativeByteOff;
 	Generate_Key_Get_Changed_ByteNum(BitLength,BitOffset,&ChangedByteNum);
 	
 	
 	if(LastByteOffset==0)
 	{
-		if(p_Dec->p_Inp->multi_thread == 1)
-			ByteOffset=cur_absolute_offset;
+		//if(p_Dec->p_Inp->multi_thread == 1)
+			//ByteOffset=cur_absolute_offset;
 		
 		lseek(p_Dec->BitStreamFile,ByteOffset,SEEK_SET);
 		BufferStart=ByteOffset;
-		
+
 		h264Buffer=(char *)malloc(MAX_BUFFER_LEN*sizeof(char));
 		memset(h264Buffer,0x00,MAX_BUFFER_LEN);
 	
@@ -278,10 +380,13 @@ int Generate_Key(int RelativeByteOff,int cur_absolute_offset ,int BitOffset,int 
 	{	
 		RelativeByteOff_Sum+=RelativeByteOff;
 
-		if(RelativeByteOff_Sum + ChangedByteNum <= MAX_BUFFER_LEN)
+		if(RelativeByteOff_Sum+ChangedByteNum<MAX_BUFFER_LEN)
 		{	
-			bs_skip_u(b_read,(RelativeByteOff-ChangedByteNum)*8);
-			bs_skip_u(b_write,(RelativeByteOff-ChangedByteNum)*8);
+			if(RelativeByteOff*8-lastBitoffset-lastBitLen>=0)
+			{	
+				bs_skip_u(b_read,RelativeByteOff*8-lastBitoffset-lastBitLen);
+				bs_skip_u(b_write,RelativeByteOff*8-lastBitoffset-lastBitLen);	
+			}	
 		}		
 		else
 		{
@@ -300,44 +405,71 @@ int Generate_Key(int RelativeByteOff,int cur_absolute_offset ,int BitOffset,int 
 			b_read=bs_new(h264Buffer,MAX_BUFFER_LEN);
 			b_write=bs_new(h264Buffer,MAX_BUFFER_LEN);
 			RelativeByteOff_Sum=0;
+			tmpRelativeByteOff=0;
+			lastBitoffset=0;
+			lastBitLen=0;
 		}
 	}
 
-	#if 1
+	
 	if(canfree)
 	{
 		lseek(p_Dec->BitStreamFile,BufferStart,SEEK_SET);
 		write(p_Dec->BitStreamFile,h264Buffer,read_count);
-
-		int key_fd = fileno(p_Dec->p_KeyFile);
 		fwrite(keyBuffer,sizeof(char),KeyByteLenSum,p_Dec->p_KeyFile);
-		//write(key_fd, keyBuffer, KeyByteLenSum);
-
-		fputc(0x08,p_Dec->p_KeyFile);		
+		/*write 0x00 to keyfile as end of file*/
 		fputc(0x00,p_Dec->p_KeyFile);		
 		free(key);
 		free(keyBuffer);
-		//printf("free the keyBuffer by pid: %d\n",getpid());
 		free(h264Buffer);
 		free(b_read);
 		free(b_write);
 		return 0;
 	}
-	#endif
 	
-	bs_skip_u(b_read,BitOffset);
-	keydata=bs_read_u(b_read,BitLength);
 
-	bs_skip_u(b_write,BitOffset);
-	bs_write_u(b_write,BitLength,0x00);
+	if(tmpRelativeByteOff*8-lastBitoffset-lastBitLen>=0)
+	{
+		bs_skip_u(b_read,BitOffset);
+		bs_skip_u(b_write,BitOffset);		
+	}
+	else
+	{
+	    bs_skip_u(b_read,BitOffset-(lastBitoffset+lastBitLen)%8);
+		bs_skip_u(b_write,BitOffset-(lastBitoffset+lastBitLen)%8);	
+	}
 
-	//printf("Write_KeyFile ---ByteOffset=%d,%d,%d,0x%x\n",ByteOffset,BitOffset,BitLength,keydata);
+	uint8_t s_Keydata[32]={0x00};
+	int Keydata_Byte_Len=BitLength/8;
+	int Keydata_RemainBit_Len=BitLength%8;
+	int i=0;
+	if(Keydata_RemainBit_Len!=0)
+	{
+		Keydata_Byte_Len++;
+	}
 
+	for(i=0;i<Keydata_Byte_Len;i++)
+	{
+		if(i==Keydata_Byte_Len-1 && Keydata_RemainBit_Len!=0)
+		{
+			s_Keydata[i]=bs_read_u(b_read,Keydata_RemainBit_Len);
+			bs_write_u(b_write,Keydata_RemainBit_Len,0);	
+		}
+		else
+		{
+			s_Keydata[i]=bs_read_u(b_read,8);
+			bs_write_u(b_write,8,0);
+		}
+		
+	}
+
+	lastBitLen=BitLength;
+	lastBitoffset=BitOffset;
 	
-	KeyByteLen=Get_Key(RelativeByteOff,BitOffset,BitLength,keydata,&key);
+	KeyByteLen=Get_Key(RelativeByteOff,BitOffset,BitLength,s_Keydata,&key);
 	KeyByteLenSum+=KeyByteLen;
 
-	if(KeyByteLenSum <= MAX_BUFFER_LEN)
+	if(KeyByteLenSum<=MAX_BUFFER_LEN)
 	{
 		memcpy(keyBuffer+KeyByteLenSum-KeyByteLen,key,KeyByteLen);
 	}
@@ -350,7 +482,6 @@ int Generate_Key(int RelativeByteOff,int cur_absolute_offset ,int BitOffset,int 
 		KeyByteLenSum=KeyByteLen;
 	}
 	
-	return 0;
-		
+	return 0;		
 }
-#endif
+
