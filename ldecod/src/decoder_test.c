@@ -144,12 +144,12 @@ int main(int argc, char **argv)
 		Encrypt(par);
 		//encryt_thread(par);
 	}
-	printf("nalu num: %d\n",p_Dec->p_Vid->NALUCount);	
+
 	gettimeofday( &end2, NULL );
 	time_us2 = 1000000 * ( end2.tv_sec - end1.tv_sec ) + end2.tv_usec - end1.tv_usec;
 	printf("run time1: %ld us\n",time_us2);
 
-	print_KeyUnit();
+	//print_KeyUnit();
 
 	deinit_GenKeyPar();
   iRet = FinitDecoder();
