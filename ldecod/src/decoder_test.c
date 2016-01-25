@@ -140,22 +140,22 @@ int main(int argc, char **argv)
 	{		
 		par->buffer_start = 0;
 		par->buffer_len = g_KeyUnitIdx;
-		par->cur_absolute_offset = 5306;
-		//Encrypt(par);
+		par->cur_absolute_offset = g_pKeyUnitBuffer[0].byte_offset;
+		Encrypt(par);
 		//encryt_thread(par);
-		//Encrypt(par);
 	}
-	
+	printf("nalu num: %d\n",p_Dec->p_Vid->NALUCount);	
 	gettimeofday( &end2, NULL );
 	time_us2 = 1000000 * ( end2.tv_sec - end1.tv_sec ) + end2.tv_usec - end1.tv_usec;
 	printf("run time1: %ld us\n",time_us2);
 
-	//print_KeyUnit();
+	print_KeyUnit();
 
 	deinit_GenKeyPar();
   iRet = FinitDecoder();
   iRet = CloseDecoder();	
-	
+
+	fflush(NULL);
 	printf("run time(all): %ld us\n", time_us1+time_us2);
   return 0;
 }

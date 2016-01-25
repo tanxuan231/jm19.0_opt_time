@@ -304,6 +304,7 @@ int get_annex_b_NALU (VideoParameters *p_Vid, NALU_t *nalu, ANNEXB_t *annex_b)
  *    Opens the bit stream file named fn
  * \return
  *    none
+ *	打开码流文件，然后读入一部分数据到annex_b->iobuffer/annex_b->iobufferread
  ************************************************************************
  */
 void open_annex_b (char *fn, ANNEXB_t *annex_b)

@@ -277,7 +277,7 @@ void Encrypt(ThreadUnitPar *thread_unit_par)
 {
 	int i=0;
 
-	if(p_Dec->p_Inp->multi_thread == 1)
+	//if(p_Dec->p_Inp->multi_thread == 1)
 	{	
 
 		for(i=thread_unit_par->buffer_start;i<thread_unit_par->buffer_len;i++)
@@ -314,7 +314,7 @@ int Is_Para_Valid(int RelativeByteOff,int BitOffset,int BitLength)
 
 }
 
-int Generate_Key(int RelativeByteOff,int BitOffset,int BitLength, int canfree)
+int Generate_Key(int RelativeByteOff, int cur_absolute_offset, int BitOffset,int BitLength, int canfree)
 {
 
 	if(Is_Para_Valid(RelativeByteOff,BitOffset,BitLength)<0)
@@ -417,8 +417,13 @@ int Generate_Key(int RelativeByteOff,int BitOffset,int BitLength, int canfree)
 		lseek(p_Dec->BitStreamFile,BufferStart,SEEK_SET);
 		write(p_Dec->BitStreamFile,h264Buffer,read_count);
 		fwrite(keyBuffer,sizeof(char),KeyByteLenSum,p_Dec->p_KeyFile);
+		//int keyfd = fileno(p_Dec->p_KeyFile);
+		//write(keyfd, keyBuffer, KeyByteLenSum);
 		/*write 0x00 to keyfile as end of file*/
 		fputc(0x00,p_Dec->p_KeyFile);		
+
+		fflush(p_Dec->p_KeyFile);
+		
 		free(key);
 		free(keyBuffer);
 		free(h264Buffer);
@@ -450,7 +455,7 @@ int Generate_Key(int RelativeByteOff,int BitOffset,int BitLength, int canfree)
 
 	for(i=0;i<Keydata_Byte_Len;i++)
 	{
-		if(i==Keydata_Byte_Len-1 && Keydata_RemainBit_Len!=0)
+		if(i==Keydata_Byte_Len-1&&Keydata_RemainBit_Len!=0)
 		{
 			s_Keydata[i]=bs_read_u(b_read,Keydata_RemainBit_Len);
 			bs_write_u(b_write,Keydata_RemainBit_Len,0);	

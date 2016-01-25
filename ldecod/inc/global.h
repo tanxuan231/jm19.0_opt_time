@@ -539,7 +539,7 @@ typedef struct video_par
 
   struct old_slice_par *old_slice;
   struct snr_par       *snr;
-  int number;                                 //!< frame number
+  //int number;                                 //!< frame number
   
   //current picture property;
   unsigned int num_dec_mb;
@@ -575,7 +575,7 @@ typedef struct video_par
   int last_has_mmco_5;
   int last_pic_bottom_field;
 
-  int psnr_number;
+  //int psnr_number;
 
   // Timing related variables
   TIME_T start_time;
@@ -595,16 +595,16 @@ typedef struct video_par
   unsigned int previous_frame_num; //!< frame number of previous slice
 
   // Time 
-  int64 tot_time;
+  //int64 tot_time;
 
   int LastAccessUnitExists;
-  int NALUCount;
+  int NALUCount;	// not the nalu sum
 
   // B pictures
   int  Bframe_ctr;
   int  frame_no;
 
-  int  g_nFrame;
+  //int  g_nFrame;
   Boolean global_init_done[2];
 
   struct frame_store *last_out_fs;
@@ -627,7 +627,7 @@ typedef struct video_par
 
   struct nalu_t *nalu;
 	
-  int iPostProcess;
+  //int iPostProcess;
   int bFrameInit;
   pic_parameter_set_rbsp_t *pNextPPS;
   int last_dec_layer_id;

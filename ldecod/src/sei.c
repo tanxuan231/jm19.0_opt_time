@@ -26,7 +26,6 @@
 
 // #define PRINT_BUFFERING_PERIOD_INFO    // uncomment to print buffering period SEI info
 // #define PRINT_PICTURE_TIMING_INFO      // uncomment to print picture timing SEI info
-// #define WRITE_MAP_IMAGE                // uncomment to write spare picture map
 // #define PRINT_SUBSEQUENCE_INFO         // uncomment to print sub-sequence SEI info
 // #define PRINT_SUBSEQUENCE_LAYER_CHAR   // uncomment to print sub-sequence layer characteristics SEI info
 // #define PRINT_SUBSEQUENCE_CHAR         // uncomment to print sub-sequence characteristics SEI info
@@ -209,18 +208,6 @@ void interpret_spare_pic( byte* payload, int size, VideoParameters *p_Vid )
   int m, n, left, right, top, bottom,directx, directy;
   byte ***map;
 
-#ifdef WRITE_MAP_IMAGE
-  int symbol_size_in_bytes = p_Vid->pic_unit_bitsize_on_disk/8;
-  int  j, k, i0, j0, tmp, kk;
-  char filename[20] = "map_dec.yuv";
-  FILE *fp;
-  imgpel** Y;
-  static int old_pn=-1;
-  static int first = 1;
-
-  printf("Spare picture SEI message\n");
-#endif
-
   p_Dec->UsedBits = 0;
 
   assert( payload!=NULL);
@@ -233,15 +220,7 @@ void interpret_spare_pic( byte* payload, int size, VideoParameters *p_Vid )
 
   target_frame_num = read_ue_v("SEI: target_frame_num", buf, &p_Dec->UsedBits);
 
-#ifdef WRITE_MAP_IMAGE
-  printf( "target_frame_num is %d\n", target_frame_num );
-#endif
-
   num_spare_pics = 1 + read_ue_v("SEI: num_spare_pics_minus1", buf, &p_Dec->UsedBits);
-
-#ifdef WRITE_MAP_IMAGE
-  printf( "num_spare_pics is %d\n", num_spare_pics );
-#endif
 
   get_mem3D(&map, num_spare_pics, p_Vid->height >> 4, p_Vid->width >> 4);
 
@@ -389,50 +368,6 @@ void interpret_spare_pic( byte* payload, int size, VideoParameters *p_Vid )
     }
 
   } // end of num_spare_pics
-
-#ifdef WRITE_MAP_IMAGE
-  // begin to write map seq
-  if ( old_pn != p_Vid->number )
-  {
-    old_pn = p_Vid->number;
-    get_mem2Dpel(&Y, p_Vid->height, p_Vid->width);
-    if (first)
-    {
-      fp = fopen( filename, "wb" );
-      first = 0;
-    }
-    else
-      fp = fopen( filename, "ab" );
-    assert( fp != NULL );
-    for (kk=0; kk<num_spare_pics; kk++)
-    {
-      for (i=0; i < p_Vid->height >> 4; i++)
-        for (j=0; j < p_Vid->width >> 4; j++)
-        {
-          tmp=map[kk][i][j]==0? p_Vid->max_pel_value_comp[0] : 0;
-          for (i0=0; i0<16; i0++)
-            for (j0=0; j0<16; j0++)
-              Y[i*16+i0][j*16+j0]=tmp;
-        }
-
-#if 0
-      // write the map image
-      for (i=0; i < p_Vid->height; i++)
-        for (j=0; j < p_Vid->width; j++)
-          fwrite(&(Y[i][j]), symbol_size_in_bytes, 1, p_out);
-
-      for (k=0; k < 2; k++)
-        for (i=0; i < p_Vid->height>>1; i++)
-          for (j=0; j < p_Vid->width>>1; j++)
-            fwrite(&(p_Vid->dc_pred_value_comp[1]), symbol_size_in_bytes, 1, p_out);
-#endif				
-    }
-    fclose( fp );
-    free_mem2Dpel( Y );
-  }
-  // end of writing map image
-#undef WRITE_MAP_IMAGE
-#endif
 
   free_mem3D( map );
 

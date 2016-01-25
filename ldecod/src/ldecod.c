@@ -69,7 +69,6 @@ DecoderParams  *p_Dec;
 char errortext[ET_SIZE];
 
 // Prototypes of static functions
-static void Report      (VideoParameters *p_Vid);
 static void init        (VideoParameters *p_Vid);
 static void free_slice  (Slice *currSlice);
 
@@ -260,16 +259,16 @@ static void init(VideoParameters *p_Vid)  //!< video parameters
   p_Vid->oldFrameSizeInMbs = (unsigned int) -1;
 
   //p_Vid->idr_psnr_number = p_Inp->ref_offset;
-  p_Vid->psnr_number=0;
+  //p_Vid->psnr_number=0;
 
-  p_Vid->number = 0;
+  //p_Vid->number = 0;
   p_Vid->type = I_SLICE;
-  p_Vid->g_nFrame = 0;
+  //p_Vid->g_nFrame = 0;
   // B pictures
-  p_Vid->Bframe_ctr = p_Vid->snr->frame_ctr = 0;
+  //p_Vid->Bframe_ctr = p_Vid->snr->frame_ctr = 0;
 
   // time for total decoding session
-  p_Vid->tot_time = 0;
+  //p_Vid->tot_time = 0;
 
   p_Vid->dec_picture = NULL;
   p_Vid->MbToSliceGroupMap = NULL;
@@ -281,7 +280,7 @@ static void init(VideoParameters *p_Vid)  //!< video parameters
   p_Vid->newframe = 0;
   p_Vid->previous_frame_num = 0;
 
-  p_Vid->iPostProcess = 0;
+  //p_Vid->iPostProcess = 0;
   p_Vid->last_dec_layer_id = -1;
 }
 
@@ -349,174 +348,6 @@ void init_frext(VideoParameters *p_Vid)  //!< video parameters
   p_Vid->mb_size_shift[0][0] = p_Vid->mb_size_shift[0][1] = CeilLog2_sf (p_Vid->mb_size[0][0]);
   p_Vid->mb_size_shift[1][0] = p_Vid->mb_size_shift[2][0] = CeilLog2_sf (p_Vid->mb_size[1][0]);
   p_Vid->mb_size_shift[1][1] = p_Vid->mb_size_shift[2][1] = CeilLog2_sf (p_Vid->mb_size[1][1]);
-}
-
-/*!
- ************************************************************************
- * \brief
- *    Reports the gathered information to appropriate outputs
- *
- * \par Input:
- *    InputParameters *p_Inp,
- *    VideoParameters *p_Vid,
- *    struct snr_par *stat
- *
- * \par Output:
- *    None
- ************************************************************************
- */
-static void Report(VideoParameters *p_Vid)
-{
-  static const char yuv_formats[4][4]= { {"400"}, {"420"}, {"422"}, {"444"} };
-  pic_parameter_set_rbsp_t *active_pps = p_Vid->active_pps;
-  InputParameters *p_Inp = p_Vid->p_Inp;
-  SNRParameters   *snr   = p_Vid->snr;
-#define OUTSTRING_SIZE 255
-  char string[OUTSTRING_SIZE];
-  FILE *p_log;
-
-#ifndef WIN32
-  time_t  now;
-  struct tm *l_time;
-#else
-  char timebuf[128];
-#endif
-
-  // normalize time
-  p_Vid->tot_time  = timenorm(p_Vid->tot_time);
-
-  if (p_Inp->silent == FALSE)
-  {
-    fprintf(stdout,"-------------------- Average SNR all frames ------------------------------\n");
-    fprintf(stdout," SNR Y(dB)           : %5.2f\n",snr->snra[0]);
-    fprintf(stdout," SNR U(dB)           : %5.2f\n",snr->snra[1]);
-    fprintf(stdout," SNR V(dB)           : %5.2f\n",snr->snra[2]);
-    fprintf(stdout," Total decoding time : %.3f sec (%.3f fps)[%d frm/%" FORMAT_OFF_T " ms]\n",p_Vid->tot_time*0.001,(snr->frame_ctr ) * 1000.0 / p_Vid->tot_time, snr->frame_ctr, p_Vid->tot_time);
-    fprintf(stdout,"--------------------------------------------------------------------------\n");
-    fprintf(stdout," Exit JM %s decoder, ver %s ",JM, VERSION);
-    fprintf(stdout,"\n");
-  }
-  else
-  {
-    fprintf(stdout,"\n----------------------- Decoding Completed -------------------------------\n");
-    fprintf(stdout," Total decoding time : %.3f sec (%.3f fps)[%d frm/%" FORMAT_OFF_T "  ms]\n",p_Vid->tot_time*0.001, (snr->frame_ctr) * 1000.0 / p_Vid->tot_time, snr->frame_ctr, p_Vid->tot_time);
-    fprintf(stdout,"--------------------------------------------------------------------------\n");
-    fprintf(stdout," Exit JM %s decoder, ver %s ",JM, VERSION);
-    fprintf(stdout,"\n");
-  }
-
-  // write to log file
-  fprintf(stdout," Output status file                     : %s \n",LOGFILE);
-  snprintf(string, OUTSTRING_SIZE, "%s", LOGFILE);
-
-  if ((p_log=fopen(string,"r"))==0)                    // check if file exist
-  {
-    if ((p_log=fopen(string,"a"))==0)
-    {
-      snprintf(errortext, ET_SIZE, "Error open file %s for appending",string);
-      error(errortext, 500);
-    }
-    else                                              // Create header to new file
-    {
-      fprintf(p_log," -------------------------------------------------------------------------------------------------------------------\n");
-      fprintf(p_log,"|  Decoder statistics. This file is made first time, later runs are appended               |\n");
-      fprintf(p_log," ------------------------------------------------------------------------------------------------------------------- \n");
-      fprintf(p_log,"|   ver  | Date  | Time  |    Sequence        |#Img| Format  | YUV |Coding|SNRY 1|SNRU 1|SNRV 1|SNRY N|SNRU N|SNRV N|\n");
-      fprintf(p_log," -------------------------------------------------------------------------------------------------------------------\n");
-    }
-  }
-  else
-  {
-    fclose(p_log);
-    p_log=fopen(string,"a");                    // File exist,just open for appending
-  }
-
-  fprintf(p_log,"|%s/%-4s", VERSION, EXT_VERSION);
-
-#ifdef WIN32
-  _strdate( timebuf );
-  fprintf(p_log,"| %1.5s |",timebuf );
-
-  _strtime( timebuf);
-  fprintf(p_log," % 1.5s |",timebuf);
-#else
-  now = time ((time_t *) NULL); // Get the system time and put it into 'now' as 'calender time'
-  time (&now);
-  l_time = localtime (&now);
-  strftime (string, sizeof string, "%d-%b-%Y", l_time);
-  fprintf(p_log,"| %1.5s |",string );
-
-  strftime (string, sizeof string, "%H:%M:%S", l_time);
-  fprintf(p_log,"| %1.5s |",string );
-#endif
-
-  fprintf(p_log,"%20.20s|",p_Inp->infile);
-
-  fprintf(p_log,"%3d |",p_Vid->number);
-  fprintf(p_log,"%4dx%-4d|", p_Vid->width, p_Vid->height);
-  fprintf(p_log," %s |", &(yuv_formats[p_Vid->yuv_format][0]));
-
-  if (active_pps)
-  {
-    if (active_pps->entropy_coding_mode_flag == (Boolean) CAVLC)
-      fprintf(p_log," CAVLC|");
-    else
-      fprintf(p_log," CABAC|");
-  }
-
-  fprintf(p_log,"%6.3f|",snr->snr1[0]);
-  fprintf(p_log,"%6.3f|",snr->snr1[1]);
-  fprintf(p_log,"%6.3f|",snr->snr1[2]);
-  fprintf(p_log,"%6.3f|",snr->snra[0]);
-  fprintf(p_log,"%6.3f|",snr->snra[1]);
-  fprintf(p_log,"%6.3f|",snr->snra[2]);
-  fprintf(p_log,"\n");
-  fclose(p_log);
-
-  snprintf(string, OUTSTRING_SIZE,"%s", DATADECFILE);
-  p_log=fopen(string,"a");
-
-  if(p_Vid->Bframe_ctr != 0) // B picture used
-  {
-    fprintf(p_log, "%3d %2d %2d %2.2f %2.2f %2.2f %5d "
-      "%2.2f %2.2f %2.2f %5d "
-      "%2.2f %2.2f %2.2f %5d %.3f\n",
-      p_Vid->number, 0, p_Vid->ppSliceList[0]->qp,
-      snr->snr1[0],
-      snr->snr1[1],
-      snr->snr1[2],
-      0,
-      0.0,
-      0.0,
-      0.0,
-      0,
-      snr->snra[0],
-      snr->snra[1],
-      snr->snra[2],
-      0,
-      (double)0.001*p_Vid->tot_time/(p_Vid->number + p_Vid->Bframe_ctr - 1));
-  }
-  else
-  {
-    fprintf(p_log, "%3d %2d %2d %2.2f %2.2f %2.2f %5d "
-      "%2.2f %2.2f %2.2f %5d "
-      "%2.2f %2.2f %2.2f %5d %.3f\n",
-      p_Vid->number, 0, p_Vid->ppSliceList[0]? p_Vid->ppSliceList[0]->qp: 0,
-      snr->snr1[0],
-      snr->snr1[1],
-      snr->snr1[2],
-      0,
-      0.0,
-      0.0,
-      0.0,
-      0,
-      snr->snra[0],
-      snr->snra[1],
-      snr->snra[2],
-      0,
-      p_Vid->number ? ((double)0.001*p_Vid->tot_time/p_Vid->number) : 0.0);
-  }
-  fclose(p_log);
 }
 
 /*!
@@ -891,14 +722,14 @@ int OpenDecoder(InputParameters *p_Inp)
   default:
   case PAR_OF_ANNEXB:
     malloc_annex_b(pDecoder->p_Vid, &pDecoder->p_Vid->annex_b);
-    open_annex_b(pDecoder->p_Inp->infile, pDecoder->p_Vid->annex_b);
+    open_annex_b(pDecoder->p_Inp->infile, pDecoder->p_Vid->annex_b);	//打开码流并读入数据到缓存
     break;
   case PAR_OF_RTP:
     OpenRTPFile(pDecoder->p_Inp->infile, &pDecoder->p_Vid->BitStreamFile);
     break;   
   }
 
-  init_old_slice(pDecoder->p_Vid->old_slice);
+  init_old_slice(pDecoder->p_Vid->old_slice);		//may remove
 
   init(pDecoder->p_Vid);
 
@@ -922,7 +753,7 @@ int DecodeOneFrame(/*DecodedPicList **ppDecPicList*/)
 {
   int iRet;
   DecoderParams *pDecoder = p_Dec;
-  ClearDecPicList(pDecoder->p_Vid);
+  //ClearDecPicList(pDecoder->p_Vid);
   iRet = decode_one_frame(pDecoder);
   if(iRet == SOP)
   {

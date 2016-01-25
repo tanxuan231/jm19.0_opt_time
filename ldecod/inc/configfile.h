@@ -34,7 +34,7 @@ Mapping Map[] = {
     {"FileFormat",               &cfgparams.FileFormat,                   0,   0.0,                       1,  0.0,              1.0,                             },
     {"DisplayDecParams",         &cfgparams.bDisplayDecParams,            0,   1.0,                       1,  0.0,              1.0,                             },
     {"Silent",                   &cfgparams.silent,                       0,   0.0,                       1,  0.0,              1.0,                             },
-    {"IntervalFrame",            &cfgparams.FrameInvl,                    0,   0.0,                       1,  0.0,              1.0,                             },
+    {"FrameInterval",            &cfgparams.FrameInvl,                    0,   0.0,                       2,  0.0,              1.0,                             },
 #if (MVC_EXTENSION_ENABLE)
     {"DecodeAllLayers",          &cfgparams.DecodeAllLayers,              0,   0.0,                       1,  0.0,              1.0,                             },
 #endif

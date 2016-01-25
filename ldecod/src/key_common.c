@@ -167,8 +167,10 @@ void print_KeyUnit()
 	for(; i < g_KeyUnitIdx; ++i)
 	{		
 		pre_off += p_tmp[i].byte_offset;
-		snprintf(s,255,"Boffset: %5d, ByteOffset: %5d, BitOffset: %2d, DataLen: %4d\n",
-						pre_off,p_tmp[i].byte_offset,p_tmp[i].bit_offset,p_tmp[i].key_data_len);
+		//snprintf(s,255,"Boffset: %5d, ByteOffset: %5d, BitOffset: %2d, DataLen: %4d\n",
+						//pre_off,p_tmp[i].byte_offset,p_tmp[i].bit_offset,p_tmp[i].key_data_len);
+		snprintf(s,255,"ByteOffset: %5d, BitOffset: %2d, DataLen: %4d\n",
+						p_tmp[i].byte_offset,p_tmp[i].bit_offset,p_tmp[i].key_data_len);
 		Boffset_distribute(p_tmp[i].byte_offset);
 		DataLen_distribute(p_tmp[i].key_data_len);
 		fwrite(s,strlen(s),1,log);		
